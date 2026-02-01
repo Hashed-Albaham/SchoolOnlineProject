@@ -1,0 +1,248 @@
+<nav x-data="{ open: false }" class="bg-luxury-900/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-40">
+    <!-- Primary Navigation Menu -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <!-- Logo -->
+                <div class="shrink-0 flex items-center">
+                    <a href="{{ route('home') }}" class="flex items-center gap-3 group">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gold-gradient flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform duration-300">
+                            <span class="text-luxury-900 font-bold text-xl">P</span>
+                        </div>
+                        <span class="text-xl font-bold text-gradient hidden sm:block">ProSkill</span>
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden sm:flex sm:items-center sm:gap-1 sm:mr-8">
+                    @auth
+                    <a href="{{ route('dashboard') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                            {{ request()->routeIs('dashboard') || request()->routeIs('*.dashboard')
+        ? 'bg-white/10 text-gold-400'
+        : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
+                        <svg class="w-4 h-4 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                            </path>
+                        </svg>
+                        لوحة التحكم
+                    </a>
+
+                    @if(auth()->user()->role === 'student')
+                                <a href="{{ route('student.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                                                            {{ request()->routeIs('student.courses.*') && !request()->routeIs('student.courses.my')
+                        ? 'bg-white/10 text-gold-400'
+                        : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
+                                    تصفح الكورسات
+                                </a>
+                                <a href="{{ route('student.courses.my') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                                                            {{ request()->routeIs('student.courses.my')
+                        ? 'bg-white/10 text-gold-400'
+                        : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
+                                    كورساتي
+                                </a>
+                    @elseif(auth()->user()->role === 'tutor')
+                                <a href="{{ route('tutor.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                                                            {{ request()->routeIs('tutor.courses.*')
+                        ? 'bg-white/10 text-gold-400'
+                        : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
+                                    كورساتي
+                                </a>
+                                <a href="{{ route('tutor.profile.edit') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                                                            {{ request()->routeIs('tutor.profile.*')
+                        ? 'bg-white/10 text-gold-400'
+                        : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
+                                    ملفي الشخصي
+                                </a>
+                    @elseif(auth()->user()->role === 'admin')
+                                <a href="{{ route('admin.tutors.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                                                            {{ request()->routeIs('admin.tutors.*')
+                        ? 'bg-white/10 text-gold-400'
+                        : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
+                                    المعلمون
+                                </a>
+                                <a href="{{ route('admin.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                                                            {{ request()->routeIs('admin.courses.*')
+                        ? 'bg-white/10 text-gold-400'
+                        : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
+                                    الكورسات
+                                </a>
+                    @endif
+                    @endif
+                </div>
+            </div>
+
+            <!-- Settings Dropdown -->
+            <div class="hidden sm:flex sm:items-center sm:gap-4">
+                @auth
+                    <!-- User Dropdown -->
+                    <x-dropdown align="left" width="48">
+                        <x-slot name="trigger">
+                            <button
+                                class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-luxury-300 hover:text-white hover:bg-white/5 transition-all duration-200 border border-white/5">
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center">
+                                    <span
+                                        class="text-white text-sm font-semibold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-white text-sm font-medium">{{ Auth::user()->name }}</p>
+                                    <p class="text-xs text-luxury-400">
+                                        @if(Auth::user()->role === 'admin') مسؤول
+                                        @elseif(Auth::user()->role === 'tutor') معلم
+                                        @else طالب
+                                        @endif
+                                    </p>
+                                </div>
+                                <svg class="w-4 h-4 text-luxury-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                        </x-slot>
+
+                        <x-slot name="content">
+                            <div class="bg-luxury-800 rounded-xl border border-white/10 shadow-luxury overflow-hidden py-1">
+                                <a href="{{ route('profile.edit') }}"
+                                    class="flex items-center gap-2 px-4 py-2 text-sm text-luxury-300 hover:text-white hover:bg-white/5 transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    الملف الشخصي
+                                </a>
+
+                                <div class="border-t border-white/5 my-1"></div>
+
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                                            </path>
+                                        </svg>
+                                        تسجيل الخروج
+                                    </button>
+                                </form>
+                            </div>
+                        </x-slot>
+                    </x-dropdown>
+                @else
+                    <a href="{{ route('login') }}"
+                        class="text-sm font-medium text-luxury-300 hover:text-white transition">تسجيل الدخول</a>
+                    <a href="{{ route('register') }}"
+                        class="px-4 py-2 text-sm font-bold bg-gold-gradient text-luxury-900 rounded-lg hover:shadow-glow transition-all duration-300 transform hover:scale-105">
+                        إنشاء حساب
+                    </a>
+                @endauth
+            </div>
+
+            <!-- Mobile Hamburger -->
+            <div class="flex items-center sm:hidden">
+                <button @click="open = !open"
+                    class="p-2 rounded-lg text-luxury-400 hover:text-white hover:bg-white/5 transition">
+                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                        <path :class="{'hidden': open, 'inline-flex': !open}" class="inline-flex" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path :class="{'hidden': !open, 'inline-flex': open}" class="hidden" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div :class="{'block': open, 'hidden': !open}"
+        class="hidden sm:hidden bg-luxury-800/95 backdrop-blur-xl border-t border-white/5">
+        <div class="pt-2 pb-3 space-y-1 px-4">
+            @auth
+                <a href="{{ route('dashboard') }}"
+                    class="block px-4 py-3 rounded-lg text-base font-medium transition
+                        {{ request()->routeIs('dashboard') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                    لوحة التحكم
+                </a>
+
+                @if(auth()->user()->role === 'student')
+                    <a href="{{ route('student.courses.index') }}"
+                        class="block px-4 py-3 rounded-lg text-base font-medium transition
+                                    {{ request()->routeIs('student.courses.index') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        تصفح الكورسات
+                    </a>
+                    <a href="{{ route('student.courses.my') }}"
+                        class="block px-4 py-3 rounded-lg text-base font-medium transition
+                                    {{ request()->routeIs('student.courses.my') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        كورساتي
+                    </a>
+                @elseif(auth()->user()->role === 'tutor')
+                    <a href="{{ route('tutor.courses.index') }}"
+                        class="block px-4 py-3 rounded-lg text-base font-medium transition
+                                    {{ request()->routeIs('tutor.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        كورساتي
+                    </a>
+                    <a href="{{ route('tutor.profile.edit') }}"
+                        class="block px-4 py-3 rounded-lg text-base font-medium transition
+                                    {{ request()->routeIs('tutor.profile.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        ملفي الشخصي
+                    </a>
+                @elseif(auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.tutors.index') }}"
+                        class="block px-4 py-3 rounded-lg text-base font-medium transition
+                                    {{ request()->routeIs('admin.tutors.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        المعلمون
+                    </a>
+                    <a href="{{ route('admin.courses.index') }}"
+                        class="block px-4 py-3 rounded-lg text-base font-medium transition
+                                    {{ request()->routeIs('admin.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        الكورسات
+                    </a>
+                @endif
+            @endauth
+        </div>
+
+        <!-- Mobile User Info -->
+        <div class="pt-4 pb-3 border-t border-white/5">
+            @auth
+                <div class="flex items-center px-4 gap-3">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center">
+                        <span class="text-white font-semibold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">{{ Auth::user()->name }}</p>
+                        <p class="text-sm text-luxury-400">{{ Auth::user()->email }}</p>
+                    </div>
+                </div>
+
+                <div class="mt-3 space-y-1 px-4">
+                    <a href="{{ route('profile.edit') }}"
+                        class="block px-4 py-3 rounded-lg text-base font-medium text-luxury-300 hover:bg-white/5 transition">
+                        الملف الشخصي
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit"
+                            class="w-full text-right px-4 py-3 rounded-lg text-base font-medium text-red-400 hover:bg-red-500/10 transition">
+                            تسجيل الخروج
+                        </button>
+                    </form>
+                </div>
+            @else
+                <div class="px-4 space-y-3">
+                    <a href="{{ route('login') }}"
+                        class="block w-full text-center px-4 py-3 rounded-lg text-luxury-300 bg-white/5 hover:bg-white/10 transition font-medium">
+                        تسجيل الدخول
+                    </a>
+                    <a href="{{ route('register') }}"
+                        class="block w-full text-center px-4 py-3 rounded-lg bg-gold-gradient text-luxury-900 font-bold hover:shadow-glow transition font-medium">
+                        إنشاء حساب
+                    </a>
+                </div>
+            @endauth
+        </div>
+    </div>
+</nav>
