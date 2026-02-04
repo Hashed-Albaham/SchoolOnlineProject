@@ -202,6 +202,114 @@ class CourseController extends Controller
     }
 
     /**
+     * Show edit content form
+     */
+    public function editContent(Course $course, CourseContent $content)
+    {
+        $this->authorize('update', $course);
+
+        if ($content->course_id !== $course->id) {
+            abort(403);
+        }
+
+        return view('tutor.courses.content.edit', compact('course', 'content'));
+    }
+
+    /**
+     * Update content
+     */
+    public function updateContent(Request $request, Course $course, CourseContent $content)
+    {
+        $this->authorize('update', $course);
+
+        if ($content->course_id !== $course->id) {
+            abort(403);
+        }
+
+        $rules = [
+            'title' => 'required|string|max:255',
+            'type' => 'required|in:video,file,image,text,quiz,link',
+            'description' => 'nullable|string',
+        ];
+
+        // Type-specific validation (same as store but nullable for files if not replacing)
+        switch ($request->type) {
+            case 'video':
+                $rules['youtube_url'] = 'required|string';
+                break;
+            case 'file':
+                $rules['content_file'] = 'nullable|file|max:51200';
+                break;
+            case 'image':
+                $rules['content_image'] = 'nullable|image|max:10240';
+                break;
+            case 'text':
+                $rules['text_content'] = 'required|string';
+                break;
+            case 'link':
+                $rules['link_url'] = 'required|url';
+                break;
+            case 'quiz':
+                $rules['quiz_id'] = 'required|exists:quizzes,id';
+                break;
+        }
+
+        $request->validate($rules);
+
+        $data = [
+            'title' => $request->title,
+            'type' => $request->type,
+            'description' => $request->description,
+        ];
+
+        switch ($request->type) {
+            case 'video':
+                $youtubeId = CourseContent::extractYoutubeId($request->youtube_url);
+                if (!$youtubeId) {
+                    return back()->with('error', 'رابط YouTube غير صالح');
+                }
+                $data['youtube_video_id'] = $youtubeId;
+                break;
+
+            case 'file':
+                if ($request->hasFile('content_file')) {
+                    // Delete old file if exists
+                    if ($content->file_path) {
+                        Storage::disk('public')->delete($content->file_path);
+                    }
+                    $data['file_path'] = $request->file('content_file')->store('course_files', 'public');
+                }
+                break;
+
+            case 'image':
+                if ($request->hasFile('content_image')) {
+                    if ($content->file_path) {
+                        Storage::disk('public')->delete($content->file_path);
+                    }
+                    $data['file_path'] = $request->file('content_image')->store('course_images', 'public');
+                }
+                break;
+
+            case 'text':
+                $data['text_content'] = $request->text_content;
+                break;
+
+            case 'link':
+                $data['link_url'] = $request->link_url;
+                break;
+
+            case 'quiz':
+                $data['quiz_id'] = $request->quiz_id;
+                break;
+        }
+
+        $content->update($data);
+
+        return redirect()->route('tutor.courses.edit', $course)
+            ->with('success', 'تم تحديث المحتوى بنجاح');
+    }
+
+    /**
      * Delete content
      */
     public function deleteContent(Course $course, CourseContent $content)

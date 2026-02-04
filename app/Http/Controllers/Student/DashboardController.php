@@ -16,6 +16,7 @@ class DashboardController extends Controller
         $stats = [
             'enrolled_courses' => $user->enrollments()->where('payment_status', 'paid')->count(),
             'pending_enrollments' => $user->enrollments()->where('payment_status', 'pending')->count(),
+            'earned_certificates' => $user->courseCertificates()->where('status', 'approved')->count(),
         ];
 
         $enrolledCourses = $user->enrollments()

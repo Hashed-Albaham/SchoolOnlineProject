@@ -13,8 +13,8 @@
                     </div>
                     <span class="text-3xl font-bold text-gradient">ProSkill</span>
                 </a>
-                <h2 class="mt-6 text-2xl font-bold text-white">مرحباً بعودتك</h2>
-                <p class="mt-2 text-luxury-400">سجل دخولك للمتابعة</p>
+                <h2 class="mt-6 text-2xl font-bold text-white">{{ __('site.welcome_back') }}</h2>
+                <p class="mt-2 text-luxury-400">{{ __('site.login_to_continue') }}</p>
             </div>
 
             <!-- Login Card -->
@@ -27,10 +27,10 @@
 
                     <!-- Email Address -->
                     <div>
-                        <label for="email" class="block text-sm font-medium text-luxury-300 mb-2">البريد
-                            الإلكتروني</label>
+                        <label for="email"
+                            class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.email') }}</label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                            <div class="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none">
                                 <svg class="w-5 h-5 text-luxury-500" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -40,17 +40,18 @@
                             </div>
                             <input id="email" type="email" name="email" :value="old('email')" required autofocus
                                 autocomplete="username"
-                                class="w-full pr-12 pl-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition"
-                                placeholder="example@email.com">
+                                class="w-full ps-12 pe-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition"
+                                placeholder="{{ __('site.placeholder_email') ?? 'example@email.com' }}">
                         </div>
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                     </div>
 
                     <!-- Password -->
                     <div>
-                        <label for="password" class="block text-sm font-medium text-luxury-300 mb-2">كلمة المرور</label>
+                        <label for="password"
+                            class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.password') }}</label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                            <div class="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none">
                                 <svg class="w-5 h-5 text-luxury-500" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -60,7 +61,7 @@
                             </div>
                             <input id="password" type="password" name="password" required
                                 autocomplete="current-password"
-                                class="w-full pr-12 pl-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition"
+                                class="w-full ps-12 pe-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition"
                                 placeholder="••••••••">
                         </div>
                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
@@ -71,20 +72,20 @@
                         <label for="remember_me" class="inline-flex items-center gap-2 cursor-pointer">
                             <input id="remember_me" type="checkbox" name="remember"
                                 class="w-4 h-4 rounded border-white/20 bg-white/5 text-gold-500 focus:ring-gold-500/20 focus:ring-offset-0">
-                            <span class="text-sm text-luxury-400">تذكرني</span>
+                            <span class="text-sm text-luxury-400">{{ __('site.remember_me') }}</span>
                         </label>
 
                         @if (Route::has('password.request'))
                             <a href="{{ route('password.request') }}"
                                 class="text-sm text-gold-400 hover:text-gold-300 transition">
-                                نسيت كلمة المرور؟
+                                {{ __('site.forgot_password') }}
                             </a>
                         @endif
                     </div>
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn-premium w-full py-4 rounded-xl bg-gold-400 font-semibold text-lg">
-                        تسجيل الدخول
+                        {{ __('site.login_btn') }}
                     </button>
                 </form>
 
@@ -94,23 +95,23 @@
                         <div class="w-full border-t border-white/10"></div>
                     </div>
                     <div class="relative flex justify-center text-sm">
-                        <span class="px-4 bg-luxury-800 text-luxury-500">أو</span>
+                        <span class="px-4 bg-luxury-800 text-luxury-500">{{ __('site.or') }}</span>
                     </div>
                 </div>
 
                 <!-- Register Link -->
                 <p class="text-center text-luxury-400">
-                    ليس لديك حساب؟
+                    {{ __('site.no_account') }}
                     <a href="{{ route('register') }}" class="text-gold-400 hover:text-gold-300 font-medium transition">
-                        سجل الآن
+                        {{ __('site.register_now') }}
                     </a>
                 </p>
             </div>
 
             <!-- Footer -->
-            <p class="text-center text-luxury-500 text-sm mt-8">
-                © {{ date('Y') }} ProSkill. جميع الحقوق محفوظة
-            </p>
+            <div class="mt-8 text-center text-luxury-500 text-sm">
+                <p>&copy; {{ date('Y') }} ProSkill. {{ __('site.rights_reserved') }}</p>
+            </div>
         </div>
     </div>
 </x-guest-layout>

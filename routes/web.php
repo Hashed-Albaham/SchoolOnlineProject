@@ -99,6 +99,8 @@ Route::group([
         // Courses
         Route::resource('courses', TutorCourseController::class);
         Route::post('/courses/{course}/content', [TutorCourseController::class, 'addContent'])->name('courses.content.add');
+        Route::get('/courses/{course}/content/{content}/edit', [TutorCourseController::class, 'editContent'])->name('courses.content.edit');
+        Route::put('/courses/{course}/content/{content}', [TutorCourseController::class, 'updateContent'])->name('courses.content.update');
         Route::delete('/courses/{course}/content/{content}', [TutorCourseController::class, 'deleteContent'])->name('courses.content.delete');
         Route::post('/courses/{course}/content/reorder', [TutorCourseController::class, 'reorderContents'])->name('courses.content.reorder');
 

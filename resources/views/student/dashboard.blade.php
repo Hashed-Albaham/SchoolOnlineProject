@@ -64,7 +64,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-luxury-400 text-sm font-medium">{{ __('site.earned_certificates') }}</p>
-                            <p class="text-3xl font-bold text-white mt-2">0</p>
+                            <p class="text-3xl font-bold text-white mt-2">{{ $stats['earned_certificates'] ?? 0 }}</p>
                             <p class="text-royal-400 text-xs mt-1">{{ __('site.complete_course_certificate') }}</p>
                         </div>
                         <div

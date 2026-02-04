@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+    dir="{{ LaravelLocalization::getCurrentLocaleDirection() }}">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>ProSkill - منصة التعلم الإلكتروني الفاخرة</title>
+    <title>{{ __('site.platform_badge') }} - ProSkill</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,6 +32,7 @@
             position: absolute;
             top: -50%;
             left: -50%;
+            /* logical property would be inset-inline-start but for before pseudo usually fixed */
             width: 200%;
             height: 200%;
             background: radial-gradient(circle at 30% 30%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
@@ -67,6 +69,11 @@
             background-position: right center;
             box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
             transform: translateY(-3px);
+        }
+
+        /* RTL support for bg position if needed, though mostly visual */
+        [dir="rtl"] .btn-premium:hover {
+            background-position: left center;
         }
 
         .card-glass {
@@ -132,25 +139,28 @@
 
                 <nav class="hidden md:flex items-center gap-8">
                     <a href="{{ route('courses.index') }}"
-                        class="text-gray-300 hover:text-gold-400 font-medium transition-colors">الكورسات</a>
+                        class="text-gray-300 hover:text-gold-400 font-medium transition-colors">{{ __('site.courses') }}</a>
                     <a href="#features"
-                        class="text-gray-300 hover:text-gold-400 font-medium transition-colors">المميزات</a>
+                        class="text-gray-300 hover:text-gold-400 font-medium transition-colors">{{ __('site.why_choose_us') }}</a>
                     <a href="#stats"
-                        class="text-gray-300 hover:text-gold-400 font-medium transition-colors">إحصائيات</a>
+                        class="text-gray-300 hover:text-gold-400 font-medium transition-colors">{{ __('site.stats_title') }}</a>
                 </nav>
 
                 <div class="flex items-center gap-4">
+                    <!-- Language Switcher for Guest/Welcome Page -->
+                    <x-language-switcher />
+
                     @auth
                         <a href="{{ route('dashboard') }}" class="btn-premium px-6 py-2.5 rounded-xl font-semibold">
-                            لوحة التحكم
+                            {{ __('site.dashboard') }}
                         </a>
                     @else
                         <a href="{{ route('login') }}"
                             class="text-gray-300 hover:text-white font-medium transition-colors hidden sm:block">
-                            تسجيل الدخول
+                            {{ __('site.login') }}
                         </a>
                         <a href="{{ route('register') }}" class="btn-premium px-6 py-2.5 rounded-xl font-semibold">
-                            ابدأ الآن
+                            {{ __('site.start_now') }}
                         </a>
                     @endauth
                 </div>
@@ -162,35 +172,34 @@
     <section class="hero-gradient min-h-screen flex items-center pt-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
             <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <div class="text-center lg:text-right">
+                <div class="text-center lg:text-start">
                     <div
                         class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-sm font-medium mb-6">
                         <span class="w-2 h-2 bg-gold-400 rounded-full animate-pulse"></span>
-                        منصة التعلم الأولى في العالم العربي
+                        {{ __('site.platform_badge') }}
                     </div>
 
                     <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                        استثمر في نفسك مع
-                        <span class="text-gradient block mt-2">أفضل الخبراء</span>
+                        {{ __('site.hero_title_1') }}
+                        <span class="text-gradient block mt-2">{{ __('site.hero_title_2') }}</span>
                     </h1>
 
                     <p class="text-lg md:text-xl text-gray-400 mb-8 max-w-xl mx-auto lg:mx-0">
-                        انضم إلى آلاف المتعلمين واحصل على كورسات احترافية في البرمجة،
-                        التصميم، والذكاء الاصطناعي من معلمين معتمدين.
+                        {{ __('site.hero_desc') }}
                     </p>
 
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                         <a href="{{ route('register') }}"
                             class="btn-premium px-8 py-4 rounded-xl text-lg font-bold inline-flex items-center justify-center gap-2">
-                            <span>ابدأ مجاناً</span>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <span>{{ __('site.start_free') }}</span>
+                            <svg class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                             </svg>
                         </a>
                         <a href="{{ route('courses.index') }}"
                             class="px-8 py-4 rounded-xl text-lg font-semibold border border-white/20 hover:border-gold-500/50 hover:bg-white/5 transition-all inline-flex items-center justify-center gap-2">
-                            <span>تصفح الكورسات</span>
+                            <span>{{ __('site.browse_courses') }}</span>
                         </a>
                     </div>
 
@@ -198,17 +207,17 @@
                     <div class="flex items-center gap-6 justify-center lg:justify-start mt-10">
                         <div class="text-center">
                             <p class="text-2xl font-bold text-gold-400">+1000</p>
-                            <p class="text-sm text-gray-500">طالب مسجل</p>
+                            <p class="text-sm text-gray-500">{{ __('site.trust_students') }}</p>
                         </div>
                         <div class="w-px h-10 bg-white/10"></div>
                         <div class="text-center">
                             <p class="text-2xl font-bold text-gold-400">+50</p>
-                            <p class="text-sm text-gray-500">معلم خبير</p>
+                            <p class="text-sm text-gray-500">{{ __('site.trust_tutors') }}</p>
                         </div>
                         <div class="w-px h-10 bg-white/10"></div>
                         <div class="text-center">
                             <p class="text-2xl font-bold text-gold-400">4.9⭐</p>
-                            <p class="text-sm text-gray-500">تقييم</p>
+                            <p class="text-sm text-gray-500">{{ __('site.trust_rating') }}</p>
                         </div>
                     </div>
                 </div>
@@ -234,8 +243,8 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="font-semibold">كورسات احترافية</p>
-                                            <p class="text-sm text-gray-500">+100 كورس</p>
+                                            <p class="font-semibold">{{ __('site.pro_card_title') }}</p>
+                                            <p class="text-sm text-gray-500">{{ __('site.pro_card_desc') }}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-3">
@@ -249,8 +258,8 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="font-semibold">فيديوهات عالية الجودة</p>
-                                            <p class="text-sm text-gray-500">HD & 4K</p>
+                                            <p class="font-semibold">{{ __('site.video_card_title') }}</p>
+                                            <p class="text-sm text-gray-500">{{ __('site.video_card_desc') }}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-3">
@@ -263,14 +272,14 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="font-semibold">شهادات معتمدة</p>
-                                            <p class="text-sm text-gray-500">عند إتمام الكورس</p>
+                                            <p class="font-semibold">{{ __('site.cert_card_title') }}</p>
+                                            <p class="text-sm text-gray-500">{{ __('site.cert_card_desc') }}</p>
                                         </div>
                                     </div>
 
                                     <div class="mt-6 p-4 rounded-xl bg-gold-500/10 border border-gold-500/20">
-                                        <p class="text-sm text-gold-400 font-medium">🎉 عرض خاص!</p>
-                                        <p class="text-xs text-gray-400 mt-1">خصم 50% على الكورسات المميزة</p>
+                                        <p class="text-sm text-gold-400 font-medium">{{ __('site.special_offer') }}</p>
+                                        <p class="text-xs text-gray-400 mt-1">{{ __('site.offer_desc') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -285,10 +294,11 @@
     <section id="features" class="py-24 bg-[#0F172A]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <p class="text-gold-400 font-semibold mb-3">لماذا تختارنا؟</p>
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">مميزات تجعلنا <span class="text-gradient">الأفضل</span>
+                <p class="text-gold-400 font-semibold mb-3">{{ __('site.why_choose_us') }}</p>
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">{{ __('site.features_title') }} <span
+                        class="text-gradient">{{ __('site.the_best') }}</span>
                 </h2>
-                <p class="text-gray-400 max-w-2xl mx-auto">نقدم لك تجربة تعليمية فريدة مع أحدث التقنيات وأفضل المعلمين
+                <p class="text-gray-400 max-w-2xl mx-auto">{{ __('site.features_desc') }}
                 </p>
             </div>
 
@@ -303,8 +313,8 @@
                             </path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">محتوى احترافي</h3>
-                    <p class="text-gray-400">كورسات مُعدّة بعناية من خبراء في مجالاتهم مع شرح مفصل وتطبيقات عملية</p>
+                    <h3 class="text-xl font-bold mb-3">{{ __('site.feature_1_title') }}</h3>
+                    <p class="text-gray-400">{{ __('site.feature_1_desc') }}</p>
                 </div>
 
                 <!-- Feature 2 -->
@@ -316,8 +326,8 @@
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">تعلم بمرونة</h3>
-                    <p class="text-gray-400">تعلم في أي وقت ومن أي مكان. وصول مدى الحياة لجميع الكورسات</p>
+                    <h3 class="text-xl font-bold mb-3">{{ __('site.feature_2_title') }}</h3>
+                    <p class="text-gray-400">{{ __('site.feature_2_desc') }}</p>
                 </div>
 
                 <!-- Feature 3 -->
@@ -330,8 +340,8 @@
                             </path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">دعم مباشر</h3>
-                    <p class="text-gray-400">تواصل مباشر مع المعلمين للإجابة على أسئلتك ومتابعة تقدمك</p>
+                    <h3 class="text-xl font-bold mb-3">{{ __('site.feature_3_title') }}</h3>
+                    <p class="text-gray-400">{{ __('site.feature_3_desc') }}</p>
                 </div>
 
                 <!-- Feature 4 -->
@@ -344,8 +354,8 @@
                             </path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">شهادات معتمدة</h3>
-                    <p class="text-gray-400">احصل على شهادة إتمام معتمدة تضيفها إلى سيرتك الذاتية</p>
+                    <h3 class="text-xl font-bold mb-3">{{ __('site.feature_4_title') }}</h3>
+                    <p class="text-gray-400">{{ __('site.feature_4_desc') }}</p>
                 </div>
 
                 <!-- Feature 5 -->
@@ -358,8 +368,8 @@
                             </path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">تطبيقات عملية</h3>
-                    <p class="text-gray-400">مشاريع حقيقية وتطبيقات عملية لتثبيت المعلومات</p>
+                    <h3 class="text-xl font-bold mb-3">{{ __('site.feature_5_title') }}</h3>
+                    <p class="text-gray-400">{{ __('site.feature_5_desc') }}</p>
                 </div>
 
                 <!-- Feature 6 -->
@@ -372,8 +382,8 @@
                             </path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">تحديثات مستمرة</h3>
-                    <p class="text-gray-400">محتوى محدث باستمرار ليواكب أحدث التقنيات والتطورات</p>
+                    <h3 class="text-xl font-bold mb-3">{{ __('site.feature_6_title') }}</h3>
+                    <p class="text-gray-400">{{ __('site.feature_6_desc') }}</p>
                 </div>
             </div>
         </div>
@@ -386,19 +396,19 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                     <div class="text-center">
                         <p class="text-4xl md:text-5xl font-bold text-gradient mb-2">+100</p>
-                        <p class="text-gray-400">كورس متاح</p>
+                        <p class="text-gray-400">{{ __('site.stats_courses') }}</p>
                     </div>
                     <div class="text-center">
                         <p class="text-4xl md:text-5xl font-bold text-gradient mb-2">+50</p>
-                        <p class="text-gray-400">معلم خبير</p>
+                        <p class="text-gray-400">{{ __('site.stats_tutors') }}</p>
                     </div>
                     <div class="text-center">
                         <p class="text-4xl md:text-5xl font-bold text-gradient mb-2">+1K</p>
-                        <p class="text-gray-400">طالب مسجل</p>
+                        <p class="text-gray-400">{{ __('site.stats_students') }}</p>
                     </div>
                     <div class="text-center">
                         <p class="text-4xl md:text-5xl font-bold text-gradient mb-2">4.9</p>
-                        <p class="text-gray-400">تقييم المنصة</p>
+                        <p class="text-gray-400">{{ __('site.stats_rating') }}</p>
                     </div>
                 </div>
             </div>
@@ -410,15 +420,15 @@
         <div class="absolute inset-0 bg-gradient-to-r from-gold-500/5 to-royal-500/5"></div>
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-                جاهز لبدء رحلة التعلم؟
+                {{ __('site.cta_title') }}
             </h2>
             <p class="text-xl text-gray-400 mb-10">
-                انضم إلى مجتمعنا اليوم واستثمر في مستقبلك المهني
+                {{ __('site.cta_desc') }}
             </p>
             <a href="{{ route('register') }}"
                 class="btn-premium px-10 py-5 rounded-xl text-xl font-bold inline-flex items-center gap-3">
-                <span>سجل مجاناً الآن</span>
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span>{{ __('site.register_free_now') }}</span>
+                <svg class="w-6 h-6 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6">
                     </path>
                 </svg>
@@ -439,32 +449,38 @@
                         <span class="text-xl font-bold text-gradient">ProSkill</span>
                     </div>
                     <p class="text-gray-400 text-sm">
-                        منصة التعلم الإلكتروني الرائدة في العالم العربي. نقدم كورسات احترافية لمساعدتك على تطوير
-                        مهاراتك.
+                        {{ __('site.footer_desc') }}
                     </p>
                 </div>
 
                 <div>
-                    <h4 class="font-bold text-white mb-4">روابط سريعة</h4>
+                    <h4 class="font-bold text-white mb-4">{{ __('site.quick_links') }}</h4>
                     <ul class="space-y-3">
                         <li><a href="{{ route('courses.index') }}"
-                                class="text-gray-400 hover:text-gold-400 transition">الكورسات</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-gold-400 transition">المعلمون</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-gold-400 transition">من نحن</a></li>
+                                class="text-gray-400 hover:text-gold-400 transition">{{ __('site.courses') }}</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-gold-400 transition">{{ __('site.tutors') }}</a>
+                        </li>
+                        <li><a href="#"
+                                class="text-gray-400 hover:text-gold-400 transition">{{ __('site.about_us') }}</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 class="font-bold text-white mb-4">الدعم</h4>
+                    <h4 class="font-bold text-white mb-4">{{ __('site.support') }}</h4>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-gray-400 hover:text-gold-400 transition">الأسئلة الشائعة</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-gold-400 transition">اتصل بنا</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-gold-400 transition">سياسة الخصوصية</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-gold-400 transition">{{ __('site.faq') }}</a>
+                        </li>
+                        <li><a href="#"
+                                class="text-gray-400 hover:text-gold-400 transition">{{ __('site.contact_us') }}</a>
+                        </li>
+                        <li><a href="#"
+                                class="text-gray-400 hover:text-gold-400 transition">{{ __('site.privacy_policy') }}</a>
+                        </li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 class="font-bold text-white mb-4">تواصل معنا</h4>
+                    <h4 class="font-bold text-white mb-4">{{ __('site.contact_header') }}</h4>
                     <p class="text-gray-400 text-sm mb-4">info@proskill.com</p>
                     <div class="flex gap-4">
                         <a href="#"
@@ -486,7 +502,7 @@
             </div>
 
             <div class="border-t border-white/5 mt-12 pt-8 text-center">
-                <p class="text-gray-400 text-sm">© {{ date('Y') }} ProSkill. جميع الحقوق محفوظة.</p>
+                <p class="text-gray-400 text-sm">© {{ date('Y') }} ProSkill. {{ __('site.rights_reserved') }}</p>
             </div>
         </div>
     </footer>
