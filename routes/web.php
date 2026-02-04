@@ -17,6 +17,9 @@ use App\Http\Controllers\Tutor\CourseController as TutorCourseController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\CourseController as StudentCourseController;
 use App\Http\Controllers\Student\EnrollmentController;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\CertificateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +40,10 @@ Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->name(
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
+    // Messaging System
+    Route::get('/messages', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{user}', [App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -83,6 +90,10 @@ Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->grou
     Route::post('/courses/{course}/content', [TutorCourseController::class, 'addContent'])->name('courses.content.add');
     Route::delete('/courses/{course}/content/{content}', [TutorCourseController::class, 'deleteContent'])->name('courses.content.delete');
     Route::post('/courses/{course}/content/reorder', [TutorCourseController::class, 'reorderContents'])->name('courses.content.reorder');
+
+    // Certificate Management
+    Route::post('/certificates/{certificate}/issue', [TutorCourseController::class, 'issueCertificate'])->name('certificates.issue');
+    Route::post('/certificates/{certificate}/reject', [TutorCourseController::class, 'rejectCertificate'])->name('certificates.reject');
 });
 
 /*
@@ -104,7 +115,21 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/enrollment/{enrollment}/payment', [EnrollmentController::class, 'showPayment'])->name('enrollment.payment');
     Route::post('/enrollment/{enrollment}/payment', [EnrollmentController::class, 'processPayment'])->name('enrollment.payment.process');
     Route::get('/my-enrollments', [EnrollmentController::class, 'myEnrollments'])->name('enrollments.my');
+
+    // Quizzes
+    Route::get('/quizzes/{quiz}', [QuizController::class, 'show'])->name('quizzes.show');
+    Route::post('/quizzes/{quiz}', [QuizController::class, 'submit'])->name('quizzes.submit');
+    Route::get('/quizzes/{quiz}/result', [QuizController::class, 'result'])->name('quizzes.result');
+
+    // Certificates
+    Route::get('/certificates/{attempt}', [CertificateController::class, 'show'])->name('certificates.show');
+
+    // Progress & Certificates
+    Route::post('/courses/{course}/content/{content}/complete', [StudentCourseController::class, 'markComplete'])->name('courses.content.complete');
+    Route::post('/courses/{course}/request-certificate', [StudentCourseController::class, 'requestCertificate'])->name('courses.certificate.request');
+
 });
+
 
 /*
 |--------------------------------------------------------------------------

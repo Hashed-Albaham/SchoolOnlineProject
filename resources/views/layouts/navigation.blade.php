@@ -26,44 +26,57 @@
                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
                             </path>
                         </svg>
+
                         لوحة التحكم
+                    </a>
+
+                    <a href="{{ route('messages.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                        {{ request()->routeIs('messages.*')
+        ? 'bg-white/10 text-gold-400'
+        : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
+                        <svg class="w-4 h-4 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
+                            </path>
+                        </svg>
+                        الرسائل
                     </a>
 
                     @if(auth()->user()->role === 'student')
                                 <a href="{{ route('student.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                            {{ request()->routeIs('student.courses.*') && !request()->routeIs('student.courses.my')
+                                                                        {{ request()->routeIs('student.courses.*') && !request()->routeIs('student.courses.my')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     تصفح الكورسات
                                 </a>
                                 <a href="{{ route('student.courses.my') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                            {{ request()->routeIs('student.courses.my')
+                                                                        {{ request()->routeIs('student.courses.my')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     كورساتي
                                 </a>
                     @elseif(auth()->user()->role === 'tutor')
                                 <a href="{{ route('tutor.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                            {{ request()->routeIs('tutor.courses.*')
+                                                                        {{ request()->routeIs('tutor.courses.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     كورساتي
                                 </a>
                                 <a href="{{ route('tutor.profile.edit') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                            {{ request()->routeIs('tutor.profile.*')
+                                                                        {{ request()->routeIs('tutor.profile.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     ملفي الشخصي
                                 </a>
                     @elseif(auth()->user()->role === 'admin')
                                 <a href="{{ route('admin.tutors.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                            {{ request()->routeIs('admin.tutors.*')
+                                                                        {{ request()->routeIs('admin.tutors.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     المعلمون
                                 </a>
                                 <a href="{{ route('admin.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                            {{ request()->routeIs('admin.courses.*')
+                                                                        {{ request()->routeIs('admin.courses.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     الكورسات
@@ -162,41 +175,41 @@
             @auth
                 <a href="{{ route('dashboard') }}"
                     class="block px-4 py-3 rounded-lg text-base font-medium transition
-                        {{ request()->routeIs('dashboard') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                            {{ request()->routeIs('dashboard') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                     لوحة التحكم
                 </a>
 
                 @if(auth()->user()->role === 'student')
                     <a href="{{ route('student.courses.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                    {{ request()->routeIs('student.courses.index') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                            {{ request()->routeIs('student.courses.index') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         تصفح الكورسات
                     </a>
                     <a href="{{ route('student.courses.my') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                    {{ request()->routeIs('student.courses.my') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                            {{ request()->routeIs('student.courses.my') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         كورساتي
                     </a>
                 @elseif(auth()->user()->role === 'tutor')
                     <a href="{{ route('tutor.courses.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                    {{ request()->routeIs('tutor.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                            {{ request()->routeIs('tutor.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         كورساتي
                     </a>
                     <a href="{{ route('tutor.profile.edit') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                    {{ request()->routeIs('tutor.profile.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                            {{ request()->routeIs('tutor.profile.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         ملفي الشخصي
                     </a>
                 @elseif(auth()->user()->role === 'admin')
                     <a href="{{ route('admin.tutors.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                    {{ request()->routeIs('admin.tutors.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                            {{ request()->routeIs('admin.tutors.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         المعلمون
                     </a>
                     <a href="{{ route('admin.courses.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                    {{ request()->routeIs('admin.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                            {{ request()->routeIs('admin.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         الكورسات
                     </a>
                 @endif

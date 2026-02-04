@@ -61,7 +61,9 @@
                                 </div>
                                 
                                 <div class="flex items-center justify-between text-sm text-luxury-400 mb-4">
-                                    <span>{{ $course->enrollments->count() ?? 0 }} طالب</span>
+                                    <a href="{{ route('tutor.courses.show', $course) }}" class="hover:text-gold-400 transition">
+                                        {{ $course->enrollments->count() ?? 0 }} طالب ←
+                                    </a>
                                     <span>{{ $course->created_at->format('Y/m/d') }}</span>
                                 </div>
                                 
@@ -70,7 +72,7 @@
                                         class="flex-1 text-center py-2.5 rounded-xl bg-royal-500/20 text-royal-400 text-sm font-medium hover:bg-royal-500/30 transition">
                                         تعديل
                                     </a>
-                                    <a href="{{ route('tutor.courses.contents.index', $course) }}" 
+                                    <a href="{{ route('tutor.courses.edit', $course) }}#content-section" 
                                         class="flex-1 text-center py-2.5 rounded-xl bg-gold-500/20 text-gold-400 text-sm font-medium hover:bg-gold-500/30 transition">
                                         المحتوى
                                     </a>

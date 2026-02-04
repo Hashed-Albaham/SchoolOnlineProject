@@ -115,6 +115,101 @@ class CourseController extends Controller
                 ->with('error', 'لا يوجد محتوى في هذا الكورس');
         }
 
-        return view('student.courses.watch', compact('course', 'currentContent'));
+        // Calculate progress
+        $totalContents = $course->contents->count();
+        $completedContents = Auth::user()->getCompletedContentsCount($course->id);
+        $progressPercent = $totalContents > 0 ? round(($completedContents / $totalContents) * 100) : 0;
+        $isCurrentCompleted = Auth::user()->hasCompletedContent($currentContent->id);
+
+        // Check if can request certificate
+        $canRequestCertificate = $completedContents >= $totalContents && $totalContents > 0;
+        $certificateRequest = \App\Models\CourseCertificate::where('user_id', Auth::id())
+            ->where('course_id', $course->id)
+            ->first();
+
+        return view('student.courses.watch', compact(
+            'course',
+            'currentContent',
+            'totalContents',
+            'completedContents',
+            'progressPercent',
+            'isCurrentCompleted',
+            'canRequestCertificate',
+            'certificateRequest'
+        ));
+    }
+
+    /**
+     * Mark content as completed
+     */
+    public function markComplete(Request $request, Course $course, $contentId)
+    {
+        $enrollment = Auth::user()->enrollments()
+            ->where('course_id', $course->id)
+            ->where('payment_status', 'paid')
+            ->first();
+
+        if (!$enrollment) {
+            return back()->with('error', 'يجب التسجيل في الكورس أولاً');
+        }
+
+        $content = $course->contents()->find($contentId);
+        if (!$content) {
+            return back()->with('error', 'محتوى غير موجود');
+        }
+
+        \App\Models\ContentProgress::updateOrCreate(
+            [
+                'user_id' => Auth::id(),
+                'course_content_id' => $contentId,
+            ],
+            [
+                'completed' => true,
+                'completed_at' => now(),
+            ]
+        );
+
+        return back()->with('success', 'تم إكمال الدرس بنجاح!');
+    }
+
+    /**
+     * Request course certificate
+     */
+    public function requestCertificate(Request $request, Course $course)
+    {
+        $enrollment = Auth::user()->enrollments()
+            ->where('course_id', $course->id)
+            ->where('payment_status', 'paid')
+            ->first();
+
+        if (!$enrollment) {
+            return back()->with('error', 'يجب التسجيل في الكورس أولاً');
+        }
+
+        // Check if all contents completed
+        $totalContents = $course->contents->count();
+        $completedContents = Auth::user()->getCompletedContentsCount($course->id);
+
+        if ($completedContents < $totalContents) {
+            return back()->with('error', 'يجب إكمال جميع الدروس أولاً');
+        }
+
+        // Check if already requested
+        $existing = \App\Models\CourseCertificate::where('user_id', Auth::id())
+            ->where('course_id', $course->id)
+            ->first();
+
+        if ($existing) {
+            return back()->with('info', 'لقد طلبت الشهادة مسبقاً');
+        }
+
+        \App\Models\CourseCertificate::create([
+            'user_id' => Auth::id(),
+            'course_id' => $course->id,
+            'enrollment_id' => $enrollment->id,
+            'status' => 'pending',
+        ]);
+
+        return back()->with('success', 'تم إرسال طلب الشهادة بنجاح! سيقوم المعلم بمراجعته.');
     }
 }

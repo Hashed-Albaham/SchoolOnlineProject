@@ -97,6 +97,35 @@
                             </div>
                         @endif
                     </div>
+
+                    <!-- Reviews Section -->
+                    <livewire:course-reviews :courseId="$course->id" />
+
+                    <!-- Quizzes Section -->
+                    @if($course->quizzes->count() > 0)
+                        <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 mt-8">
+                            <h3 class="text-xl font-bold text-white mb-4">الاختبارات</h3>
+                            <div class="space-y-4">
+                                @foreach($course->quizzes as $quiz)
+                                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
+                                        <div>
+                                            <h4 class="font-bold text-white">{{ $quiz->title }}</h4>
+                                            <p class="text-sm text-luxury-400 mt-1">{{ $quiz->description }}</p>
+                                        </div>
+                                        @if($isEnrolled)
+                                            <a href="{{ route('student.quizzes.show', $quiz) }}" class="px-4 py-2 bg-royal-600 text-white font-medium rounded-lg hover:bg-royal-700 transition">
+                                                بدء الاختبار
+                                            </a>
+                                        @else
+                                            <span class="text-luxury-500 text-sm">سجل للدخول</span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+
                 </div>
                 
                 <!-- Sidebar -->
@@ -184,10 +213,20 @@
                                     <span class="text-white font-semibold">{{ substr($course->tutor->name ?? 'M', 0, 1) }}</span>
                                 </div>
                                 <div>
-                                    <p class="font-medium text-white">{{ $course->tutor->name ?? 'المعلم' }}</p>
-                                    @if($course->tutor->tutorDetails)
+                                    <p class="font-medium text-white">{{ $course->tutor?->name ?? 'مستخدم محذوف' }}</p>
+                                    @if($course->tutor && $course->tutor->tutorDetails)
                                         <p class="text-sm text-luxury-400">{{ $course->tutor->tutorDetails->specialization ?? '' }}</p>
                                     @endif
+                                    @auth
+                                        @if($course->tutor && auth()->id() !== $course->tutor_id)
+                                            <a href="{{ route('messages.show', $course->tutor->id) }}" class="inline-flex items-center gap-1 text-xs text-gold-400 hover:text-white transition mt-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                                </svg>
+                                                مراسلة المعلم
+                                            </a>
+                                        @endif
+                                    @endauth
                                 </div>
                             </div>
                         </div>

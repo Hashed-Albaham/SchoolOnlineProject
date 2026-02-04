@@ -19,12 +19,11 @@ class DashboardController extends Controller
         ];
 
         $enrolledCourses = $user->enrollments()
-            ->with('course.tutor')
+            ->with(['course.tutor'])
             ->where('payment_status', 'paid')
             ->latest()
             ->take(6)
-            ->get()
-            ->pluck('course');
+            ->get();
 
         $recommendedCourses = Course::where('status', 'approved')
             ->whereNotIn('id', $user->enrollments()->pluck('course_id'))

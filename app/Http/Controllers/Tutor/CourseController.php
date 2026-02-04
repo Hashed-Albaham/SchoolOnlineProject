@@ -126,27 +126,77 @@ class CourseController extends Controller
     {
         $this->authorize('update', $course);
 
-        $request->validate([
+        $rules = [
             'title' => 'required|string|max:255',
-            'youtube_url' => 'required|string',
+            'type' => 'required|in:video,file,image,text,quiz,link',
             'description' => 'nullable|string',
-        ]);
+        ];
 
-        // Extract YouTube ID
-        $youtubeId = CourseContent::extractYoutubeId($request->youtube_url);
-
-        if (!$youtubeId) {
-            return back()->with('error', 'رابط YouTube غير صالح');
+        // Type-specific validation
+        switch ($request->type) {
+            case 'video':
+                $rules['youtube_url'] = 'required|string';
+                break;
+            case 'file':
+                $rules['content_file'] = 'required|file|max:51200'; // 50MB max
+                break;
+            case 'image':
+                $rules['content_image'] = 'required|image|max:10240'; // 10MB max
+                break;
+            case 'text':
+                $rules['text_content'] = 'required|string';
+                break;
+            case 'link':
+                $rules['link_url'] = 'required|url';
+                break;
+            case 'quiz':
+                $rules['quiz_id'] = 'required|exists:quizzes,id';
+                break;
         }
+
+        $request->validate($rules);
 
         $maxOrder = $course->contents()->max('order') ?? 0;
 
-        $course->contents()->create([
+        $data = [
             'title' => $request->title,
-            'youtube_video_id' => $youtubeId,
+            'type' => $request->type,
             'description' => $request->description,
             'order' => $maxOrder + 1,
-        ]);
+        ];
+
+        // Handle content based on type
+        switch ($request->type) {
+            case 'video':
+                $youtubeId = CourseContent::extractYoutubeId($request->youtube_url);
+                if (!$youtubeId) {
+                    return back()->with('error', 'رابط YouTube غير صالح');
+                }
+                $data['youtube_video_id'] = $youtubeId;
+                break;
+
+            case 'file':
+                $data['file_path'] = $request->file('content_file')->store('course_files', 'public');
+                break;
+
+            case 'image':
+                $data['file_path'] = $request->file('content_image')->store('course_images', 'public');
+                break;
+
+            case 'text':
+                $data['text_content'] = $request->text_content;
+                break;
+
+            case 'link':
+                $data['link_url'] = $request->link_url;
+                break;
+
+            case 'quiz':
+                $data['quiz_id'] = $request->quiz_id;
+                break;
+        }
+
+        $course->contents()->create($data);
 
         return back()->with('success', 'تمت إضافة المحتوى بنجاح');
     }
@@ -197,6 +247,66 @@ class CourseController extends Controller
 
         $course->load(['contents', 'enrollments.student']);
 
-        return view('tutor.courses.show', compact('course'));
+        // Get certificate requests for this course
+        $certificateRequests = \App\Models\CourseCertificate::where('course_id', $course->id)
+            ->with('user')
+            ->latest()
+            ->get();
+
+        // Calculate progress for each enrollment
+        $enrollmentsWithProgress = $course->enrollments->map(function ($enrollment) use ($course) {
+            $totalContents = $course->contents->count();
+            $completedContents = $enrollment->student->getCompletedContentsCount($course->id);
+            $enrollment->progress_percent = $totalContents > 0 ? round(($completedContents / $totalContents) * 100) : 0;
+            $enrollment->completed_count = $completedContents;
+            $enrollment->total_count = $totalContents;
+            return $enrollment;
+        });
+
+        return view('tutor.courses.show', compact('course', 'certificateRequests', 'enrollmentsWithProgress'));
+    }
+
+    /**
+     * Issue certificate to student
+     */
+    public function issueCertificate(Request $request, \App\Models\CourseCertificate $certificate)
+    {
+        // Check if tutor owns the course
+        $course = $certificate->course;
+        $this->authorize('update', $course);
+
+        if (!$certificate->isPending()) {
+            return back()->with('error', 'هذا الطلب تمت معالجته مسبقاً');
+        }
+
+        $certificate->update([
+            'status' => 'approved',
+            'certificate_code' => \App\Models\CourseCertificate::generateCode(),
+            'issued_at' => now(),
+        ]);
+
+        return back()->with('success', 'تم إصدار الشهادة بنجاح للطالب: ' . $certificate->user->name);
+    }
+
+    /**
+     * Reject certificate request
+     */
+    public function rejectCertificate(Request $request, \App\Models\CourseCertificate $certificate)
+    {
+        $course = $certificate->course;
+        $this->authorize('update', $course);
+
+        if (!$certificate->isPending()) {
+            return back()->with('error', 'هذا الطلب تمت معالجته مسبقاً');
+        }
+
+        $request->validate(['reason' => 'nullable|string|max:500']);
+
+        $certificate->update([
+            'status' => 'rejected',
+            'rejection_reason' => $request->reason ?? 'لم يتم استيفاء شروط الشهادة',
+        ]);
+
+        return back()->with('success', 'تم رفض طلب الشهادة');
     }
 }

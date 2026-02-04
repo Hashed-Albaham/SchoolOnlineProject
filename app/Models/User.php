@@ -112,4 +112,42 @@ class User extends Authenticatable
     {
         return $this->hasMany(Message::class, 'receiver_id');
     }
+
+    /**
+     * Get content progress for this user
+     */
+    public function contentProgress(): HasMany
+    {
+        return $this->hasMany(ContentProgress::class);
+    }
+
+    /**
+     * Get course certificates for this user
+     */
+    public function courseCertificates(): HasMany
+    {
+        return $this->hasMany(CourseCertificate::class);
+    }
+
+    /**
+     * Check if user completed a content
+     */
+    public function hasCompletedContent($contentId): bool
+    {
+        return $this->contentProgress()
+            ->where('course_content_id', $contentId)
+            ->where('completed', true)
+            ->exists();
+    }
+
+    /**
+     * Get completed contents count for a course
+     */
+    public function getCompletedContentsCount($courseId): int
+    {
+        return $this->contentProgress()
+            ->whereHas('courseContent', fn($q) => $q->where('course_id', $courseId))
+            ->where('completed', true)
+            ->count();
+    }
 }

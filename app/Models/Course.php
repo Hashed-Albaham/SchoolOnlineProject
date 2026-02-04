@@ -71,4 +71,29 @@ class Course extends Model
     {
         return $this->enrollments()->where('payment_status', 'paid')->count();
     }
+
+    /**
+     * Get reviews for this course
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get quizzes for this course
+     */
+    public function quizzes(): HasMany
+    {
+        return $this->hasMany(Quiz::class);
+    }
+
+    /**
+     * Get average rating for this course
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
 }
+

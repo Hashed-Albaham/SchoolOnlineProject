@@ -147,6 +147,7 @@
                     @if(isset($enrolledCourses) && $enrolledCourses->count() > 0)
                         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             @foreach($enrolledCourses->take(3) as $enrollment)
+                                @if($enrollment->course)
                                 <div class="bg-white/5 rounded-2xl overflow-hidden group hover:bg-white/10 transition">
                                     <div
                                         class="aspect-video bg-gradient-to-br from-royal-500/20 to-royal-600/20 flex items-center justify-center relative overflow-hidden">
@@ -173,12 +174,13 @@
                                                 {{ $enrollment->course->tutor->name ?? 'المعلم' }}</p>
                                             <span class="text-xs px-2 py-1 rounded-lg bg-green-500/20 text-green-400">نشط</span>
                                         </div>
-                                        <a href="{{ route('student.courses.watch', $enrollment->course) }}"
+                                        <a href="{{ route('student.courses.watch', $enrollment->course->id) }}"
                                             class="w-full block text-center py-2.5 rounded-xl bg-gold-500/20 text-gold-400 font-medium hover:bg-gold-500/30 transition">
                                             متابعة التعلم →
                                         </a>
                                     </div>
                                 </div>
+                                @endif
                             @endforeach
                         </div>
                     @else
@@ -248,7 +250,7 @@
                                         <div class="p-4">
                                             <p class="font-medium text-white line-clamp-1 group-hover:text-gold-400 transition">
                                                 {{ $course->title }}</p>
-                                            <p class="text-sm text-luxury-400 mt-1">{{ $course->tutor->name ?? 'المعلم' }}</p>
+                                            <p class="text-sm text-luxury-400 mt-1">{{ $course->tutor?->name ?? 'المعلم' }}</p>
                                             <div class="flex items-center justify-between mt-3">
                                                 <span class="text-gold-400 font-bold">
                                                     @if($course->price > 0) ${{ $course->price }} @else مجاني @endif

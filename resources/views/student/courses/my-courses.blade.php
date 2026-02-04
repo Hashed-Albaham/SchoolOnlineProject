@@ -20,6 +20,7 @@
             @if(isset($enrollments) && $enrollments->count() > 0)
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($enrollments as $enrollment)
+                        @if($enrollment->course)
                         <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden card-luxury">
                             <!-- Thumbnail -->
                             <div class="aspect-video bg-gradient-to-br from-royal-500/20 to-royal-600/20 flex items-center justify-center relative">
@@ -48,9 +49,9 @@
                                 
                                 <div class="flex items-center gap-2 mb-4">
                                     <div class="w-6 h-6 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center">
-                                        <span class="text-white text-xs font-semibold">{{ substr($enrollment->course->tutor->name ?? 'M', 0, 1) }}</span>
+                                        <span class="text-white text-xs font-semibold">{{ substr($enrollment->course->tutor?->name ?? 'M', 0, 1) }}</span>
                                     </div>
-                                    <span class="text-sm text-luxury-400">{{ $enrollment->course->tutor->name ?? 'المعلم' }}</span>
+                                    <span class="text-sm text-luxury-400">{{ $enrollment->course->tutor?->name ?? 'المعلم' }}</span>
                                 </div>
                                 
                                 <div class="flex items-center justify-between text-sm text-luxury-400 mb-4">
@@ -87,6 +88,9 @@
                                 @endif
                             </div>
                         </div>
+                        @else
+                            <!-- Skip broken enrollment -->
+                        @endif
                     @endforeach
                 </div>
                 
