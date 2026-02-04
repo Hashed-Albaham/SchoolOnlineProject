@@ -17,7 +17,12 @@ class CourseController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('admin.courses.index', compact('courses'));
+        $allCount = Course::count();
+        $pendingCount = Course::where('status', 'pending')->count();
+        $approvedCount = Course::where('status', 'approved')->count();
+        $rejectedCount = Course::where('status', 'rejected')->count();
+
+        return view('admin.courses.index', compact('courses', 'allCount', 'pendingCount', 'approvedCount', 'rejectedCount'));
     }
 
     /**
@@ -40,6 +45,10 @@ class CourseController extends Controller
     {
         $course->update(['status' => 'approved']);
 
+        if ($course->tutor) {
+            $course->tutor->notify(new \App\Notifications\CourseStatusUpdated($course, 'approved'));
+        }
+
         return back()->with('success', 'تم الموافقة على الكورس بنجاح');
     }
 
@@ -49,6 +58,10 @@ class CourseController extends Controller
     public function reject(Course $course)
     {
         $course->update(['status' => 'rejected']);
+
+        if ($course->tutor) {
+            $course->tutor->notify(new \App\Notifications\CourseStatusUpdated($course, 'rejected'));
+        }
 
         return back()->with('success', 'تم رفض الكورس');
     }

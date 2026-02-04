@@ -19,7 +19,17 @@ class TutorController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('admin.tutors.index', compact('tutors'));
+        $allCount = User::where('role', 'tutor')->count();
+
+        $verifiedCount = User::where('role', 'tutor')
+            ->whereHas('tutorDetails', fn($q) => $q->where('is_verified', true))
+            ->count();
+
+        $pendingCount = User::where('role', 'tutor')
+            ->whereHas('tutorDetails', fn($q) => $q->where('is_verified', false))
+            ->count();
+
+        return view('admin.tutors.index', compact('tutors', 'allCount', 'verifiedCount', 'pendingCount'));
     }
 
     /**

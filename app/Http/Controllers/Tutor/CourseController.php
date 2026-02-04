@@ -55,6 +55,12 @@ class CourseController extends Controller
 
         $course = Course::create($data);
 
+        // Notify Admins
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\CourseSubmitted($course));
+        }
+
         return redirect()->route('tutor.courses.edit', $course)
             ->with('success', 'تم إنشاء الكورس بنجاح. يمكنك الآن إضافة المحتوى.');
     }
@@ -135,7 +141,7 @@ class CourseController extends Controller
         // Type-specific validation
         switch ($request->type) {
             case 'video':
-                $rules['youtube_url'] = 'required|string';
+                $rules['video_source'] = 'required|in:youtube,local,external';
                 break;
             case 'file':
                 $rules['content_file'] = 'required|file|max:51200'; // 50MB max
@@ -168,11 +174,18 @@ class CourseController extends Controller
         // Handle content based on type
         switch ($request->type) {
             case 'video':
-                $youtubeId = CourseContent::extractYoutubeId($request->youtube_url);
-                if (!$youtubeId) {
-                    return back()->with('error', 'رابط YouTube غير صالح');
+                if ($request->video_source === 'youtube') {
+                    $youtubeId = CourseContent::extractYoutubeId($request->youtube_url);
+                    if (!$youtubeId)
+                        return back()->with('error', 'رابط YouTube غير صالح');
+                    $data['youtube_video_id'] = $youtubeId;
+                } elseif ($request->video_source === 'local') {
+                    $request->validate(['video_file' => 'required|file|mimetypes:video/mp4,video/mpeg,video/quicktime|max:512000']); // 500MB
+                    $data['file_path'] = $request->file('video_file')->store('course_videos', 'public');
+                } elseif ($request->video_source === 'external') {
+                    $request->validate(['video_url' => 'required|url']);
+                    $data['link_url'] = $request->video_url;
                 }
-                $data['youtube_video_id'] = $youtubeId;
                 break;
 
             case 'file':
@@ -264,17 +277,34 @@ class CourseController extends Controller
 
         switch ($request->type) {
             case 'video':
-                $youtubeId = CourseContent::extractYoutubeId($request->youtube_url);
-                if (!$youtubeId) {
-                    return back()->with('error', 'رابط YouTube غير صالح');
+                if ($request->video_source === 'youtube') {
+                    $youtubeId = CourseContent::extractYoutubeId($request->youtube_url);
+                    if (!$youtubeId)
+                        return back()->with('error', 'رابط YouTube غير صالح');
+                    $data['youtube_video_id'] = $youtubeId;
+                    $data['file_path'] = null;
+                    $data['link_url'] = null;
+                } elseif ($request->video_source === 'local') {
+                    if ($request->hasFile('video_file')) {
+                        $request->validate(['video_file' => 'required|file|mimetypes:video/mp4,video/mpeg,video/quicktime|max:512000']);
+                        if ($content->file_path && $content->isVideo())
+                            Storage::disk('public')->delete($content->file_path);
+                        $data['file_path'] = $request->file('video_file')->store('course_videos', 'public');
+                        $data['youtube_video_id'] = null;
+                        $data['link_url'] = null;
+                    }
+                } elseif ($request->video_source === 'external') {
+                    $request->validate(['video_url' => 'required|url']);
+                    $data['link_url'] = $request->video_url;
+                    $data['youtube_video_id'] = null;
+                    $data['file_path'] = null;
                 }
-                $data['youtube_video_id'] = $youtubeId;
                 break;
 
             case 'file':
                 if ($request->hasFile('content_file')) {
                     // Delete old file if exists
-                    if ($content->file_path) {
+                    if ($content->file_path && $content->isFile()) {
                         Storage::disk('public')->delete($content->file_path);
                     }
                     $data['file_path'] = $request->file('content_file')->store('course_files', 'public');
@@ -283,7 +313,7 @@ class CourseController extends Controller
 
             case 'image':
                 if ($request->hasFile('content_image')) {
-                    if ($content->file_path) {
+                    if ($content->file_path && $content->isImage()) {
                         Storage::disk('public')->delete($content->file_path);
                     }
                     $data['file_path'] = $request->file('content_image')->store('course_images', 'public');

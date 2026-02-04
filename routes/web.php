@@ -111,6 +111,12 @@ Route::group([
         Route::delete('/courses/{course}/content/{content}', [TutorCourseController::class, 'deleteContent'])->name('courses.content.delete');
         Route::post('/courses/{course}/content/reorder', [TutorCourseController::class, 'reorderContents'])->name('courses.content.reorder');
 
+        // Quiz Management
+        Route::resource('courses.quizzes', \App\Http\Controllers\Tutor\QuizController::class);
+        Route::get('/courses/{course}/quizzes/{quiz}/builder', [\App\Http\Controllers\Tutor\QuizController::class, 'builder'])->name('courses.quizzes.builder');
+        Route::post('/courses/{course}/quizzes/{quiz}/questions', [\App\Http\Controllers\Tutor\QuizController::class, 'storeQuestion'])->name('courses.quizzes.questions.store');
+        Route::delete('/courses/{course}/quizzes/{quiz}/questions/{question}', [\App\Http\Controllers\Tutor\QuizController::class, 'destroyQuestion'])->name('courses.quizzes.questions.destroy');
+
         // Certificate Management
         Route::post('/certificates/{certificate}/issue', [TutorCourseController::class, 'issueCertificate'])->name('certificates.issue');
         Route::post('/certificates/{certificate}/reject', [TutorCourseController::class, 'rejectCertificate'])->name('certificates.reject');

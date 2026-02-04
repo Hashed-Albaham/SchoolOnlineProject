@@ -175,13 +175,55 @@
                     <!-- Dynamic Fields Based on Type -->
                     <div>
                         <!-- Video Field -->
-                        <div x-show="contentType === 'video'" x-cloak>
-                            <label class="block text-sm font-medium text-luxury-300 mb-2">رابط YouTube <span
+                        <div x-show="contentType === 'video'" x-data="{ videoSource: 'youtube' }" x-cloak>
+                            <label class="block text-sm font-medium text-luxury-300 mb-2">مصدر الفيديو <span
                                     class="text-red-400">*</span></label>
-                            <input type="text" name="youtube_url"
-                                class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 transition"
-                                placeholder="https://www.youtube.com/watch?v=...">
+                            <div class="flex gap-4 mb-4">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="video_source" value="youtube" x-model="videoSource"
+                                        class="text-gold-500 focus:ring-gold-500 bg-white/10 border-white/20">
+                                    <span class="text-white text-sm">YouTube</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="video_source" value="local" x-model="videoSource"
+                                        class="text-gold-500 focus:ring-gold-500 bg-white/10 border-white/20">
+                                    <span class="text-white text-sm">رفع من الجهاز</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="video_source" value="external" x-model="videoSource"
+                                        class="text-gold-500 focus:ring-gold-500 bg-white/10 border-white/20">
+                                    <span class="text-white text-sm">رابط خارجي</span>
+                                </label>
+                            </div>
+
+                            <!-- YouTube -->
+                            <div x-show="videoSource === 'youtube'">
+                                <label class="block text-sm font-medium text-luxury-300 mb-2">رابط YouTube</label>
+                                <input type="text" name="youtube_url"
+                                    class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 transition"
+                                    placeholder="https://www.youtube.com/watch?v=...">
+                            </div>
+
+                            <!-- Local Upload -->
+                            <div x-show="videoSource === 'local'">
+                                <label class="block text-sm font-medium text-luxury-300 mb-2">اختر ملف الفيديو</label>
+                                <input type="file" name="video_file" accept="video/mp4,video/mpeg,video/quicktime"
+                                    class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gold-500/20 file:text-gold-400 transition">
+                                <p class="text-luxury-500 text-xs mt-1">MP4, MPEG, MOV (الحد الأقصى 500 ميجابايت)</p>
+                            </div>
+
+                            <!-- External Link -->
+                            <div x-show="videoSource === 'external'">
+                                <label class="block text-sm font-medium text-luxury-300 mb-2">رابط الفيديو
+                                    المباشر</label>
+                                <input type="url" name="video_url"
+                                    class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 transition"
+                                    placeholder="https://example.com/video.mp4">
+                            </div>
+
                             @error('youtube_url') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror
+                            @error('video_file') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror
+                            @error('video_url') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <!-- File Field -->

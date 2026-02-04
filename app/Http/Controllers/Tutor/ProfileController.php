@@ -53,6 +53,13 @@ class ProfileController extends Controller
 
         $tutorDetail->save();
 
+        if (!$tutorDetail->is_verified) {
+            $admins = \App\Models\User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new \App\Notifications\TutorVerificationRequested($user));
+            }
+        }
+
         return back()->with('success', 'تم تحديث الملف الشخصي بنجاح');
     }
 

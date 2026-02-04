@@ -491,4 +491,8 @@ return [
     'review_requests' => 'Review Requests',
     'settings' => 'Settings',
     'account_settings' => 'Account Settings',
+    'notifications' => 'Notifications',
+    'no_notifications' => 'No notifications at the moment',
+    'mark_all_read' => 'Mark all as read',
+    'new_notification_from' => 'New notification from :name',
 ];

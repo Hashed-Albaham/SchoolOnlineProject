@@ -78,12 +78,37 @@
                         @if($currentContent)
                             <!-- Video -->
                             <div class="aspect-video bg-black">
-                                @if($currentContent->youtube_video_id)
-                                    <iframe class="w-full h-full" src="{{ $currentContent->embed_url }}"
-                                        title="{{ $currentContent->title }}" frameborder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowfullscreen>
-                                    </iframe>
+                                @if($currentContent->isVideo())
+                                    @if($currentContent->youtube_video_id)
+                                        <iframe class="w-full h-full" src="{{ $currentContent->embed_url }}"
+                                            title="{{ $currentContent->title }}" frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen>
+                                        </iframe>
+                                    @elseif($currentContent->file_path)
+                                        <video controls class="w-full h-full" controlsList="nodownload">
+                                            <source src="{{ Storage::url($currentContent->file_path) }}" type="video/mp4">
+                                            متصفحك لا يدعم تشغيل الفيديو.
+                                        </video>
+                                    @elseif($currentContent->link_url)
+                                        <video controls class="w-full h-full" controlsList="nodownload">
+                                            <source src="{{ $currentContent->link_url }}" type="video/mp4">
+                                            متصفحك لا يدعم تشغيل الفيديو.
+                                        </video>
+                                    @endif
+                                @elseif($currentContent->isQuiz())
+                                    <div class="w-full h-full flex items-center justify-center bg-luxury-900/50">
+                                        <div class="text-center">
+                                            <svg class="w-16 h-16 mx-auto mb-4 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            <h3 class="text-xl font-bold text-white mb-2">{{ $currentContent->title }}</h3>
+                                            <p class="text-luxury-400 mb-6">اختبار لتقييم فهمك للدرس</p>
+                                            <a href="{{ route('student.quizzes.show', $currentContent->quiz_id) }}" class="px-8 py-3 bg-gold-gradient text-luxury-900 rounded-xl font-bold hover:shadow-glow transition transform hover:scale-105">
+                                                📝 بدء الاختبار
+                                            </a>
+                                        </div>
+                                    </div>
                                 @elseif($currentContent->isImage())
                                     <img src="{{ Storage::url($currentContent->file_path) }}" alt="{{ $currentContent->title }}" class="w-full h-full object-contain">
                                 @elseif($currentContent->isFile())
@@ -93,7 +118,7 @@
                                         </a>
                                     </div>
                                 @elseif($currentContent->isText())
-                                    <div class="w-full h-full overflow-auto p-6 text-white">
+                                    <div class="w-full h-full overflow-auto p-6 text-white custom-scrollbar">
                                         {!! nl2br(e($currentContent->text_content)) !!}
                                     </div>
                                 @elseif($currentContent->isLink())

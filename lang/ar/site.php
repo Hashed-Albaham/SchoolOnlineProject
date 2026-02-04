@@ -491,4 +491,8 @@ return [
     'review_requests' => 'مراجعة الطلبات',
     'settings' => 'الإعدادات',
     'account_settings' => 'إعدادات الحساب',
+    'notifications' => 'الإشعارات',
+    'no_notifications' => 'لا توجد إشعارات حالياً',
+    'mark_all_read' => 'تحديد الكل كمقروء',
+    'new_notification_from' => 'إشعار جديد من :name',
 ];
