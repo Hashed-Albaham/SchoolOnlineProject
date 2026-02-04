@@ -14,6 +14,9 @@
                     </a>
                 </div>
 
+                <!-- Language Switcher -->
+                <x-language-switcher />
+
                 <!-- Navigation Links -->
                 <div class="hidden sm:flex sm:items-center sm:gap-1 sm:mr-8">
                     @auth
@@ -27,7 +30,7 @@
                             </path>
                         </svg>
 
-                        لوحة التحكم
+                        {{ __('site.dashboard') }}
                     </a>
 
                     <a href="{{ route('messages.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
@@ -39,47 +42,47 @@
                                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
                             </path>
                         </svg>
-                        الرسائل
+                        {{ __('site.messages') }}
                     </a>
 
                     @if(auth()->user()->role === 'student')
                                 <a href="{{ route('student.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                        {{ request()->routeIs('student.courses.*') && !request()->routeIs('student.courses.my')
+                                                                                                            {{ request()->routeIs('student.courses.*') && !request()->routeIs('student.courses.my')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
-                                    تصفح الكورسات
+                                    {{ __('site.courses') }}
                                 </a>
                                 <a href="{{ route('student.courses.my') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                        {{ request()->routeIs('student.courses.my')
+                                                                                                            {{ request()->routeIs('student.courses.my')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
-                                    كورساتي
+                                    {{ __('site.my_courses') }}
                                 </a>
                     @elseif(auth()->user()->role === 'tutor')
                                 <a href="{{ route('tutor.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                        {{ request()->routeIs('tutor.courses.*')
+                                                                                                            {{ request()->routeIs('tutor.courses.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
-                                    كورساتي
+                                    {{ __('site.my_courses') }}
                                 </a>
                                 <a href="{{ route('tutor.profile.edit') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                        {{ request()->routeIs('tutor.profile.*')
+                                                                                                            {{ request()->routeIs('tutor.profile.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
-                                    ملفي الشخصي
+                                    {{ __('site.profile') }}
                                 </a>
                     @elseif(auth()->user()->role === 'admin')
                                 <a href="{{ route('admin.tutors.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                        {{ request()->routeIs('admin.tutors.*')
+                                                                                                            {{ request()->routeIs('admin.tutors.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
-                                    المعلمون
+                                    {{ __('site.tutors') }}
                                 </a>
                                 <a href="{{ route('admin.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                        {{ request()->routeIs('admin.courses.*')
+                                                                                                            {{ request()->routeIs('admin.courses.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
-                                    الكورسات
+                                    {{ __('site.courses') }}
                                 </a>
                     @endif
                     @endif
@@ -102,9 +105,9 @@
                                 <div class="text-right">
                                     <p class="text-white text-sm font-medium">{{ Auth::user()->name }}</p>
                                     <p class="text-xs text-luxury-400">
-                                        @if(Auth::user()->role === 'admin') مسؤول
-                                        @elseif(Auth::user()->role === 'tutor') معلم
-                                        @else طالب
+                                        @if(Auth::user()->role === 'admin') {{ __('site.admin') }}
+                                        @elseif(Auth::user()->role === 'tutor') {{ __('site.role_tutor') }}
+                                        @else {{ __('site.role_student') }}
                                         @endif
                                     </p>
                                 </div>
@@ -123,7 +126,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                     </svg>
-                                    الملف الشخصي
+                                    {{ __('site.profile') }}
                                 </a>
 
                                 <div class="border-t border-white/5 my-1"></div>
@@ -137,7 +140,7 @@
                                                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
                                             </path>
                                         </svg>
-                                        تسجيل الخروج
+                                        {{ __('site.logout') }}
                                     </button>
                                 </form>
                             </div>
@@ -145,10 +148,10 @@
                     </x-dropdown>
                 @else
                     <a href="{{ route('login') }}"
-                        class="text-sm font-medium text-luxury-300 hover:text-white transition">تسجيل الدخول</a>
+                        class="text-sm font-medium text-luxury-300 hover:text-white transition">{{ __('site.login') }}</a>
                     <a href="{{ route('register') }}"
                         class="px-4 py-2 text-sm font-bold bg-gold-gradient text-luxury-900 rounded-lg hover:shadow-glow transition-all duration-300 transform hover:scale-105">
-                        إنشاء حساب
+                        {{ __('site.register') }}
                     </a>
                 @endauth
             </div>
@@ -175,42 +178,42 @@
             @auth
                 <a href="{{ route('dashboard') }}"
                     class="block px-4 py-3 rounded-lg text-base font-medium transition
-                            {{ request()->routeIs('dashboard') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
-                    لوحة التحكم
+                                        {{ request()->routeIs('dashboard') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                    {{ __('site.dashboard') }}
                 </a>
 
                 @if(auth()->user()->role === 'student')
                     <a href="{{ route('student.courses.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                            {{ request()->routeIs('student.courses.index') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
-                        تصفح الكورسات
+                                                                    {{ request()->routeIs('student.courses.index') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        {{ __('site.courses') }}
                     </a>
                     <a href="{{ route('student.courses.my') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                            {{ request()->routeIs('student.courses.my') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
-                        كورساتي
+                                                                    {{ request()->routeIs('student.courses.my') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        {{ __('site.my_courses') }}
                     </a>
                 @elseif(auth()->user()->role === 'tutor')
                     <a href="{{ route('tutor.courses.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                            {{ request()->routeIs('tutor.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
-                        كورساتي
+                                                                    {{ request()->routeIs('tutor.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        {{ __('site.my_courses') }}
                     </a>
                     <a href="{{ route('tutor.profile.edit') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                            {{ request()->routeIs('tutor.profile.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
-                        ملفي الشخصي
+                                                                    {{ request()->routeIs('tutor.profile.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        {{ __('site.profile') }}
                     </a>
                 @elseif(auth()->user()->role === 'admin')
                     <a href="{{ route('admin.tutors.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                            {{ request()->routeIs('admin.tutors.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
-                        المعلمون
+                                                                    {{ request()->routeIs('admin.tutors.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        {{ __('site.tutors') }}
                     </a>
                     <a href="{{ route('admin.courses.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                            {{ request()->routeIs('admin.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
-                        الكورسات
+                                                                    {{ request()->routeIs('admin.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                        {{ __('site.courses') }}
                     </a>
                 @endif
             @endauth
@@ -233,14 +236,14 @@
                 <div class="mt-3 space-y-1 px-4">
                     <a href="{{ route('profile.edit') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium text-luxury-300 hover:bg-white/5 transition">
-                        الملف الشخصي
+                        {{ __('site.profile') }}
                     </a>
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit"
                             class="w-full text-right px-4 py-3 rounded-lg text-base font-medium text-red-400 hover:bg-red-500/10 transition">
-                            تسجيل الخروج
+                            {{ __('site.logout') }}
                         </button>
                     </form>
                 </div>
@@ -248,11 +251,11 @@
                 <div class="px-4 space-y-3">
                     <a href="{{ route('login') }}"
                         class="block w-full text-center px-4 py-3 rounded-lg text-luxury-300 bg-white/5 hover:bg-white/10 transition font-medium">
-                        تسجيل الدخول
+                        {{ __('site.login') }}
                     </a>
                     <a href="{{ route('register') }}"
                         class="block w-full text-center px-4 py-3 rounded-lg bg-gold-gradient text-luxury-900 font-bold hover:shadow-glow transition font-medium">
-                        إنشاء حساب
+                        {{ __('site.register') }}
                     </a>
                 </div>
             @endauth

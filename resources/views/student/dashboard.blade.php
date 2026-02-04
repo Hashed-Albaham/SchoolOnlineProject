@@ -2,8 +2,8 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-white">مرحباً، {{ auth()->user()->name }}! 👋</h2>
-                <p class="text-luxury-400 text-sm mt-1">استمر في التعلم وتطوير مهاراتك</p>
+                <h2 class="text-2xl font-bold text-white">{{ __('site.welcome2') }} {{ auth()->user()->name }}! 👋</h2>
+                <p class="text-luxury-400 text-sm mt-1">{{ __('site.continue_learning_msg') }}</p>
             </div>
             <a href="{{ route('student.courses.index') }}"
                 class="btn-premium px-6 py-3 rounded-xl text-sm font-semibold inline-flex items-center gap-2">
@@ -11,7 +11,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
-                اكتشف كورسات جديدة
+                {{ __('site.discover_new_courses') }}
             </a>
         </div>
     </x-slot>
@@ -25,9 +25,9 @@
                 <div class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-luxury-400 text-sm font-medium">الكورسات المسجلة</p>
+                            <p class="text-luxury-400 text-sm font-medium">{{ __('site.enrolled_courses') }}</p>
                             <p class="text-3xl font-bold text-white mt-2">{{ $stats['enrolled_courses'] ?? 0 }}</p>
-                            <p class="text-green-400 text-xs mt-1">كورس نشط</p>
+                            <p class="text-green-400 text-xs mt-1">{{ __('site.active_course') }}</p>
                         </div>
                         <div
                             class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg shadow-green-500/20">
@@ -44,9 +44,9 @@
                 <div class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-luxury-400 text-sm font-medium">بانتظار الدفع</p>
+                            <p class="text-luxury-400 text-sm font-medium">{{ __('site.pending_payment') }}</p>
                             <p class="text-3xl font-bold text-white mt-2">{{ $stats['pending_enrollments'] ?? 0 }}</p>
-                            <p class="text-yellow-400 text-xs mt-1">قيد الانتظار</p>
+                            <p class="text-yellow-400 text-xs mt-1">{{ __('site.waiting') }}</p>
                         </div>
                         <div
                             class="w-14 h-14 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/20">
@@ -63,9 +63,9 @@
                 <div class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-luxury-400 text-sm font-medium">شهادات مكتسبة</p>
+                            <p class="text-luxury-400 text-sm font-medium">{{ __('site.earned_certificates') }}</p>
                             <p class="text-3xl font-bold text-white mt-2">0</p>
-                            <p class="text-royal-400 text-xs mt-1">أكمل كورس لتحصل على شهادة</p>
+                            <p class="text-royal-400 text-xs mt-1">{{ __('site.complete_course_certificate') }}</p>
                         </div>
                         <div
                             class="w-14 h-14 rounded-xl bg-gradient-to-br from-royal-500 to-royal-600 flex items-center justify-center shadow-lg shadow-royal-500/20">
@@ -92,8 +92,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-semibold text-white text-lg">تصفح الكورسات</p>
-                            <p class="text-luxury-400 text-sm">اكتشف محتوى جديد</p>
+                            <p class="font-semibold text-white text-lg">{{ __('site.browse_courses') }}</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.discover_new_content') }}</p>
                         </div>
                     </div>
                 </a>
@@ -110,8 +110,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-semibold text-white text-lg">كورساتي</p>
-                            <p class="text-luxury-400 text-sm">استكمل التعلم</p>
+                            <p class="font-semibold text-white text-lg">{{ __('site.my_courses') }}</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.continue_learning') }}</p>
                         </div>
                     </div>
                 </a>
@@ -127,8 +127,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-semibold text-white text-lg">ملفي الشخصي</p>
-                            <p class="text-luxury-400 text-sm">تعديل البيانات</p>
+                            <p class="font-semibold text-white text-lg">{{ __('site.profile') }}</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.edit_info') }}</p>
                         </div>
                     </div>
                 </a>
@@ -137,10 +137,10 @@
             <!-- My Enrolled Courses -->
             <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden mb-8">
                 <div class="p-6 border-b border-white/5 flex items-center justify-between">
-                    <h3 class="font-semibold text-white text-lg">كورساتي المسجلة</h3>
+                    <h3 class="font-semibold text-white text-lg">{{ __('site.my_enrolled_courses') }}</h3>
                     <a href="{{ route('student.courses.my') }}"
                         class="text-gold-400 hover:text-gold-300 text-sm font-medium transition">
-                        عرض الكل ←
+                        {{ __('site.show_all') }} ←
                     </a>
                 </div>
                 <div class="p-6">
@@ -171,12 +171,12 @@
                                     <div class="p-4">
                                         <div class="flex items-center justify-between mb-3">
                                             <p class="text-luxury-400 text-sm">
-                                                {{ $enrollment->course->tutor->name ?? 'المعلم' }}</p>
-                                            <span class="text-xs px-2 py-1 rounded-lg bg-green-500/20 text-green-400">نشط</span>
+                                                {{ $enrollment->course->tutor->name ?? __('site.tutor') }}</p>
+                                            <span class="text-xs px-2 py-1 rounded-lg bg-green-500/20 text-green-400">{{ __('site.active') }}</span>
                                         </div>
                                         <a href="{{ route('student.courses.watch', $enrollment->course->id) }}"
                                             class="w-full block text-center py-2.5 rounded-xl bg-gold-500/20 text-gold-400 font-medium hover:bg-gold-500/30 transition">
-                                            متابعة التعلم →
+                                            {{ __('site.continue_learning_arrow') }}
                                         </a>
                                     </div>
                                 </div>
@@ -194,11 +194,11 @@
                                     </path>
                                 </svg>
                             </div>
-                            <h4 class="text-xl font-semibold text-white mb-2">لم تسجل في أي كورس بعد</h4>
-                            <p class="text-luxury-400 mb-6">ابدأ رحلة التعلم الآن واستكشف كورسات رائعة</p>
+                            <h4 class="text-xl font-semibold text-white mb-2">{{ __('site.no_enrolled_courses_yet') }}</h4>
+                            <p class="text-luxury-400 mb-6">{{ __('site.start_learning_now') }}</p>
                             <a href="{{ route('student.courses.index') }}"
                                 class="btn-premium px-8 py-3 rounded-xl font-semibold inline-flex items-center gap-2">
-                                تصفح الكورسات
+                                {{ __('site.browse_courses_btn') }}
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
@@ -220,11 +220,11 @@
                                 </path>
                             </svg>
                         </div>
-                        <h3 class="font-semibold text-white text-lg">كورسات مقترحة لك</h3>
+                        <h3 class="font-semibold text-white text-lg">{{ __('site.recommended_courses') }}</h3>
                     </div>
                     <a href="{{ route('student.courses.index') }}"
                         class="text-gold-400 hover:text-gold-300 text-sm font-medium transition">
-                        عرض المزيد ←
+                        {{ __('site.show_more') }} ←
                     </a>
                 </div>
                 <div class="p-6">
@@ -250,10 +250,10 @@
                                         <div class="p-4">
                                             <p class="font-medium text-white line-clamp-1 group-hover:text-gold-400 transition">
                                                 {{ $course->title }}</p>
-                                            <p class="text-sm text-luxury-400 mt-1">{{ $course->tutor?->name ?? 'المعلم' }}</p>
+                                            <p class="text-sm text-luxury-400 mt-1">{{ $course->tutor?->name ?? __('site.tutor') }}</p>
                                             <div class="flex items-center justify-between mt-3">
                                                 <span class="text-gold-400 font-bold">
-                                                    @if($course->price > 0) ${{ $course->price }} @else مجاني @endif
+                                                    @if($course->price > 0) ${{ $course->price }} @else {{ __('site.free') }} @endif
                                                 </span>
                                             </div>
                                         </div>
@@ -262,7 +262,7 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="text-center text-luxury-400 py-8">لا توجد كورسات متاحة حالياً</p>
+                        <p class="text-center text-luxury-400 py-8">{{ __('site.no_courses_available') }}</p>
                     @endif
                 </div>
             </div>

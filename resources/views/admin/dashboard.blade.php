@@ -2,12 +2,13 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-bold text-white">لوحة تحكم المسؤول</h2>
-                <p class="text-luxury-400 text-sm mt-1">مرحباً {{ auth()->user()->name }}، إليك نظرة عامة على المنصة</p>
+                <h2 class="text-2xl font-bold text-white">{{ __('site.admin_dashboard') }}</h2>
+                <p class="text-luxury-400 text-sm mt-1">{{ __('site.admin_welcome', ['name' => auth()->user()->name]) }}
+                </p>
             </div>
             <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gold-500/10 border border-gold-500/20">
                 <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                <span class="text-gold-400 text-sm font-medium">النظام يعمل بشكل طبيعي</span>
+                <span class="text-gold-400 text-sm font-medium">{{ __('site.system_operational') }}</span>
             </div>
         </div>
     </x-slot>
@@ -21,7 +22,7 @@
                 <div class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-luxury-400 text-sm font-medium">إجمالي المستخدمين</p>
+                            <p class="text-luxury-400 text-sm font-medium">{{ __('site.total_users') }}</p>
                             <p class="text-3xl font-bold text-white mt-2">{{ $stats['total_users'] ?? 0 }}</p>
                             <p class="text-green-400 text-xs mt-1">
                                 <span class="inline-flex items-center">
@@ -30,7 +31,7 @@
                                             d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
                                             clip-rule="evenodd"></path>
                                     </svg>
-                                    نشط
+                                    {{ __('site.active_users') }}
                                 </span>
                             </p>
                         </div>
@@ -49,9 +50,9 @@
                 <div class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-luxury-400 text-sm font-medium">الطلاب</p>
+                            <p class="text-luxury-400 text-sm font-medium">{{ __('site.students') }}</p>
                             <p class="text-3xl font-bold text-white mt-2">{{ $stats['total_students'] ?? 0 }}</p>
-                            <p class="text-luxury-500 text-xs mt-1">مسجلون في المنصة</p>
+                            <p class="text-luxury-500 text-xs mt-1">{{ __('site.registered_students') }}</p>
                         </div>
                         <div
                             class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg shadow-green-500/20">
@@ -68,9 +69,9 @@
                 <div class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-luxury-400 text-sm font-medium">المعلمون</p>
+                            <p class="text-luxury-400 text-sm font-medium">{{ __('site.tutors') }}</p>
                             <p class="text-3xl font-bold text-white mt-2">{{ $stats['total_tutors'] ?? 0 }}</p>
-                            <p class="text-luxury-500 text-xs mt-1">معلم نشط</p>
+                            <p class="text-luxury-500 text-xs mt-1">{{ __('site.active_tutors') }}</p>
                         </div>
                         <div
                             class="w-14 h-14 rounded-xl bg-gradient-to-br from-royal-500 to-royal-600 flex items-center justify-center shadow-lg shadow-royal-500/20">
@@ -87,9 +88,9 @@
                 <div class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-luxury-400 text-sm font-medium">الكورسات</p>
+                            <p class="text-luxury-400 text-sm font-medium">{{ __('site.courses') }}</p>
                             <p class="text-3xl font-bold text-white mt-2">{{ $stats['total_courses'] ?? 0 }}</p>
-                            <p class="text-luxury-500 text-xs mt-1">كورس متاح</p>
+                            <p class="text-luxury-500 text-xs mt-1">{{ __('site.available_courses') }}</p>
                         </div>
                         <div
                             class="w-14 h-14 rounded-xl bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center shadow-lg shadow-gold-500/20">
@@ -117,13 +118,14 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-semibold text-white">معلمون بانتظار التحقق</h3>
-                                <p class="text-sm text-luxury-400">{{ $stats['pending_tutors'] ?? 0 }} طلب جديد</p>
+                                <h3 class="font-semibold text-white">{{ __('site.pending_tutors_req') }}</h3>
+                                <p class="text-sm text-luxury-400">{{ $stats['pending_tutors'] ?? 0 }}
+                                    {{ __('site.new_requests') }}</p>
                             </div>
                         </div>
                         <a href="{{ route('admin.tutors.pending') }}"
                             class="text-gold-400 hover:text-gold-300 text-sm font-medium transition">
-                            عرض الكل ←
+                            {{ __('site.show_all') }} ←
                         </a>
                     </div>
                     <div class="p-6">
@@ -140,12 +142,13 @@
                                             <div>
                                                 <p class="font-medium text-white">{{ $tutor->name }}</p>
                                                 <p class="text-sm text-luxury-400">
-                                                    {{ $tutor->tutorDetails->specialization ?? 'غير محدد' }}</p>
+                                                    {{ $tutor->tutorDetails->specialization ?? 'غير محدد' }}
+                                                </p>
                                             </div>
                                         </div>
                                         <a href="{{ route('admin.tutors.show', $tutor) }}"
                                             class="px-3 py-1.5 rounded-lg bg-gold-500/20 text-gold-400 text-sm font-medium hover:bg-gold-500/30 transition">
-                                            مراجعة
+                                            {{ __('site.review') }}
                                         </a>
                                     </div>
                                 @endforeach
@@ -160,7 +163,7 @@
                                             d="M5 13l4 4L19 7"></path>
                                     </svg>
                                 </div>
-                                <p class="text-luxury-400">لا توجد طلبات معلقة</p>
+                                <p class="text-luxury-400">{{ __('site.no_pending_requests') }}</p>
                             </div>
                         @endif
                     </div>
@@ -179,13 +182,14 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-semibold text-white">كورسات بانتظار الموافقة</h3>
-                                <p class="text-sm text-luxury-400">{{ $stats['pending_courses'] ?? 0 }} كورس جديد</p>
+                                <h3 class="font-semibold text-white">{{ __('site.pending_courses_req') }}</h3>
+                                <p class="text-sm text-luxury-400">{{ $stats['pending_courses'] ?? 0 }}
+                                    {{ __('site.new_courses_count') }}</p>
                             </div>
                         </div>
                         <a href="{{ route('admin.courses.pending') }}"
                             class="text-gold-400 hover:text-gold-300 text-sm font-medium transition">
-                            عرض الكل ←
+                            {{ __('site.show_all') }} ←
                         </a>
                     </div>
                     <div class="p-6">
@@ -200,7 +204,7 @@
                                         </div>
                                         <a href="{{ route('admin.courses.show', $course) }}"
                                             class="px-3 py-1.5 rounded-lg bg-gold-500/20 text-gold-400 text-sm font-medium hover:bg-gold-500/30 transition">
-                                            مراجعة
+                                            {{ __('site.review') }}
                                         </a>
                                     </div>
                                 @endforeach
@@ -215,7 +219,7 @@
                                             d="M5 13l4 4L19 7"></path>
                                     </svg>
                                 </div>
-                                <p class="text-luxury-400">لا توجد كورسات معلقة</p>
+                                <p class="text-luxury-400">{{ __('site.no_pending_courses') }}</p>
                             </div>
                         @endif
                     </div>

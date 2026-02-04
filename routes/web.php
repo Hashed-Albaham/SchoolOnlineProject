@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -23,127 +24,140 @@ use App\Http\Controllers\CertificateController;
 
 /*
 |--------------------------------------------------------------------------
-| Public Routes
+| Localized Routes (with /ar and /en prefix)
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::group([
+    'prefix' => LaravelLocalization::setLocale(),
+    'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
+], function () {
 
-// Public course browsing
-Route::get('/courses', [StudentCourseController::class, 'index'])->name('courses.index');
-Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->name('courses.show');
+    /*
+    |--------------------------------------------------------------------------
+    | Public Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/', function () {
+        return view('welcome');
+    })->name('home');
 
-/*
-|--------------------------------------------------------------------------
-| Authenticated Routes
-|--------------------------------------------------------------------------
-*/
-Route::middleware('auth')->group(function () {
-    // Messaging System
-    Route::get('/messages', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
-    Route::get('/messages/{user}', [App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Admin Routes
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-
-    // Tutor Management
-    Route::get('/tutors', [AdminTutorController::class, 'index'])->name('tutors.index');
-    Route::get('/tutors/pending', [AdminTutorController::class, 'pending'])->name('tutors.pending');
-    Route::get('/tutors/{tutor}', [AdminTutorController::class, 'show'])->name('tutors.show');
-    Route::post('/tutors/{tutor}/verify', [AdminTutorController::class, 'verify'])->name('tutors.verify');
-    Route::post('/tutors/{tutor}/reject', [AdminTutorController::class, 'reject'])->name('tutors.reject');
-
-    // Course Management
-    Route::get('/courses', [AdminCourseController::class, 'index'])->name('courses.index');
-    Route::get('/courses/pending', [AdminCourseController::class, 'pending'])->name('courses.pending');
-    Route::get('/courses/{course}', [AdminCourseController::class, 'show'])->name('courses.show');
-    Route::post('/courses/{course}/approve', [AdminCourseController::class, 'approve'])->name('courses.approve');
-    Route::post('/courses/{course}/reject', [AdminCourseController::class, 'reject'])->name('courses.reject');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Tutor Routes
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->group(function () {
-    Route::get('/dashboard', [TutorDashboardController::class, 'index'])->name('dashboard');
-
-    // Profile
-    Route::get('/profile', [TutorProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [TutorProfileController::class, 'update'])->name('profile.update');
-    Route::get('/profile/cv', [TutorProfileController::class, 'downloadCv'])->name('profile.cv');
-
-    // Courses
-    Route::resource('courses', TutorCourseController::class);
-    Route::post('/courses/{course}/content', [TutorCourseController::class, 'addContent'])->name('courses.content.add');
-    Route::delete('/courses/{course}/content/{content}', [TutorCourseController::class, 'deleteContent'])->name('courses.content.delete');
-    Route::post('/courses/{course}/content/reorder', [TutorCourseController::class, 'reorderContents'])->name('courses.content.reorder');
-
-    // Certificate Management
-    Route::post('/certificates/{certificate}/issue', [TutorCourseController::class, 'issueCertificate'])->name('certificates.issue');
-    Route::post('/certificates/{certificate}/reject', [TutorCourseController::class, 'rejectCertificate'])->name('certificates.reject');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Student Routes
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
-    Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
-
-    // Courses
+    // Public course browsing
     Route::get('/courses', [StudentCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->name('courses.show');
-    Route::get('/my-courses', [StudentCourseController::class, 'myCourses'])->name('courses.my');
-    Route::get('/courses/{course}/watch/{content?}', [StudentCourseController::class, 'watch'])->name('courses.watch');
 
-    // Enrollments
-    Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'enroll'])->name('enroll');
-    Route::get('/enrollment/{enrollment}/payment', [EnrollmentController::class, 'showPayment'])->name('enrollment.payment');
-    Route::post('/enrollment/{enrollment}/payment', [EnrollmentController::class, 'processPayment'])->name('enrollment.payment.process');
-    Route::get('/my-enrollments', [EnrollmentController::class, 'myEnrollments'])->name('enrollments.my');
+    /*
+    |--------------------------------------------------------------------------
+    | Authenticated Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('auth')->group(function () {
+        // Messaging System
+        Route::get('/messages', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
+        Route::get('/messages/{user}', [App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
 
-    // Quizzes
-    Route::get('/quizzes/{quiz}', [QuizController::class, 'show'])->name('quizzes.show');
-    Route::post('/quizzes/{quiz}', [QuizController::class, 'submit'])->name('quizzes.submit');
-    Route::get('/quizzes/{quiz}/result', [QuizController::class, 'result'])->name('quizzes.result');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
 
-    // Certificates
-    Route::get('/certificates/{attempt}', [CertificateController::class, 'show'])->name('certificates.show');
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    // Progress & Certificates
-    Route::post('/courses/{course}/content/{content}/complete', [StudentCourseController::class, 'markComplete'])->name('courses.content.complete');
-    Route::post('/courses/{course}/request-certificate', [StudentCourseController::class, 'requestCertificate'])->name('courses.certificate.request');
+        // Tutor Management
+        Route::get('/tutors', [AdminTutorController::class, 'index'])->name('tutors.index');
+        Route::get('/tutors/pending', [AdminTutorController::class, 'pending'])->name('tutors.pending');
+        Route::get('/tutors/{tutor}', [AdminTutorController::class, 'show'])->name('tutors.show');
+        Route::post('/tutors/{tutor}/verify', [AdminTutorController::class, 'verify'])->name('tutors.verify');
+        Route::post('/tutors/{tutor}/reject', [AdminTutorController::class, 'reject'])->name('tutors.reject');
 
-});
+        // Course Management
+        Route::get('/courses', [AdminCourseController::class, 'index'])->name('courses.index');
+        Route::get('/courses/pending', [AdminCourseController::class, 'pending'])->name('courses.pending');
+        Route::get('/courses/{course}', [AdminCourseController::class, 'show'])->name('courses.show');
+        Route::post('/courses/{course}/approve', [AdminCourseController::class, 'approve'])->name('courses.approve');
+        Route::post('/courses/{course}/reject', [AdminCourseController::class, 'reject'])->name('courses.reject');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tutor Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->group(function () {
+        Route::get('/dashboard', [TutorDashboardController::class, 'index'])->name('dashboard');
+
+        // Profile
+        Route::get('/profile', [TutorProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [TutorProfileController::class, 'update'])->name('profile.update');
+        Route::get('/profile/cv', [TutorProfileController::class, 'downloadCv'])->name('profile.cv');
+
+        // Courses
+        Route::resource('courses', TutorCourseController::class);
+        Route::post('/courses/{course}/content', [TutorCourseController::class, 'addContent'])->name('courses.content.add');
+        Route::delete('/courses/{course}/content/{content}', [TutorCourseController::class, 'deleteContent'])->name('courses.content.delete');
+        Route::post('/courses/{course}/content/reorder', [TutorCourseController::class, 'reorderContents'])->name('courses.content.reorder');
+
+        // Certificate Management
+        Route::post('/certificates/{certificate}/issue', [TutorCourseController::class, 'issueCertificate'])->name('certificates.issue');
+        Route::post('/certificates/{certificate}/reject', [TutorCourseController::class, 'rejectCertificate'])->name('certificates.reject');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Student Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
+        Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+
+        // Courses
+        Route::get('/courses', [StudentCourseController::class, 'index'])->name('courses.index');
+        Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->name('courses.show');
+        Route::get('/my-courses', [StudentCourseController::class, 'myCourses'])->name('courses.my');
+        Route::get('/courses/{course}/watch/{content?}', [StudentCourseController::class, 'watch'])->name('courses.watch');
+
+        // Enrollments
+        Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'enroll'])->name('enroll');
+        Route::get('/enrollment/{enrollment}/payment', [EnrollmentController::class, 'showPayment'])->name('enrollment.payment');
+        Route::post('/enrollment/{enrollment}/payment', [EnrollmentController::class, 'processPayment'])->name('enrollment.payment.process');
+        Route::get('/my-enrollments', [EnrollmentController::class, 'myEnrollments'])->name('enrollments.my');
+
+        // Quizzes
+        Route::get('/quizzes/{quiz}', [QuizController::class, 'show'])->name('quizzes.show');
+        Route::post('/quizzes/{quiz}', [QuizController::class, 'submit'])->name('quizzes.submit');
+        Route::get('/quizzes/{quiz}/result', [QuizController::class, 'result'])->name('quizzes.result');
+
+        // Certificates
+        Route::get('/certificates/{attempt}', [CertificateController::class, 'show'])->name('certificates.show');
+
+        // Progress & Certificates
+        Route::post('/courses/{course}/content/{content}/complete', [StudentCourseController::class, 'markComplete'])->name('courses.content.complete');
+        Route::post('/courses/{course}/request-certificate', [StudentCourseController::class, 'requestCertificate'])->name('courses.certificate.request');
+
+    });
 
 
-/*
-|--------------------------------------------------------------------------
-| Legacy Dashboard Route (redirect based on role)
-|--------------------------------------------------------------------------
-*/
-Route::get('/dashboard', function () {
-    $user = auth()->user();
-    return match ($user->role) {
-        'admin' => redirect()->route('admin.dashboard'),
-        'tutor' => redirect()->route('tutor.dashboard'),
-        'student' => redirect()->route('student.dashboard'),
-        default => redirect()->route('login'),
-    };
-})->middleware(['auth'])->name('dashboard');
+    /*
+    |--------------------------------------------------------------------------
+    | Legacy Dashboard Route (redirect based on role)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+        return match ($user->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'tutor' => redirect()->route('tutor.dashboard'),
+            'student' => redirect()->route('student.dashboard'),
+            default => redirect()->route('login'),
+        };
+    })->middleware(['auth'])->name('dashboard');
+
+}); // End of localization group
 
 require __DIR__ . '/auth.php';
+

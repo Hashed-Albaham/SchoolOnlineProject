@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ app()->getLocale() }}" dir="{{ LaravelLocalization::getCurrentLocaleDirection() }}"
+    class="{{ app()->getLocale() === 'ar' ? 'font-arabic' : 'font-english' }}">
 
 <head>
     <meta charset="utf-8">
