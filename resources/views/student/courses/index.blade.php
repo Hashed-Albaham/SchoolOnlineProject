@@ -2,8 +2,8 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-white">استكشف الكورسات</h2>
-                <p class="text-luxury-400 text-sm mt-1">{{ $courses->total() ?? 0 }} كورس متاح للتعلم</p>
+                <h2 class="text-2xl font-bold text-white">{{ __('site.explore_courses') }}</h2>
+                <p class="text-luxury-400 text-sm mt-1">{{ $courses->total() ?? 0 }} {{ __('site.available_courses_count') }}</p>
             </div>
         </div>
     </x-slot>
@@ -15,20 +15,22 @@
             <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 mb-8">
                 <form action="{{ route('student.courses.index') }}" method="GET" class="flex flex-col md:flex-row gap-4">
                     <div class="flex-1 relative">
-                        <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-luxury-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="absolute right-4 rtl:right-4 ltr:left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-luxury-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="ابحث عن كورس..." 
-                            class="w-full pr-12 pl-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-0 transition">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('site.search_placeholder') }}" 
+                            class="w-full pr-12 pl-4 rtl:pr-12 rtl:pl-4 ltr:pl-12 ltr:pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-0 transition">
                     </div>
+                <!-- Directional classes: rtl:pr-12 means padding-right in RTL (start), ltr:pl-12 means padding-left in LTR (start) -->
+                <!-- Ideally use ps-12 pe-4 but tailwind version dependent. Let's stick to standard ps/pe if configured, or manual checks. The user asked for professional UI. I'll use standard css logic properties if possible or manual replacement if not configured. Using ps/pe is safer if supported. -->
                     <select name="sort" class="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-gold-500/50 focus:ring-0">
-                        <option value="latest" {{ request('sort') === 'latest' ? 'selected' : '' }}>الأحدث</option>
-                        <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>الأقدم</option>
-                        <option value="price_low" {{ request('sort') === 'price_low' ? 'selected' : '' }}>السعر: من الأقل للأعلى</option>
-                        <option value="price_high" {{ request('sort') === 'price_high' ? 'selected' : '' }}>السعر: من الأعلى للأقل</option>
+                        <option value="latest" {{ request('sort') === 'latest' ? 'selected' : '' }}>{{ __('site.sort_latest') }}</option>
+                        <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>{{ __('site.sort_oldest') }}</option>
+                        <option value="price_low" {{ request('sort') === 'price_low' ? 'selected' : '' }}>{{ __('site.sort_price_low') }}</option>
+                        <option value="price_high" {{ request('sort') === 'price_high' ? 'selected' : '' }}>{{ __('site.sort_price_high') }}</option>
                     </select>
                     <button type="submit" class="btn-premium px-6 py-3 rounded-xl font-semibold">
-                        بحث
+                        {{ __('site.search') }}
                     </button>
                 </form>
             </div>
@@ -51,11 +53,11 @@
                                     <div class="absolute inset-0 bg-gradient-to-t from-luxury-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     
                                     <!-- Price Badge -->
-                                    <div class="absolute top-3 left-3">
+                                    <div class="absolute top-3 left-3 rtl:left-3 ltr:right-3">
                                         @if($course->price > 0)
                                             <span class="px-3 py-1.5 text-sm rounded-lg bg-gold-500/90 text-luxury-900 font-bold">${{ $course->price }}</span>
                                         @else
-                                            <span class="px-3 py-1.5 text-sm rounded-lg bg-green-500/90 text-white font-bold">مجاني</span>
+                                            <span class="px-3 py-1.5 text-sm rounded-lg bg-green-500/90 text-white font-bold">{{ __('site.free') }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -68,7 +70,7 @@
                                         <div class="w-6 h-6 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center">
                                             <span class="text-white text-xs font-semibold">{{ substr($course->tutor->name ?? 'M', 0, 1) }}</span>
                                         </div>
-                                        <span class="text-sm text-luxury-400">{{ $course->tutor->name ?? 'المعلم' }}</span>
+                                        <span class="text-sm text-luxury-400">{{ $course->tutor->name ?? __('site.instructor') }}</span>
                                     </div>
                                     
                                     <div class="flex items-center justify-between text-sm">
@@ -76,13 +78,13 @@
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                             </svg>
-                                            <span>{{ $course->contents->count() ?? 0 }} درس</span>
+                                            <span>{{ $course->contents->count() ?? 0 }} {{ __('site.lessons_count') }}</span>
                                         </div>
                                         <div class="flex items-center gap-1 text-luxury-400">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                                             </svg>
-                                            <span>{{ $course->enrollments->count() ?? 0 }} طالب</span>
+                                            <span>{{ $course->enrollments->count() ?? 0 }} {{ __('site.students_count') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -104,12 +106,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
-                    <h4 class="text-xl font-semibold text-white mb-2">لا توجد كورسات</h4>
+                    <h4 class="text-xl font-semibold text-white mb-2">{{ __('site.no_courses') }}</h4>
                     <p class="text-luxury-400">
                         @if(request('search'))
-                            لم نجد نتائج تطابق بحثك "{{ request('search') }}"
+                            {{ __('site.no_search_results', ['search' => request('search')]) }}
                         @else
-                            لا توجد كورسات متاحة حالياً، تابعنا لمزيد من المحتوى قريباً!
+                            {{ __('site.no_courses_available_msg') }}
                         @endif
                     </p>
                 </div>

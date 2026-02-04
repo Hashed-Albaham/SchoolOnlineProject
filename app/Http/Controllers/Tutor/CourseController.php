@@ -393,6 +393,9 @@ class CourseController extends Controller
             'issued_at' => now(),
         ]);
 
+        // Send Notification
+        $certificate->user->notify(new \App\Notifications\CertificateIssued($certificate));
+
         return back()->with('success', 'تم إصدار الشهادة بنجاح للطالب: ' . $certificate->user->name);
     }
 

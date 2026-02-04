@@ -203,12 +203,17 @@ class CourseController extends Controller
             return back()->with('info', 'لقد طلبت الشهادة مسبقاً');
         }
 
-        \App\Models\CourseCertificate::create([
+        $certificate = \App\Models\CourseCertificate::create([
             'user_id' => Auth::id(),
             'course_id' => $course->id,
             'enrollment_id' => $enrollment->id,
             'status' => 'pending',
         ]);
+
+        // Send Notification to Tutor
+        if ($course->tutor && $course->tutor->user) {
+            $course->tutor->user->notify(new \App\Notifications\CertificateRequested($certificate));
+        }
 
         return back()->with('success', 'تم إرسال طلب الشهادة بنجاح! سيقوم المعلم بمراجعته.');
     }

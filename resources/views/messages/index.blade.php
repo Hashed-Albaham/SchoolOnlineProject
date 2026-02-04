@@ -1,104 +1,159 @@
 <x-app-layout>
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-luxury-800 overflow-hidden shadow-luxury sm:rounded-2xl border border-white/5">
-                <div class="grid grid-cols-1 md:grid-cols-4 h-[600px]">
+    <div class="h-[calc(100vh-65px)] bg-luxury-900 flex overflow-hidden">
 
-                    <!-- Sidebar (Contacts) -->
-                    <div class="md:col-span-1 border-l border-white/5 bg-luxury-900/50">
-                        <div class="p-4 border-b border-white/5">
-                            <h2 class="text-xl font-bold text-white">المحادثات</h2>
-                        </div>
+        <!-- Sidebar (Contacts) -->
+        <!-- Logic: On mobile, hide if user is selected (showing chat). On desktop, always show. -->
+        <div class="w-full md:w-80 lg:w-96 flex-shrink-0 bg-luxury-900 border-l border-white/5 flex flex-col transition-all duration-300
+                    {{ isset($user) ? 'hidden md:flex' : 'flex' }}">
 
-                        <!-- Search Bar -->
-                        <div class="p-3 border-b border-white/5">
-                            <form action="{{ route('messages.index') }}" method="GET">
-                                <div class="relative">
-                                    <input type="text" name="search" value="{{ request('search') }}"
-                                        placeholder="بحث عن مستخدم..."
-                                        class="w-full bg-luxury-800 text-white text-sm rounded-xl border-none focus:ring-1 focus:ring-gold-500 py-2.5 pl-10 pr-4 placeholder-luxury-500">
-                                    <button type="submit"
-                                        class="absolute left-3 top-2.5 text-luxury-500 hover:text-gold-400">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
-                        @if(isset($isSearch) && $isSearch)
-                            <div class="px-3 pt-2 pb-1 flex justify-between items-center text-xs text-luxury-400">
-                                <span>نتائج البحث</span>
-                                <a href="{{ route('messages.index') }}" class="text-gold-400 hover:underline">إلغاء</a>
-                            </div>
-                        @endif
-                        <div class="overflow-y-auto h-[530px] p-2 space-y-2">
-                            @forelse($contacts as $contact)
-                                <a href="{{ route('messages.show', $contact->id) }}"
-                                    class="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 {{ isset($user) && $user->id == $contact->id ? 'bg-white/10' : 'hover:bg-white/5' }}">
-                                    <div class="relative">
-                                        <div
-                                            class="w-10 h-10 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center text-white font-bold">
-                                            {{ substr($contact->name, 0, 1) }}
-                                        </div>
-                                        <!-- Online Status (Optional) -->
-                                        <span
-                                            class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-luxury-900 rounded-full"></span>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-white truncate">
-                                            {{ $contact->name }}
-                                        </p>
-                                        <p class="text-xs text-luxury-400 truncate">
-                                            {{ $contact->role == 'tutor' ? 'معلم' : 'طالب' }}
-                                        </p>
-                                    </div>
-                                </a>
-                            @empty
-                                <div class="text-center py-8 text-luxury-400 text-sm">
-                                    لا توجد محادثات سابقة.
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
-
-                    <!-- Chat Area -->
-                    <div class="md:col-span-3 bg-luxury-800 flex flex-col">
-                        @if(isset($user))
-                            <!-- Chat Header -->
-                            <div class="p-4 border-b border-white/5 flex items-center gap-3 bg-luxury-900/30">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center text-white font-bold">
-                                    {{ substr($user->name, 0, 1) }}
-                                </div>
-                                <div>
-                                    <h3 class="font-bold text-white">{{ $user->name }}</h3>
-                                    <span
-                                        class="text-xs text-luxury-400">{{ $user->role == 'tutor' ? 'معلم' : 'طالب' }}</span>
-                                </div>
-                            </div>
-
-                            <!-- Chat Component -->
-                            <div class="flex-1 flex flex-col overflow-hidden" style="max-height: calc(600px - 73px);">
-                                <livewire:chat-box :receiverId="$user->id" wire:key="chat-{{ $user->id }}" />
-                            </div>
-                        @else
-                            <div class="flex-1 flex flex-col items-center justify-center text-luxury-400">
-                                <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-                                    </path>
-                                </svg>
-                                <p>اختر محادثة للبدء في المراسلة</p>
-                            </div>
-                        @endif
-                    </div>
-
+            <!-- Header -->
+            <div class="p-4 border-b border-white/5 flex items-center justify-between">
+                <h2 class="text-xl font-bold text-white">{{ __('site.messages') }}</h2>
+                <div class="flex gap-2">
+                    <!-- Optional: Add New Message Button -->
                 </div>
             </div>
+
+            <!-- Search Bar -->
+            <div class="p-4 border-b border-white/5 bg-luxury-800/50">
+                <form action="{{ route('messages.index') }}" method="GET">
+                    <div class="relative">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="{{ __('site.search_placeholder') }}"
+                            class="w-full bg-luxury-900 text-white text-sm rounded-xl border border-white/10 focus:ring-1 focus:ring-gold-500 py-3 pl-10 pr-4 placeholder-luxury-500 transition-all">
+                        <button type="submit" class="absolute left-3 top-3 text-luxury-500 hover:text-gold-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Contacts List -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
+                @if(isset($isSearch) && $isSearch)
+                    <div class="px-2 pb-2 flex justify-between items-center text-xs text-luxury-400">
+                        <span>{{ __('site.search_results') }}</span>
+                        <a href="{{ route('messages.index') }}"
+                            class="text-gold-400 hover:underline">{{ __('site.cancel') }}</a>
+                    </div>
+                @endif
+
+                @forelse($contacts as $contact)
+                            <a href="{{ route('messages.show', $contact->id) }}" class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group
+                                           {{ isset($user) && $user->id == $contact->id
+                    ? 'bg-gold-500/10 border border-gold-500/20'
+                    : 'hover:bg-white/5 border border-transparent' }}">
+                                <div class="relative">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-105 transition-transform">
+                                        {{ substr($contact->name, 0, 1) }}
+                                    </div>
+                                    <!-- Online Status Indicator (Placeholder) -->
+                                    <span
+                                        class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-luxury-900 rounded-full"></span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <h3
+                                            class="text-sm font-bold text-white truncate group-hover:text-gold-400 transition-colors">
+                                            {{ $contact->name }}
+                                        </h3>
+                                        <span class="text-[10px] text-luxury-500">
+                                            {{-- Time placeholder or last message time --}}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-luxury-400 truncate">
+                                        {{ $contact->role == 'tutor' ? __('site.tutor') : __('site.student') }}
+                                    </p>
+                                </div>
+                            </a>
+                @empty
+                    <div class="flex flex-col items-center justify-center py-12 text-luxury-400">
+                        <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-luxury-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
+                        </div>
+                        <p class="text-sm">{{ __('site.no_contacts') }}</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <!-- Logic: On mobile, hide if NO user is selected. On desktop, always show (placeholder or chat). -->
+        <div class="flex-1 flex flex-col bg-luxury-800 relative
+                    {{ isset($user) ? 'flex' : 'hidden md:flex' }}">
+
+            @if(isset($user))
+                <!-- Chat Header -->
+                <div
+                    class="h-auto min-h-[70px] px-6 py-3 border-b border-white/5 bg-luxury-900/80 backdrop-blur-md flex items-center justify-between z-10 shadow-sm">
+                    <div class="flex items-center gap-4">
+                        <!-- Mobile Back Button -->
+                        <a href="{{ route('messages.index') }}"
+                            class="md:hidden p-2 -mr-2 text-luxury-400 hover:text-white transition">
+                            <svg class="w-6 h-6 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                                </path>
+                            </svg>
+                        </a>
+
+                        <div class="relative">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center text-white font-bold shadow-md">
+                                {{ substr($user->name, 0, 1) }}
+                            </div>
+                            <span
+                                class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-luxury-900 rounded-full"></span>
+                        </div>
+
+                        <div>
+                            <h3 class="font-bold text-white text-base">{{ $user->name }}</h3>
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-xs text-luxury-400">{{ $user->role == 'tutor' ? __('site.tutor') : __('site.student') }}</span>
+                                <span class="w-1 h-1 rounded-full bg-luxury-600"></span>
+                                <span class="text-xs text-green-400">{{ __('site.online') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2">
+                        <button class="p-2 text-luxury-400 hover:text-gold-400 hover:bg-gold-500/10 rounded-xl transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Component Container -->
+                <!-- We pass height-full to let the Livewire component manage internal scrolling -->
+                <div class="flex-1 overflow-hidden relative">
+                    <livewire:chat-box :receiverId="$user->id" wire:key="chat-{{ $user->id }}" />
+                </div>
+            @else
+                <!-- Empty State -->
+                <div class="flex-1 flex flex-col items-center justify-center text-luxury-400 bg-luxury-900/50">
+                    <div class="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-6 animate-pulse">
+                        <svg class="w-12 h-12 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">{{ __('site.welcome2') }}!</h3>
+                    <p class="text-luxury-500">{{ __('site.select_conversation') }}</p>
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>

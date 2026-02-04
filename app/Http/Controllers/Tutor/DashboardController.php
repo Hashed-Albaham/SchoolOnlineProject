@@ -32,7 +32,7 @@ class DashboardController extends Controller
             ->get();
 
         $recentEnrollments = Enrollment::whereIn('course_id', $user->courses()->pluck('id'))
-            ->with(['student', 'course'])
+            ->with(['user', 'course'])
             ->where('payment_status', 'paid')
             ->latest()
             ->take(5)

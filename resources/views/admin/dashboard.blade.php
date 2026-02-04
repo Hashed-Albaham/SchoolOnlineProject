@@ -120,7 +120,8 @@
                             <div>
                                 <h3 class="font-semibold text-white">{{ __('site.pending_tutors_req') }}</h3>
                                 <p class="text-sm text-luxury-400">{{ $stats['pending_tutors'] ?? 0 }}
-                                    {{ __('site.new_requests') }}</p>
+                                    {{ __('site.new_requests') }}
+                                </p>
                             </div>
                         </div>
                         <a href="{{ route('admin.tutors.pending') }}"
@@ -184,7 +185,8 @@
                             <div>
                                 <h3 class="font-semibold text-white">{{ __('site.pending_courses_req') }}</h3>
                                 <p class="text-sm text-luxury-400">{{ $stats['pending_courses'] ?? 0 }}
-                                    {{ __('site.new_courses_count') }}</p>
+                                    {{ __('site.new_courses_count') }}
+                                </p>
                             </div>
                         </div>
                         <a href="{{ route('admin.courses.pending') }}"
@@ -200,7 +202,8 @@
                                         class="flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition">
                                         <div>
                                             <p class="font-medium text-white">{{ Str::limit($course->title, 30) }}</p>
-                                            <p class="text-sm text-luxury-400">بواسطة: {{ $course->tutor->name }}</p>
+                                            <p class="text-sm text-luxury-400">{{ __('site.by_tutor') }}:
+                                                {{ $course->tutor->name }}</p>
                                         </div>
                                         <a href="{{ route('admin.courses.show', $course) }}"
                                             class="px-3 py-1.5 rounded-lg bg-gold-500/20 text-gold-400 text-sm font-medium hover:bg-gold-500/30 transition">
@@ -228,7 +231,7 @@
 
             <!-- Quick Actions -->
             <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
-                <h3 class="font-semibold text-white mb-6">إجراءات سريعة</h3>
+                <h3 class="font-semibold text-white mb-6">{{ __('site.quick_actions_title') }}</h3>
                 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <a href="{{ route('admin.tutors.index') }}"
                         class="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-transparent hover:border-gold-500/20 transition group">
@@ -241,8 +244,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-medium text-white">إدارة المعلمين</p>
-                            <p class="text-sm text-luxury-400">عرض ومراجعة</p>
+                            <p class="font-medium text-white">{{ __('site.manage_tutors') }}</p>
+                            <p class="text-sm text-luxury-400">{{ __('site.manage_tutors_desc') }}</p>
                         </div>
                     </a>
 
@@ -257,8 +260,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-medium text-white">إدارة الكورسات</p>
-                            <p class="text-sm text-luxury-400">الموافقة والرفض</p>
+                            <p class="font-medium text-white">{{ __('site.manage_courses') }}</p>
+                            <p class="text-sm text-luxury-400">{{ __('site.manage_courses_desc') }}</p>
                         </div>
                     </a>
 
@@ -273,8 +276,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-medium text-white">التحقق من الهويات</p>
-                            <p class="text-sm text-luxury-400">مراجعة الطلبات</p>
+                            <p class="font-medium text-white">{{ __('site.verify_identities') }}</p>
+                            <p class="text-sm text-luxury-400">{{ __('site.review_requests') }}</p>
                         </div>
                     </a>
 
@@ -291,8 +294,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-medium text-white">الإعدادات</p>
-                            <p class="text-sm text-luxury-400">إعدادات الحساب</p>
+                            <p class="font-medium text-white">{{ __('site.settings') }}</p>
+                            <p class="text-sm text-luxury-400">{{ __('site.account_settings') }}</p>
                         </div>
                     </a>
                 </div>

@@ -45,6 +45,12 @@ class EnrollmentController extends Controller
         // If course is free, mark as paid immediately
         if ($course->price <= 0) {
             $enrollment->update(['payment_status' => 'paid']);
+
+            // Send Notification to Tutor
+            if ($course->tutor && $course->tutor->user) {
+                $course->tutor->user->notify(new \App\Notifications\NewEnrollment($enrollment));
+            }
+
             return redirect()->route('student.courses.watch', $course)
                 ->with('success', 'تم التسجيل بنجاح في الكورس المجاني');
         }
@@ -83,6 +89,11 @@ class EnrollmentController extends Controller
         // In real application, integrate with payment gateway here
 
         $enrollment->update(['payment_status' => 'paid']);
+
+        // Send Notification to Tutor
+        if ($enrollment->course && $enrollment->course->tutor && $enrollment->course->tutor->user) {
+            $enrollment->course->tutor->user->notify(new \App\Notifications\NewEnrollment($enrollment));
+        }
 
         return redirect()->route('student.courses.watch', $enrollment->course)
             ->with('success', 'تم الدفع بنجاح! يمكنك الآن مشاهدة الكورس');

@@ -68,15 +68,30 @@ class ChatBox extends Component
             return;
         }
 
-        Message::create([
+        $message = Message::create([
             'sender_id' => Auth::id(),
             'receiver_id' => $this->receiverId,
             'course_id' => $this->courseId,
             'content' => $this->newMessage,
         ]);
 
+        // Send Notification
+        $receiver = User::find($this->receiverId);
+        if ($receiver) {
+            $receiver->notify(new \App\Notifications\MessageSent($message));
+        }
+
+        // Optimistically append message to local state
+        // Ensure is_read is set so the view doesn't crash
+        $message->is_read = false;
+        $this->messages[] = $message->load('sender')->toArray();
+
+        $this->dispatch('messageSent');
+
         $this->newMessage = '';
-        $this->loadMessages();
+
+        // Remove loadMessages to avoid re-fetching immediately
+        // $this->loadMessages();
     }
 
     /**

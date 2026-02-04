@@ -51,9 +51,16 @@ Route::group([
     |--------------------------------------------------------------------------
     */
     Route::middleware('auth')->group(function () {
-        // Messaging System
-        Route::get('/messages', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
-        Route::get('/messages/{user}', [App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
+        // Messaging Routes
+        Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+        Route::get('/messages/{user}', [MessageController::class, 'show'])->name('messages.show');
+
+        // Certificate Routes
+        Route::get('/certificate/verify/{code}', [App\Http\Controllers\CertificateController::class, 'verify'])->name('certificate.verify');
+        Route::get('/certificate/{certificate}', [App\Http\Controllers\CertificateController::class, 'show'])->name('certificate.show');
+        Route::get('/my-certificates', [App\Http\Controllers\CertificateController::class, 'myCertificates'])
+            ->middleware(['auth'])
+            ->name('student.certificates');
 
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
