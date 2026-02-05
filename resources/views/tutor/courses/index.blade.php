@@ -57,12 +57,12 @@
                                     <span class="text-gold-400 font-bold">
                                         @if($course->price > 0) ${{ $course->price }} @else مجاني @endif
                                     </span>
-                                    <span class="text-luxury-400">{{ $course->contents->count() ?? 0 }} درس</span>
+                                    <span class="text-luxury-400">{{ $course->contents_count ?? 0 }} درس</span>
                                 </div>
                                 
                                 <div class="flex items-center justify-between text-sm text-luxury-400 mb-4">
                                     <a href="{{ route('tutor.courses.show', $course) }}" class="hover:text-gold-400 transition">
-                                        {{ $course->enrollments->count() ?? 0 }} طالب ←
+                                        {{ $course->enrollments_count ?? 0 }} طالب ←
                                     </a>
                                     <span>{{ $course->created_at->format('Y/m/d') }}</span>
                                 </div>

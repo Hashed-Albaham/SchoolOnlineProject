@@ -17,7 +17,7 @@ class CourseController extends Controller
     public function index()
     {
         $courses = Auth::user()->courses()
-            ->withCount('enrollments')
+            ->withCount(['enrollments', 'contents'])
             ->latest()
             ->paginate(10);
 
@@ -181,7 +181,7 @@ class CourseController extends Controller
                     $data['youtube_video_id'] = $youtubeId;
                 } elseif ($request->video_source === 'local') {
                     $request->validate(['video_file' => 'required|file|mimetypes:video/mp4,video/mpeg,video/quicktime|max:512000']); // 500MB
-                    $data['file_path'] = $request->file('video_file')->store('course_videos', 'public');
+                    $data['file_path'] = $request->file('video_file')->store("courses/{$course->id}/videos", 'public');
                 } elseif ($request->video_source === 'external') {
                     $request->validate(['video_url' => 'required|url']);
                     $data['link_url'] = $request->video_url;
@@ -189,11 +189,11 @@ class CourseController extends Controller
                 break;
 
             case 'file':
-                $data['file_path'] = $request->file('content_file')->store('course_files', 'public');
+                $data['file_path'] = $request->file('content_file')->store("courses/{$course->id}/files", 'public');
                 break;
 
             case 'image':
-                $data['file_path'] = $request->file('content_image')->store('course_images', 'public');
+                $data['file_path'] = $request->file('content_image')->store("courses/{$course->id}/images", 'public');
                 break;
 
             case 'text':
@@ -289,7 +289,7 @@ class CourseController extends Controller
                         $request->validate(['video_file' => 'required|file|mimetypes:video/mp4,video/mpeg,video/quicktime|max:512000']);
                         if ($content->file_path && $content->isVideo())
                             Storage::disk('public')->delete($content->file_path);
-                        $data['file_path'] = $request->file('video_file')->store('course_videos', 'public');
+                        $data['file_path'] = $request->file('video_file')->store("courses/{$course->id}/videos", 'public');
                         $data['youtube_video_id'] = null;
                         $data['link_url'] = null;
                     }
@@ -307,7 +307,7 @@ class CourseController extends Controller
                     if ($content->file_path && $content->isFile()) {
                         Storage::disk('public')->delete($content->file_path);
                     }
-                    $data['file_path'] = $request->file('content_file')->store('course_files', 'public');
+                    $data['file_path'] = $request->file('content_file')->store("courses/{$course->id}/files", 'public');
                 }
                 break;
 
@@ -316,7 +316,7 @@ class CourseController extends Controller
                     if ($content->file_path && $content->isImage()) {
                         Storage::disk('public')->delete($content->file_path);
                     }
-                    $data['file_path'] = $request->file('content_image')->store('course_images', 'public');
+                    $data['file_path'] = $request->file('content_image')->store("courses/{$course->id}/images", 'public');
                 }
                 break;
 

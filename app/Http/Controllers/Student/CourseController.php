@@ -15,7 +15,13 @@ class CourseController extends Controller
     public function index(Request $request)
     {
         $query = Course::where('status', 'approved')
-            ->with('tutor');
+            ->with('tutor')
+            ->withCount([
+                'enrollments' => function ($query) {
+                    $query->where('payment_status', 'paid');
+                }
+            ])
+            ->withAvg('reviews', 'rating');
 
         // Search
         if ($request->has('search')) {
@@ -36,7 +42,7 @@ class CourseController extends Controller
                 $query->orderBy('price', 'desc');
                 break;
             case 'popular':
-                $query->withCount('enrollments')->orderBy('enrollments_count', 'desc');
+                $query->orderBy('enrollments_count', 'desc');
                 break;
             default:
                 $query->latest();
@@ -48,36 +54,16 @@ class CourseController extends Controller
     }
 
     /**
-     * Show course details
-     */
-    public function show(Course $course)
-    {
-        if ($course->status !== 'approved') {
-            abort(404);
-        }
-
-        $course->load(['tutor.tutorDetails', 'contents']);
-
-        $isEnrolled = false;
-        $enrollment = null;
-
-        if (Auth::check()) {
-            $enrollment = Auth::user()->enrollments()
-                ->where('course_id', $course->id)
-                ->first();
-            $isEnrolled = $enrollment && $enrollment->payment_status === 'paid';
-        }
-
-        return view('student.courses.show', compact('course', 'isEnrolled', 'enrollment'));
-    }
-
-    /**
-     * My enrolled courses
+     * My Enrolled Courses
      */
     public function myCourses()
     {
         $enrollments = Auth::user()->enrollments()
-            ->with('course.tutor')
+            ->with([
+                'course' => function ($query) {
+                    $query->with('tutor')->withCount('contents');
+                }
+            ])
             ->where('payment_status', 'paid')
             ->latest()
             ->paginate(12);
@@ -86,46 +72,48 @@ class CourseController extends Controller
     }
 
     /**
-     * Watch course content (protected)
+     * Watch Course Content
      */
-    public function watch(Course $course, $contentId = null)
+    public function watch(Course $course, $content = null)
     {
-        // Check if enrolled and paid
-        $enrollment = Auth::user()->enrollments()
+        // 1. Check Enrollment
+        $isEnrolled = Auth::user()->enrollments()
             ->where('course_id', $course->id)
             ->where('payment_status', 'paid')
-            ->first();
+            ->exists();
 
-        if (!$enrollment) {
+        if (!$isEnrolled) {
             return redirect()->route('student.courses.show', $course)
-                ->with('error', 'يجب التسجيل في الكورس أولاً');
+                ->with('error', 'يجب الاشتراك في الكورس أولاً');
         }
 
-        $course->load('contents');
+        // 2. Load Contents
+        $course->load(['contents' => fn($q) => $q->orderBy('order')]);
 
-        // Get current content
-        if ($contentId) {
-            $currentContent = $course->contents->find($contentId);
+        // 3. Determine Current Content
+        if ($content) {
+            $currentContent = $course->contents->where('id', $content)->first();
         } else {
             $currentContent = $course->contents->first();
         }
 
-        if (!$currentContent) {
-            return redirect()->route('student.courses.show', $course)
-                ->with('error', 'لا يوجد محتوى في هذا الكورس');
-        }
-
-        // Calculate progress
+        // 4. Progress Stats
         $totalContents = $course->contents->count();
         $completedContents = Auth::user()->getCompletedContentsCount($course->id);
         $progressPercent = $totalContents > 0 ? round(($completedContents / $totalContents) * 100) : 0;
-        $isCurrentCompleted = Auth::user()->hasCompletedContent($currentContent->id);
 
-        // Check if can request certificate
-        $canRequestCertificate = $completedContents >= $totalContents && $totalContents > 0;
+        $canRequestCertificate = $progressPercent == 100;
+
         $certificateRequest = \App\Models\CourseCertificate::where('user_id', Auth::id())
             ->where('course_id', $course->id)
+            ->latest()
             ->first();
+
+        // 5. Current Content Status
+        $isCurrentCompleted = false;
+        if ($currentContent) {
+            $isCurrentCompleted = Auth::user()->hasCompletedContent($currentContent->id);
+        }
 
         return view('student.courses.watch', compact(
             'course',
@@ -133,34 +121,23 @@ class CourseController extends Controller
             'totalContents',
             'completedContents',
             'progressPercent',
-            'isCurrentCompleted',
             'canRequestCertificate',
-            'certificateRequest'
+            'certificateRequest',
+            'isCurrentCompleted'
         ));
     }
 
     /**
-     * Mark content as completed
+     * Mark content as complete
      */
     public function markComplete(Request $request, Course $course, $contentId)
     {
-        $enrollment = Auth::user()->enrollments()
-            ->where('course_id', $course->id)
-            ->where('payment_status', 'paid')
-            ->first();
+        $user = Auth::user();
 
-        if (!$enrollment) {
-            return back()->with('error', 'يجب التسجيل في الكورس أولاً');
-        }
-
-        $content = $course->contents()->find($contentId);
-        if (!$content) {
-            return back()->with('error', 'محتوى غير موجود');
-        }
-
+        // Use updateOrCreate to handle existing records properly
         \App\Models\ContentProgress::updateOrCreate(
             [
-                'user_id' => Auth::id(),
+                'user_id' => $user->id,
                 'course_content_id' => $contentId,
             ],
             [
@@ -170,6 +147,23 @@ class CourseController extends Controller
         );
 
         return back()->with('success', 'تم إكمال الدرس بنجاح!');
+    }
+    public function show(Course $course)
+    {
+        $course->load([
+            'tutor.tutorDetails',
+            'contents' => fn($q) => $q->orderBy('order'),
+            'quizzes'
+        ])->loadCount([
+                    'enrollments' => fn($q) => $q->where('payment_status', 'paid')
+                ]);
+
+        $isEnrolled = Auth::check() && Auth::user()->enrollments()
+            ->where('course_id', $course->id)
+            ->where('payment_status', 'paid')
+            ->exists();
+
+        return view('student.courses.show', compact('course', 'isEnrolled'));
     }
 
     /**
@@ -187,7 +181,7 @@ class CourseController extends Controller
         }
 
         // Check if all contents completed
-        $totalContents = $course->contents->count();
+        $totalContents = $course->contents()->count();
         $completedContents = Auth::user()->getCompletedContentsCount($course->id);
 
         if ($completedContents < $totalContents) {
@@ -211,8 +205,8 @@ class CourseController extends Controller
         ]);
 
         // Send Notification to Tutor
-        if ($course->tutor && $course->tutor->user) {
-            $course->tutor->user->notify(new \App\Notifications\CertificateRequested($certificate));
+        if ($course->tutor) {
+            $course->tutor->notify(new \App\Notifications\CertificateRequested($certificate));
         }
 
         return back()->with('success', 'تم إرسال طلب الشهادة بنجاح! سيقوم المعلم بمراجعته.');

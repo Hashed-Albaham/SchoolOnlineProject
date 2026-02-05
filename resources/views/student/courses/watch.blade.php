@@ -91,10 +91,22 @@
                                             متصفحك لا يدعم تشغيل الفيديو.
                                         </video>
                                     @elseif($currentContent->link_url)
-                                        <video controls class="w-full h-full" controlsList="nodownload">
-                                            <source src="{{ $currentContent->link_url }}" type="video/mp4">
-                                            متصفحك لا يدعم تشغيل الفيديو.
-                                        </video>
+                                        @php
+                                            $videoUrl = $currentContent->link_url;
+                                            $isEmbeddable = Str::contains($videoUrl, ['vimeo.com', 'dailymotion.com', 'drive.google.com']);
+                                        @endphp
+                                        @if($isEmbeddable)
+                                            <iframe class="w-full h-full" src="{{ $videoUrl }}"
+                                                title="{{ $currentContent->title }}" frameborder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowfullscreen>
+                                            </iframe>
+                                        @else
+                                            <video controls class="w-full h-full" controlsList="nodownload">
+                                                <source src="{{ $videoUrl }}" type="video/mp4">
+                                                متصفحك لا يدعم تشغيل الفيديو.
+                                            </video>
+                                        @endif
                                     @endif
                                 @elseif($currentContent->isQuiz())
                                     <div class="w-full h-full flex items-center justify-center bg-luxury-900/50">

@@ -15,7 +15,7 @@ class TutorController extends Controller
     public function index()
     {
         $tutors = User::where('role', 'tutor')
-            ->with('tutorDetails')
+            ->with(['tutorDetails', 'courses'])
             ->latest()
             ->paginate(10);
 
@@ -38,7 +38,7 @@ class TutorController extends Controller
     public function pending()
     {
         $tutors = User::where('role', 'tutor')
-            ->with('tutorDetails')
+            ->with(['tutorDetails', 'courses'])
             ->whereHas('tutorDetails', fn($q) => $q->where('is_verified', false))
             ->latest()
             ->paginate(10);
@@ -83,7 +83,7 @@ class TutorController extends Controller
             abort(404);
         }
 
-        $tutor->load(['tutorDetails', 'courses']);
+        $tutor->load(['tutorDetails', 'courses.contents']);
 
         return view('admin.tutors.show', compact('tutor'));
     }

@@ -141,6 +141,17 @@ class User extends Authenticatable
     }
 
     /**
+     * Get completed contents for this user
+     */
+    public function completedContents(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(CourseContent::class, 'content_progress')
+            ->withPivot('completed', 'completed_at')
+            ->wherePivot('completed', true)
+            ->withTimestamps();
+    }
+
+    /**
      * Get completed contents count for a course
      */
     public function getCompletedContentsCount($courseId): int
