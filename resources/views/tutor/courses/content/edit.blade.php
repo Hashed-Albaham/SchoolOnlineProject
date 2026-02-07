@@ -39,12 +39,12 @@
                                     class="text-red-400">*</span></label>
                             <select name="type" x-model="contentType"
                                 class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition">
-                                <option value="video">🎬 فيديو YouTube</option>
-                                <option value="file">📄 ملف (PDF, DOC, ...)</option>
-                                <option value="image">🖼️ صورة</option>
-                                <option value="text">📝 نص / ملاحظات</option>
-                                <option value="link">🔗 رابط خارجي</option>
-                                <option value="quiz">❓ اختبار</option>
+                                <option class="bg-luxury-800" value="video">🎬 فيديو YouTube</option>
+                                <option class="bg-luxury-800" value="file">📄 ملف (PDF, DOC, ...)</option>
+                                <option class="bg-luxury-800" value="image">🖼️ صورة</option>
+                                <option class="bg-luxury-800" value="text">📝 نص / ملاحظات</option>
+                                <option class="bg-luxury-800" value="link">🔗 رابط خارجي</option>
+                                <option class="bg-luxury-800" value="quiz">❓ اختبار</option>
                             </select>
                         </div>
                     </div>
@@ -116,7 +116,8 @@
                                 <option value="">-- اختر اختبار --</option>
                                 @foreach(\App\Models\Quiz::where('course_id', $course->id)->get() as $quiz)
                                     <option value="{{ $quiz->id }}" {{ $content->quiz_id == $quiz->id ? 'selected' : '' }}>
-                                        {{ $quiz->title }}</option>
+                                        {{ $quiz->title }}
+                                    </option>
                                 @endforeach
                             </select>
                             @error('quiz_id') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror

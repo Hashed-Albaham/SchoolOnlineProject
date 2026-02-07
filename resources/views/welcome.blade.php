@@ -15,6 +15,7 @@
         rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 
     <style>
         * {
@@ -506,6 +507,7 @@
             </div>
         </div>
     </footer>
+    @livewireScripts
 </body>
 
 </html>

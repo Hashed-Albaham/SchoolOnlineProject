@@ -47,45 +47,45 @@
 
                     @if(auth()->user()->role === 'student')
                                 <a href="{{ route('student.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                                                                                                {{ request()->routeIs('student.courses.*') && !request()->routeIs('student.courses.my')
+                                                                                                                                                            {{ request()->routeIs('student.courses.*') && !request()->routeIs('student.courses.my')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.courses') }}
                                 </a>
                                 <a href="{{ route('student.courses.my') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                                                                                                {{ request()->routeIs('student.courses.my')
+                                                                                                                                                            {{ request()->routeIs('student.courses.my')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.my_courses') }}
                                 </a>
                                 <a href="{{ route('student.certificates') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                                                                                    {{ request()->routeIs('student.certificates')
+                                                                                                                                                {{ request()->routeIs('student.certificates')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.my_certificates') }}
                                 </a>
                     @elseif(auth()->user()->role === 'tutor')
                                 <a href="{{ route('tutor.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                                                                                                {{ request()->routeIs('tutor.courses.*')
+                                                                                                                                                            {{ request()->routeIs('tutor.courses.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.my_courses') }}
                                 </a>
                                 <a href="{{ route('tutor.profile.edit') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                                                                                                {{ request()->routeIs('tutor.profile.*')
+                                                                                                                                                            {{ request()->routeIs('tutor.profile.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.profile') }}
                                 </a>
                     @elseif(auth()->user()->role === 'admin')
                                 <a href="{{ route('admin.tutors.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                                                                                                {{ request()->routeIs('admin.tutors.*')
+                                                                                                                                                            {{ request()->routeIs('admin.tutors.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.tutors') }}
                                 </a>
                                 <a href="{{ route('admin.courses.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
-                                                                                                                                                {{ request()->routeIs('admin.courses.*')
+                                                                                                                                                            {{ request()->routeIs('admin.courses.*')
                         ? 'bg-white/10 text-gold-400'
                         : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.courses') }}
@@ -187,41 +187,41 @@
             @auth
                 <a href="{{ route('dashboard') }}"
                     class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                                    {{ request()->routeIs('dashboard') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                                        {{ request()->routeIs('dashboard') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                     {{ __('site.dashboard') }}
                 </a>
 
                 @if(auth()->user()->role === 'student')
                     <a href="{{ route('student.courses.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                                                                            {{ request()->routeIs('student.courses.index') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                                                                                    {{ request()->routeIs('student.courses.index') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         {{ __('site.courses') }}
                     </a>
                     <a href="{{ route('student.courses.my') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                                                                            {{ request()->routeIs('student.courses.my') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                                                                                    {{ request()->routeIs('student.courses.my') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         {{ __('site.my_courses') }}
                     </a>
                 @elseif(auth()->user()->role === 'tutor')
                     <a href="{{ route('tutor.courses.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                                                                            {{ request()->routeIs('tutor.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                                                                                    {{ request()->routeIs('tutor.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         {{ __('site.my_courses') }}
                     </a>
                     <a href="{{ route('tutor.profile.edit') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                                                                            {{ request()->routeIs('tutor.profile.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                                                                                    {{ request()->routeIs('tutor.profile.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         {{ __('site.profile') }}
                     </a>
                 @elseif(auth()->user()->role === 'admin')
                     <a href="{{ route('admin.tutors.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                                                                            {{ request()->routeIs('admin.tutors.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                                                                                    {{ request()->routeIs('admin.tutors.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         {{ __('site.tutors') }}
                     </a>
                     <a href="{{ route('admin.courses.index') }}"
                         class="block px-4 py-3 rounded-lg text-base font-medium transition
-                                                                                            {{ request()->routeIs('admin.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                                                                                                    {{ request()->routeIs('admin.courses.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                         {{ __('site.courses') }}
                     </a>
                 @endif
