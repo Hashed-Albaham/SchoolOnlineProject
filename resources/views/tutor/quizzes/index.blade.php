@@ -41,13 +41,15 @@
                                 @foreach($quizzes as $quiz)
                                     <tr class="hover:bg-white/5 transition">
                                         <td class="px-6 py-4 text-white font-medium">{{ $quiz->title }}</td>
-                                        <td class="px-6 py-4 text-luxury-400">{{ $quiz->questions->count() }}</td>
+                                        <td class="px-6 py-4 text-luxury-400">{{ $quiz->questions_count }}</td>
                                         <td class="px-6 py-4 text-luxury-400">{{ $quiz->time_limit_minutes ?? 'غير محدد' }}</td>
                                         <td class="px-6 py-4 text-luxury-400">{{ $quiz->pass_percentage }}%</td>
                                         <td class="px-6 py-4 text-luxury-400">{{ $quiz->max_attempts ?? 'غير محدود' }}</td>
                                         <td class="px-6 py-4 flex items-center gap-3">
                                             <a href="{{ route('tutor.courses.quizzes.builder', [$course, $quiz]) }}"
                                                 class="text-blue-400 hover:text-blue-300 text-sm">الأسئلة</a>
+                                            <a href="{{ route('tutor.courses.quizzes.results', [$course, $quiz]) }}"
+                                                class="text-green-400 hover:text-green-300 text-sm">النتائج</a>
                                             <a href="{{ route('tutor.courses.quizzes.edit', [$course, $quiz]) }}"
                                                 class="text-gold-400 hover:text-gold-300 text-sm">إعدادات</a>
                                             <form action="{{ route('tutor.courses.quizzes.destroy', [$course, $quiz]) }}"

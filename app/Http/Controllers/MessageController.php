@@ -20,8 +20,11 @@ class MessageController extends Controller
         $isSearch = false;
 
         if ($searchQuery) {
-            $contacts = User::where('name', 'like', "%{$searchQuery}%")
+            // FIXED: Sanitize search query to prevent SQL wildcard injection
+            $sanitizedSearch = addcslashes($searchQuery, '%_\\');
+            $contacts = User::where('name', 'like', '%' . $sanitizedSearch . '%')
                 ->where('id', '!=', $userId)
+                ->limit(50) // FIXED: Add limit to prevent DoS
                 ->get();
             $isSearch = true;
         } else {
@@ -47,8 +50,11 @@ class MessageController extends Controller
         $isSearch = false; // Usually false when viewing a specific chat, but could be adapted
 
         if ($searchQuery) {
-            $contacts = User::where('name', 'like', "%{$searchQuery}%")
+            // FIXED: Sanitize search query to prevent SQL wildcard injection
+            $sanitizedSearch = addcslashes($searchQuery, '%_\\');
+            $contacts = User::where('name', 'like', '%' . $sanitizedSearch . '%')
                 ->where('id', '!=', $userId)
+                ->limit(50) // FIXED: Add limit to prevent DoS
                 ->get();
             $isSearch = true;
         } else {

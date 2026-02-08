@@ -55,6 +55,11 @@ class TutorController extends Controller
             return back()->with('error', 'المستخدم ليس معلماً');
         }
 
+        // FIXED: Null check for tutorDetails
+        if (!$tutor->tutorDetails) {
+            return back()->with('error', 'لا توجد بيانات للمعلم');
+        }
+
         $tutor->tutorDetails->update(['is_verified' => true]);
 
         return back()->with('success', 'تم التحقق من المعلم بنجاح');
@@ -67,6 +72,11 @@ class TutorController extends Controller
     {
         if ($tutor->role !== 'tutor') {
             return back()->with('error', 'المستخدم ليس معلماً');
+        }
+
+        // FIXED: Null check for tutorDetails
+        if (!$tutor->tutorDetails) {
+            return back()->with('error', 'لا توجد بيانات للمعلم');
         }
 
         $tutor->tutorDetails->update(['is_verified' => false]);

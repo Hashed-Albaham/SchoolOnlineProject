@@ -18,7 +18,8 @@ class QuizController extends Controller
     public function index(Course $course)
     {
         $this->authorize('update', $course);
-        $quizzes = $course->quizzes()->latest()->get();
+        // FIXED: Use withCount to avoid lazy loading violation
+        $quizzes = $course->quizzes()->withCount('questions')->latest()->get();
         return view('tutor.quizzes.index', compact('course', 'quizzes'));
     }
 
@@ -54,7 +55,7 @@ class QuizController extends Controller
             'max_attempts' => $request->max_attempts,
         ]);
 
-        return redirect()->route('tutor.quizzes.builder', [$course, $quiz])
+        return redirect()->route('tutor.courses.quizzes.builder', [$course, $quiz])
             ->with('success', 'تم إنشاء الاختبار بنجاح. ابدأ بإضافة الأسئلة.');
     }
 
@@ -154,5 +155,70 @@ class QuizController extends Controller
 
         $question->delete();
         return back()->with('success', 'تم حذف السؤال.');
+    }
+
+    /**
+     * Show quiz results/attempts for tutor.
+     */
+    public function results(Course $course, Quiz $quiz)
+    {
+        $this->authorize('update', $course);
+        
+        // Get all attempts with user info
+        $attempts = \App\Models\QuizAttempt::where('quiz_id', $quiz->id)
+            ->with('user')
+            ->latest()
+            ->get();
+        
+        // Calculate stats
+        $stats = [
+            'total_attempts' => $attempts->count(),
+            'passed' => $attempts->where('passed', true)->count(),
+            'failed' => $attempts->where('passed', false)->count(),
+            'average_score' => $attempts->avg('score') ?? 0,
+        ];
+        
+        return view('tutor.quizzes.results', compact('course', 'quiz', 'attempts', 'stats'));
+    }
+
+    /**
+     * Show a student's attempt details with answers.
+     */
+    public function showAttempt(Course $course, Quiz $quiz, \App\Models\QuizAttempt $attempt)
+    {
+        $this->authorize('update', $course);
+        
+        // Load quiz with questions and options
+        $quiz->load(['questions.options']);
+        
+        return view('tutor.quizzes.attempt', compact('course', 'quiz', 'attempt'));
+    }
+
+    /**
+     * Delete all attempts for a quiz.
+     */
+    public function clearAttempts(Course $course, Quiz $quiz)
+    {
+        $this->authorize('update', $course);
+        
+        \App\Models\QuizAttempt::where('quiz_id', $quiz->id)->delete();
+        
+        return back()->with('success', 'تم حذف جميع نتائج الاختبار بنجاح.');
+    }
+
+    /**
+     * Delete a single attempt.
+     */
+    public function deleteAttempt(Course $course, Quiz $quiz, \App\Models\QuizAttempt $attempt)
+    {
+        $this->authorize('update', $course);
+        
+        if ($attempt->quiz_id !== $quiz->id) {
+            abort(403);
+        }
+        
+        $attempt->delete();
+        
+        return back()->with('success', 'تم حذف محاولة الطالب بنجاح.');
     }
 }

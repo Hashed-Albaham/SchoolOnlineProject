@@ -43,16 +43,18 @@
                         class="px-6 py-2 border border-white/10 rounded-lg text-luxury-300 hover:bg-white/5 transition">
                         العودة للكورس
                     </a>
-                    @if($attempt->passed)
-                        <a href="{{ route('certificates.show', $attempt) }}" target="_blank"
-                            class="px-6 py-2 bg-gold-gradient text-luxury-900 font-bold rounded-lg hover:shadow-glow transition">
-                            تحميل الشهادة
-                        </a>
-                    @else
+                    @if(!$attempt->passed && ($remainingAttempts === null || $remainingAttempts > 0))
                         <a href="{{ route('student.quizzes.show', $quiz) }}"
                             class="px-6 py-2 bg-royal-600 text-white font-bold rounded-lg hover:bg-royal-700 transition">
                             إعادة المحاولة
+                            @if($remainingAttempts !== null)
+                                <span class="text-xs opacity-75">({{ $remainingAttempts }} متبقية)</span>
+                            @endif
                         </a>
+                    @else
+                        <span class="px-6 py-2 bg-gray-600 text-gray-300 font-bold rounded-lg cursor-not-allowed">
+                            لا توجد محاولات متبقية
+                        </span>
                     @endif
                 </div>
 

@@ -25,7 +25,8 @@ class CourseController extends Controller
 
         // Search
         if ($request->has('search')) {
-            $search = $request->search;
+            // FIXED: Sanitize wildcards to prevent SQL Wildcard DoS
+            $search = addcslashes($request->search, '%_\\');
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
@@ -134,11 +135,28 @@ class CourseController extends Controller
     {
         $user = Auth::user();
 
+        // FIXED: Validate content belongs to course (Prevents IDOR)
+        $content = $course->contents()->where('id', $contentId)->first();
+        
+        if (!$content) {
+            abort(404, 'المحتوى غير موجود في هذا الكورس');
+        }
+
+        // FIXED: Validate user is enrolled and paid
+        $isEnrolled = $user->enrollments()
+            ->where('course_id', $course->id)
+            ->where('payment_status', 'paid')
+            ->exists();
+
+        if (!$isEnrolled) {
+            abort(403, 'يجب التسجيل والدفع في الكورس أولاً');
+        }
+
         // Use updateOrCreate to handle existing records properly
         \App\Models\ContentProgress::updateOrCreate(
             [
                 'user_id' => $user->id,
-                'course_content_id' => $contentId,
+                'course_content_id' => $content->id, // FIXED: Use validated content id
             ],
             [
                 'completed' => true,

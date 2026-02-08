@@ -33,15 +33,20 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string', 'in:student,tutor'],
+            'role' => ['required', 'string', 'in:student,tutor'], // Only student/tutor allowed
         ]);
 
+        // FIXED: Create user without role first, then set role explicitly
+        // This prevents Mass Assignment attacks - role must be from validated list
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
         ]);
+        
+        // FIXED: Set role explicitly after creation (safe because it's validated above)
+        $user->role = $request->role;
+        $user->save();
 
         if ($request->role === 'tutor') {
             $user->tutorDetails()->create([

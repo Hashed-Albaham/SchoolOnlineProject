@@ -14,14 +14,28 @@ class DashboardController extends Controller
         $user = Auth::user();
         $tutorDetail = $user->tutorDetails;
 
-        $stats = [
-            'total_courses' => $user->courses()->count(),
-            'approved_courses' => $user->courses()->where('status', 'approved')->count(),
-            'pending_courses' => $user->courses()->where('status', 'pending')->count(),
-            'total_students' => Enrollment::whereIn('course_id', $user->courses()->pluck('id'))
+        // PERFORMANCE FIX: Combine multiple COUNT queries into one
+        // Before: 4 separate queries
+        // After: 1 optimized query
+        $courseStats = $user->courses()->selectRaw("
+            COUNT(*) as total_courses,
+            SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_courses,
+            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_courses
+        ")->first();
+
+        $courseIds = $user->courses()->pluck('id');
+        $totalStudents = $courseIds->isNotEmpty() 
+            ? Enrollment::whereIn('course_id', $courseIds)
                 ->where('payment_status', 'paid')
                 ->distinct('user_id')
-                ->count('user_id'),
+                ->count('user_id')
+            : 0;
+
+        $stats = [
+            'total_courses' => $courseStats->total_courses ?? 0,
+            'approved_courses' => $courseStats->approved_courses ?? 0,
+            'pending_courses' => $courseStats->pending_courses ?? 0,
+            'total_students' => $totalStudents,
             'is_verified' => $tutorDetail?->is_verified ?? false,
         ];
 
@@ -31,12 +45,14 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        $recentEnrollments = Enrollment::whereIn('course_id', $user->courses()->pluck('id'))
-            ->with(['user', 'course'])
-            ->where('payment_status', 'paid')
-            ->latest()
-            ->take(5)
-            ->get();
+        $recentEnrollments = $courseIds->isNotEmpty()
+            ? Enrollment::whereIn('course_id', $courseIds)
+                ->with(['user', 'course'])
+                ->where('payment_status', 'paid')
+                ->latest()
+                ->take(5)
+                ->get()
+            : collect();
 
         return view('tutor.dashboard', compact('stats', 'recentCourses', 'recentEnrollments', 'tutorDetail'));
     }

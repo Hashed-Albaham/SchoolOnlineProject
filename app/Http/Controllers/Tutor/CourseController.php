@@ -391,10 +391,26 @@ class CourseController extends Controller
             ->latest()
             ->get();
 
-        // Calculate progress for each enrollment
-        $enrollmentsWithProgress = $course->enrollments->map(function ($enrollment) use ($course) {
-            $totalContents = $course->contents->count();
-            $completedContents = $enrollment->student->getCompletedContentsCount($course->id);
+        // PERFORMANCE FIX: Batch fetch completed counts for all students in ONE query
+        // Before: N queries (1 per enrollment)
+        // After: 1 query total
+        $studentIds = $course->enrollments->pluck('student.id')->filter();
+        $totalContents = $course->contents->count();
+        
+        $completedCounts = [];
+        if ($studentIds->isNotEmpty()) {
+            $completedCounts = \App\Models\ContentProgress::whereIn('user_id', $studentIds)
+                ->whereHas('courseContent', fn($q) => $q->where('course_id', $course->id))
+                ->where('completed', true)
+                ->selectRaw('user_id, COUNT(*) as completed_count')
+                ->groupBy('user_id')
+                ->pluck('completed_count', 'user_id')
+                ->toArray();
+        }
+
+        // Calculate progress using pre-fetched data
+        $enrollmentsWithProgress = $course->enrollments->map(function ($enrollment) use ($totalContents, $completedCounts) {
+            $completedContents = $completedCounts[$enrollment->student->id] ?? 0;
             $enrollment->progress_percent = $totalContents > 0 ? round(($completedContents / $totalContents) * 100) : 0;
             $enrollment->completed_count = $completedContents;
             $enrollment->total_count = $totalContents;

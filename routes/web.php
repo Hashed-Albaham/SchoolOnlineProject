@@ -114,6 +114,10 @@ Route::group([
         // Quiz Management
         Route::resource('courses.quizzes', \App\Http\Controllers\Tutor\QuizController::class);
         Route::get('/courses/{course}/quizzes/{quiz}/builder', [\App\Http\Controllers\Tutor\QuizController::class, 'builder'])->name('courses.quizzes.builder');
+        Route::get('/courses/{course}/quizzes/{quiz}/results', [\App\Http\Controllers\Tutor\QuizController::class, 'results'])->name('courses.quizzes.results');
+        Route::get('/courses/{course}/quizzes/{quiz}/attempts/{attempt}', [\App\Http\Controllers\Tutor\QuizController::class, 'showAttempt'])->name('courses.quizzes.attempts.show');
+        Route::delete('/courses/{course}/quizzes/{quiz}/attempts', [\App\Http\Controllers\Tutor\QuizController::class, 'clearAttempts'])->name('courses.quizzes.attempts.clear');
+        Route::delete('/courses/{course}/quizzes/{quiz}/attempts/{attempt}', [\App\Http\Controllers\Tutor\QuizController::class, 'deleteAttempt'])->name('courses.quizzes.attempts.delete');
         Route::post('/courses/{course}/quizzes/{quiz}/questions', [\App\Http\Controllers\Tutor\QuizController::class, 'storeQuestion'])->name('courses.quizzes.questions.store');
         Route::delete('/courses/{course}/quizzes/{quiz}/questions/{question}', [\App\Http\Controllers\Tutor\QuizController::class, 'destroyQuestion'])->name('courses.quizzes.questions.destroy');
 

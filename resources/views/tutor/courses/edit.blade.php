@@ -128,6 +128,21 @@
                 </form>
             </div>
 
+            <!-- Quiz Management Section -->
+            <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-8 mt-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-white">إدارة الاختبارات</h3>
+                    <a href="{{ route('tutor.courses.quizzes.index', $course) }}" 
+                       class="btn-premium px-4 py-2 rounded-lg flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                        إدارة الاختبارات
+                    </a>
+                </div>
+                <p class="text-luxury-400">أنشئ اختبارات للكورس وأضف أسئلة متعددة الخيارات. يمكنك بعدها ربط الاختبارات بمحتوى الكورس.</p>
+            </div>
+
             <!-- Content Management Section -->
             <div id="content-section"
                 class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-8 mt-8">

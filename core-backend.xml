@@ -1,0 +1,3394 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: app/Http/Controllers/**, app/Models/**, app/Http/Middleware/**, routes/web.php
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+app/Http/Controllers/Admin/CourseController.php
+app/Http/Controllers/Admin/DashboardController.php
+app/Http/Controllers/Admin/TutorController.php
+app/Http/Controllers/Auth/AuthenticatedSessionController.php
+app/Http/Controllers/Auth/ConfirmablePasswordController.php
+app/Http/Controllers/Auth/EmailVerificationNotificationController.php
+app/Http/Controllers/Auth/EmailVerificationPromptController.php
+app/Http/Controllers/Auth/NewPasswordController.php
+app/Http/Controllers/Auth/PasswordController.php
+app/Http/Controllers/Auth/PasswordResetLinkController.php
+app/Http/Controllers/Auth/RegisteredUserController.php
+app/Http/Controllers/Auth/VerifyEmailController.php
+app/Http/Controllers/CertificateController.php
+app/Http/Controllers/Controller.php
+app/Http/Controllers/MessageController.php
+app/Http/Controllers/ProfileController.php
+app/Http/Controllers/QuizController.php
+app/Http/Controllers/Student/CourseController.php
+app/Http/Controllers/Student/DashboardController.php
+app/Http/Controllers/Student/EnrollmentController.php
+app/Http/Controllers/Tutor/CourseController.php
+app/Http/Controllers/Tutor/DashboardController.php
+app/Http/Controllers/Tutor/ProfileController.php
+app/Http/Controllers/Tutor/QuizController.php
+app/Http/Middleware/CheckRole.php
+app/Models/ContentProgress.php
+app/Models/Course.php
+app/Models/CourseCertificate.php
+app/Models/CourseContent.php
+app/Models/Enrollment.php
+app/Models/Message.php
+app/Models/Option.php
+app/Models/Question.php
+app/Models/Quiz.php
+app/Models/QuizAttempt.php
+app/Models/Review.php
+app/Models/TutorDetail.php
+app/Models/User.php
+routes/web.php
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="app/Http/Controllers/Admin/DashboardController.php">
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\Course;
+use App\Models\Enrollment;
+use Illuminate\Support\Facades\DB;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        // PERFORMANCE FIX: Combine multiple COUNT queries into fewer queries
+        // Before: 8 separate queries
+        // After: 3 optimized queries
+        
+        // User stats in one query
+        $userStats = User::selectRaw("
+            COUNT(*) as total_users,
+            SUM(CASE WHEN role = 'student' THEN 1 ELSE 0 END) as total_students,
+            SUM(CASE WHEN role = 'tutor' THEN 1 ELSE 0 END) as total_tutors
+        ")->first();
+        
+        // Course stats in one query
+        $courseStats = Course::selectRaw("
+            COUNT(*) as total_courses,
+            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_courses,
+            SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_courses
+        ")->first();
+        
+        // Pending tutors count (requires join)
+        $pendingTutorsCount = User::where('role', 'tutor')
+            ->whereHas('tutorDetails', fn($q) => $q->where('is_verified', false))
+            ->count();
+
+        $stats = [
+            'total_users' => $userStats->total_users,
+            'total_students' => $userStats->total_students,
+            'total_tutors' => $userStats->total_tutors,
+            'pending_tutors' => $pendingTutorsCount,
+            'total_courses' => $courseStats->total_courses,
+            'pending_courses' => $courseStats->pending_courses,
+            'approved_courses' => $courseStats->approved_courses,
+            'total_enrollments' => Enrollment::where('payment_status', 'paid')->count(),
+        ];
+
+        $pendingTutors = User::where('role', 'tutor')
+            ->with('tutorDetails')
+            ->whereHas('tutorDetails', fn($q) => $q->where('is_verified', false))
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $pendingCourses = Course::where('status', 'pending')
+            ->with('tutor')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('admin.dashboard', compact('stats', 'pendingTutors', 'pendingCourses'));
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Auth/AuthenticatedSessionController.php">
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+class AuthenticatedSessionController extends Controller
+{
+    /**
+     * Display the login view.
+     */
+    public function create(): View
+    {
+        return view('auth.login');
+    }
+
+    /**
+     * Handle an incoming authentication request.
+     */
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+
+        $request->session()->regenerate();
+
+        // Redirect based on user role
+        $user = $request->user();
+
+        return match ($user->role) {
+            'admin' => redirect()->intended(route('admin.dashboard')),
+            'tutor' => redirect()->intended(route('tutor.dashboard')),
+            'student' => redirect()->intended(route('student.dashboard')),
+            default => redirect()->intended(route('login')),
+        };
+    }
+
+    /**
+     * Destroy an authenticated session.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Auth/ConfirmablePasswordController.php">
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
+
+class ConfirmablePasswordController extends Controller
+{
+    /**
+     * Show the confirm password view.
+     */
+    public function show(): View
+    {
+        return view('auth.confirm-password');
+    }
+
+    /**
+     * Confirm the user's password.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        if (! Auth::guard('web')->validate([
+            'email' => $request->user()->email,
+            'password' => $request->password,
+        ])) {
+            throw ValidationException::withMessages([
+                'password' => __('auth.password'),
+            ]);
+        }
+
+        $request->session()->put('auth.password_confirmed_at', time());
+
+        return redirect()->intended(route('dashboard', absolute: false));
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Auth/EmailVerificationNotificationController.php">
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+
+class EmailVerificationNotificationController extends Controller
+{
+    /**
+     * Send a new email verification notification.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('status', 'verification-link-sent');
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Auth/EmailVerificationPromptController.php">
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class EmailVerificationPromptController extends Controller
+{
+    /**
+     * Display the email verification prompt.
+     */
+    public function __invoke(Request $request): RedirectResponse|View
+    {
+        return $request->user()->hasVerifiedEmail()
+                    ? redirect()->intended(route('dashboard', absolute: false))
+                    : view('auth.verify-email');
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Auth/NewPasswordController.php">
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules;
+use Illuminate\View\View;
+
+class NewPasswordController extends Controller
+{
+    /**
+     * Display the password reset view.
+     */
+    public function create(Request $request): View
+    {
+        return view('auth.reset-password', ['request' => $request]);
+    }
+
+    /**
+     * Handle an incoming new password request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'token' => ['required'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        // Here we will attempt to reset the user's password. If it is successful we
+        // will update the password on an actual user model and persist it to the
+        // database. Otherwise we will parse the error and return the response.
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user) use ($request) {
+                $user->forceFill([
+                    'password' => Hash::make($request->password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        // If the password was successfully reset, we will redirect the user back to
+        // the application's home authenticated view. If there is an error we can
+        // redirect them back to where they came from with their error message.
+        return $status == Password::PASSWORD_RESET
+                    ? redirect()->route('login')->with('status', __($status))
+                    : back()->withInput($request->only('email'))
+                        ->withErrors(['email' => __($status)]);
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Auth/PasswordController.php">
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
+
+class PasswordController extends Controller
+{
+    /**
+     * Update the user's password.
+     */
+    public function update(Request $request): RedirectResponse
+    {
+        $validated = $request->validateWithBag('updatePassword', [
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return back()->with('status', 'password-updated');
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Auth/PasswordResetLinkController.php">
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
+use Illuminate\View\View;
+
+class PasswordResetLinkController extends Controller
+{
+    /**
+     * Display the password reset link request view.
+     */
+    public function create(): View
+    {
+        return view('auth.forgot-password');
+    }
+
+    /**
+     * Handle an incoming password reset link request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        // We will send the password reset link to this user. Once we have attempted
+        // to send the link, we will examine the response then see the message we
+        // need to show to the user. Finally, we'll send out a proper response.
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        return $status == Password::RESET_LINK_SENT
+                    ? back()->with('status', __($status))
+                    : back()->withInput($request->only('email'))
+                        ->withErrors(['email' => __($status)]);
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Auth/VerifyEmailController.php">
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\RedirectResponse;
+
+class VerifyEmailController extends Controller
+{
+    /**
+     * Mark the authenticated user's email address as verified.
+     */
+    public function __invoke(EmailVerificationRequest $request): RedirectResponse
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
+        }
+
+        if ($request->user()->markEmailAsVerified()) {
+            event(new Verified($request->user()));
+        }
+
+        return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Controller.php">
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
+abstract class Controller
+{
+    use AuthorizesRequests;
+}
+</file>
+
+<file path="app/Http/Controllers/MessageController.php">
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Message;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class MessageController extends Controller
+{
+    /**
+     * Display a listing of conversations.
+     */
+    public function index()
+    {
+        $userId = Auth::id();
+
+        $searchQuery = request()->query('search');
+        $isSearch = false;
+
+        if ($searchQuery) {
+            // FIXED: Sanitize search query to prevent SQL wildcard injection
+            $sanitizedSearch = addcslashes($searchQuery, '%_\\');
+            $contacts = User::where('name', 'like', '%' . $sanitizedSearch . '%')
+                ->where('id', '!=', $userId)
+                ->limit(50) // FIXED: Add limit to prevent DoS
+                ->get();
+            $isSearch = true;
+        } else {
+            // Get list of users the current user has exchanged messages with
+            $sentIDs = Message::where('sender_id', $userId)->pluck('receiver_id');
+            $receivedIDs = Message::where('receiver_id', $userId)->pluck('sender_id');
+
+            $contactIDs = $sentIDs->merge($receivedIDs)->unique();
+            $contacts = User::whereIn('id', $contactIDs)->get();
+        }
+
+        return view('messages.index', compact('contacts', 'searchQuery', 'isSearch'));
+    }
+
+    /**
+     * Show chat with a specific user.
+     */
+    public function show(User $user)
+    {
+        $userId = Auth::id();
+
+        $searchQuery = request()->query('search');
+        $isSearch = false; // Usually false when viewing a specific chat, but could be adapted
+
+        if ($searchQuery) {
+            // FIXED: Sanitize search query to prevent SQL wildcard injection
+            $sanitizedSearch = addcslashes($searchQuery, '%_\\');
+            $contacts = User::where('name', 'like', '%' . $sanitizedSearch . '%')
+                ->where('id', '!=', $userId)
+                ->limit(50) // FIXED: Add limit to prevent DoS
+                ->get();
+            $isSearch = true;
+        } else {
+            $sentIDs = Message::where('sender_id', $userId)->pluck('receiver_id');
+            $receivedIDs = Message::where('receiver_id', $userId)->pluck('sender_id');
+            $contactIDs = $sentIDs->merge($receivedIDs)->unique();
+            $contacts = User::whereIn('id', $contactIDs)->get();
+
+            // Ensure the currently viewed user is in the contacts list
+            if (!$contacts->contains('id', $user->id)) {
+                $contacts->prepend($user);
+            }
+        }
+
+        return view('messages.index', compact('contacts', 'user', 'searchQuery', 'isSearch'));
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/ProfileController.php">
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\ProfileUpdateRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
+
+class ProfileController extends Controller
+{
+    /**
+     * Display the user's profile form.
+     */
+    public function edit(Request $request): View
+    {
+        return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Update the user's profile information.
+     */
+    public function update(ProfileUpdateRequest $request): RedirectResponse
+    {
+        $request->user()->fill($request->validated());
+
+        if ($request->user()->isDirty('email')) {
+            $request->user()->email_verified_at = null;
+        }
+
+        $request->user()->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Delete the user's account.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = $request->user();
+
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::to('/');
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/QuizController.php">
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Quiz;
+use App\Models\QuizAttempt;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class QuizController extends Controller
+{
+    /**
+     * Show the quiz taking page.
+     */
+    public function show(Quiz $quiz)
+    {
+        // FIXED: Eager load course AND questions with options to avoid lazy loading
+        $quiz->load(['course', 'questions.options']);
+        
+        $isEnrolled = Auth::user()->enrollments()
+            ->where('course_id', $quiz->course_id)
+            ->where('payment_status', 'paid')
+            ->exists();
+        
+        if (!$isEnrolled) {
+            abort(403, 'يجب التسجيل في الكورس أولاً للوصول إلى الاختبار');
+        }
+        
+        // FIXED: Check max attempts
+        $attemptCount = QuizAttempt::where('user_id', Auth::id())
+            ->where('quiz_id', $quiz->id)
+            ->count();
+        
+        if ($quiz->max_attempts && $attemptCount >= $quiz->max_attempts) {
+            return redirect()->route('student.quizzes.result', $quiz)
+                ->with('error', 'لقد استنفدت جميع المحاولات المتاحة');
+        }
+        
+        return view('student.quizzes.show', compact('quiz', 'attemptCount'));
+    }
+
+    /**
+     * Submit quiz answers.
+     */
+    public function submit(Request $request, Quiz $quiz)
+    {
+        // FIXED: Verify enrollment before accepting submission
+        $isEnrolled = Auth::user()->enrollments()
+            ->where('course_id', $quiz->course_id)
+            ->where('payment_status', 'paid')
+            ->exists();
+        
+        if (!$isEnrolled) {
+            abort(403, 'غير مصرح');
+        }
+
+        // FIXED: Check max attempts BEFORE creating new attempt
+        $attemptCount = QuizAttempt::where('user_id', Auth::id())
+            ->where('quiz_id', $quiz->id)
+            ->count();
+        
+        if ($quiz->max_attempts && $attemptCount >= $quiz->max_attempts) {
+            return redirect()->route('student.quizzes.result', $quiz)
+                ->with('error', 'لقد استنفدت جميع المحاولات المتاحة');
+        }
+
+        // Simple grading logic
+        $score = 0;
+        
+        // PERFORMANCE FIX: Eager load questions with their correct options in ONE query
+        // Before: N+1 queries (1 query per question)
+        // After: 2 queries total (questions + options)
+        $quiz->load(['questions.options']);
+        $total = $quiz->questions->sum('points');
+
+        foreach ($quiz->questions as $question) {
+            $selectedOptionId = $request->input("q-{$question->id}");
+            // PERFORMANCE FIX: Use collection filter instead of DB query
+            $correctOption = $question->options->where('is_correct', true)->first();
+
+            if ($correctOption && $correctOption->id == $selectedOptionId) {
+                $score += $question->points;
+            }
+        }
+
+        $passed = ($score / $total) * 100 >= $quiz->pass_percentage;
+
+        QuizAttempt::create([
+            'user_id' => Auth::id(),
+            'quiz_id' => $quiz->id,
+            'score' => $score,
+            'passed' => $passed,
+            'completed_at' => now(),
+        ]);
+
+        return redirect()->route('student.quizzes.result', $quiz)->with('status', 'تم تسليم الاختبار!');
+    }
+
+    public function result(Quiz $quiz)
+    {
+        $attempt = QuizAttempt::where('user_id', Auth::id())
+            ->where('quiz_id', $quiz->id)
+            ->latest()
+            ->firstOrFail();
+        
+        // Get attempt count for retry logic
+        $attemptCount = QuizAttempt::where('user_id', Auth::id())
+            ->where('quiz_id', $quiz->id)
+            ->count();
+        
+        $remainingAttempts = $quiz->max_attempts ? ($quiz->max_attempts - $attemptCount) : null;
+
+        return view('student.quizzes.result', compact('quiz', 'attempt', 'attemptCount', 'remainingAttempts'));
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Tutor/QuizController.php">
+<?php
+
+namespace App\Http\Controllers\Tutor;
+
+use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\Quiz;
+use App\Models\Question;
+use App\Models\Option;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class QuizController extends Controller
+{
+    /**
+     * Display a listing of the quizzes for a specific course.
+     */
+    public function index(Course $course)
+    {
+        $this->authorize('update', $course);
+        // FIXED: Use withCount to avoid lazy loading violation
+        $quizzes = $course->quizzes()->withCount('questions')->latest()->get();
+        return view('tutor.quizzes.index', compact('course', 'quizzes'));
+    }
+
+    /**
+     * Show the form for creating a new quiz.
+     */
+    public function create(Course $course)
+    {
+        $this->authorize('update', $course);
+        return view('tutor.quizzes.create', compact('course'));
+    }
+
+    /**
+     * Store a newly created quiz in database.
+     */
+    public function store(Request $request, Course $course)
+    {
+        $this->authorize('update', $course);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'time_limit_minutes' => 'nullable|integer|min:1',
+            'pass_percentage' => 'required|integer|min:0|max:100',
+            'max_attempts' => 'nullable|integer|min:1',
+        ]);
+
+        $quiz = $course->quizzes()->create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'time_limit_minutes' => $request->time_limit_minutes,
+            'pass_percentage' => $request->pass_percentage,
+            'max_attempts' => $request->max_attempts,
+        ]);
+
+        return redirect()->route('tutor.courses.quizzes.builder', [$course, $quiz])
+            ->with('success', 'تم إنشاء الاختبار بنجاح. ابدأ بإضافة الأسئلة.');
+    }
+
+    /**
+     * Show the form for editing the specified quiz.
+     */
+    public function edit(Course $course, Quiz $quiz)
+    {
+        $this->authorize('update', $course);
+        return view('tutor.quizzes.edit', compact('course', 'quiz'));
+    }
+
+    /**
+     * Update the specified quiz.
+     */
+    public function update(Request $request, Course $course, Quiz $quiz)
+    {
+        $this->authorize('update', $course);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'time_limit_minutes' => 'nullable|integer|min:1',
+            'pass_percentage' => 'required|integer|min:0|max:100',
+            'max_attempts' => 'nullable|integer|min:1',
+        ]);
+
+        $quiz->update($request->only([
+            'title',
+            'description',
+            'time_limit_minutes',
+            'pass_percentage',
+            'max_attempts'
+        ]));
+
+        return back()->with('success', 'تم تحديث إعدادات الاختبار بنجاح.');
+    }
+
+    /**
+     * Remove the specified quiz.
+     */
+    public function destroy(Course $course, Quiz $quiz)
+    {
+        $this->authorize('update', $course);
+        $quiz->delete();
+        return back()->with('success', 'تم حذف الاختبار بنجاح.');
+    }
+
+    /**
+     * Show the Quiz Builder (Page to add questions/options).
+     */
+    public function builder(Course $course, Quiz $quiz)
+    {
+        $this->authorize('update', $course);
+        $quiz->load(['questions.options']);
+        return view('tutor.quizzes.builder', compact('course', 'quiz'));
+    }
+
+    /**
+     * Store a new question via Builder.
+     */
+    public function storeQuestion(Request $request, Course $course, Quiz $quiz)
+    {
+        $this->authorize('update', $course);
+
+        $request->validate([
+            'question_text' => 'required|string',
+            'points' => 'required|integer|min:1',
+            'options' => 'required|array|min:2',
+            'options.*' => 'required|string',
+            'correct_option' => 'required|integer|min:0', // Index of correct option
+        ]);
+
+        $question = $quiz->questions()->create([
+            'question_text' => $request->question_text,
+            'points' => $request->points,
+        ]);
+
+        foreach ($request->options as $index => $optionText) {
+            $question->options()->create([
+                'option_text' => $optionText,
+                'is_correct' => ($index == $request->correct_option),
+            ]);
+        }
+
+        return back()->with('success', 'تم إضافة السؤال بنجاح.');
+    }
+
+    /**
+     * Delete a question.
+     */
+    public function destroyQuestion(Course $course, Quiz $quiz, Question $question)
+    {
+        $this->authorize('update', $course);
+        if ($question->quiz_id !== $quiz->id)
+            abort(403);
+
+        $question->delete();
+        return back()->with('success', 'تم حذف السؤال.');
+    }
+
+    /**
+     * Show quiz results/attempts for tutor.
+     */
+    public function results(Course $course, Quiz $quiz)
+    {
+        $this->authorize('update', $course);
+        
+        // Get all attempts with user info
+        $attempts = \App\Models\QuizAttempt::where('quiz_id', $quiz->id)
+            ->with('user')
+            ->latest()
+            ->get();
+        
+        // Calculate stats
+        $stats = [
+            'total_attempts' => $attempts->count(),
+            'passed' => $attempts->where('passed', true)->count(),
+            'failed' => $attempts->where('passed', false)->count(),
+            'average_score' => $attempts->avg('score') ?? 0,
+        ];
+        
+        return view('tutor.quizzes.results', compact('course', 'quiz', 'attempts', 'stats'));
+    }
+
+    /**
+     * Show a student's attempt details with answers.
+     */
+    public function showAttempt(Course $course, Quiz $quiz, \App\Models\QuizAttempt $attempt)
+    {
+        $this->authorize('update', $course);
+        
+        // Load quiz with questions and options
+        $quiz->load(['questions.options']);
+        
+        return view('tutor.quizzes.attempt', compact('course', 'quiz', 'attempt'));
+    }
+
+    /**
+     * Delete all attempts for a quiz.
+     */
+    public function clearAttempts(Course $course, Quiz $quiz)
+    {
+        $this->authorize('update', $course);
+        
+        \App\Models\QuizAttempt::where('quiz_id', $quiz->id)->delete();
+        
+        return back()->with('success', 'تم حذف جميع نتائج الاختبار بنجاح.');
+    }
+
+    /**
+     * Delete a single attempt.
+     */
+    public function deleteAttempt(Course $course, Quiz $quiz, \App\Models\QuizAttempt $attempt)
+    {
+        $this->authorize('update', $course);
+        
+        if ($attempt->quiz_id !== $quiz->id) {
+            abort(403);
+        }
+        
+        $attempt->delete();
+        
+        return back()->with('success', 'تم حذف محاولة الطالب بنجاح.');
+    }
+}
+</file>
+
+<file path="app/Http/Middleware/CheckRole.php">
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class CheckRole
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  string  ...$roles
+     */
+    public function handle(Request $request, Closure $next, string ...$roles): Response
+    {
+        if (!$request->user()) {
+            return redirect()->route('login');
+        }
+
+        if (!in_array($request->user()->role, $roles)) {
+            // Redirect to appropriate dashboard based on user role
+            return match ($request->user()->role) {
+                'admin' => redirect()->route('admin.dashboard'),
+                'tutor' => redirect()->route('tutor.dashboard'),
+                'student' => redirect()->route('student.dashboard'),
+                default => redirect()->route('login'),
+            };
+        }
+
+        return $next($request);
+    }
+}
+</file>
+
+<file path="app/Models/ContentProgress.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class ContentProgress extends Model
+{
+    use HasFactory;
+
+    protected $table = 'content_progress';
+
+    protected $fillable = [
+        'user_id',
+        'course_content_id',
+        'completed',
+        'completed_at',
+    ];
+
+    protected $casts = [
+        'completed' => 'boolean',
+        'completed_at' => 'datetime',
+    ];
+
+    /**
+     * Get the user
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the course content
+     */
+    public function courseContent(): BelongsTo
+    {
+        return $this->belongsTo(CourseContent::class);
+    }
+}
+</file>
+
+<file path="app/Models/CourseCertificate.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
+
+class CourseCertificate extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'course_id',
+        'enrollment_id',
+        'status',
+        'certificate_code',
+        'issued_at',
+        'rejection_reason',
+    ];
+
+    protected $casts = [
+        'issued_at' => 'datetime',
+    ];
+
+    const STATUS_PENDING = 'pending';
+    const STATUS_APPROVED = 'approved';
+    const STATUS_REJECTED = 'rejected';
+
+    /**
+     * Get the student
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the course
+     */
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    /**
+     * Get the enrollment
+     */
+    public function enrollment(): BelongsTo
+    {
+        return $this->belongsTo(Enrollment::class);
+    }
+
+    /**
+     * Generate unique certificate code
+     */
+    public static function generateCode(): string
+    {
+        do {
+            $code = 'CERT-' . strtoupper(Str::random(8));
+        } while (self::where('certificate_code', $code)->exists());
+
+        return $code;
+    }
+
+    /**
+     * Check if pending
+     */
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    /**
+     * Check if approved
+     */
+    public function isApproved(): bool
+    {
+        return $this->status === self::STATUS_APPROVED;
+    }
+}
+</file>
+
+<file path="app/Models/Enrollment.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Enrollment extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'course_id',
+        'payment_status',
+    ];
+
+    /**
+     * Get the student who enrolled
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Alias for user - get the student
+     */
+    public function student(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Get the course enrolled in
+     */
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    /**
+     * Check if enrollment is paid
+     */
+    public function isPaid(): bool
+    {
+        return $this->payment_status === 'paid';
+    }
+
+    /**
+     * Simulate payment (for demo purposes)
+     */
+    public function simulatePayment(): bool
+    {
+        $this->payment_status = 'paid';
+        return $this->save();
+    }
+}
+</file>
+
+<file path="app/Models/Message.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Message extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'sender_id',
+        'receiver_id',
+        'course_id',
+        'content',
+        'is_read',
+    ];
+
+    protected $casts = [
+        'is_read' => 'boolean',
+    ];
+
+    /**
+     * Get the sender of this message
+     */
+    public function sender(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sender_id');
+    }
+
+    /**
+     * Get the receiver of this message
+     */
+    public function receiver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'receiver_id');
+    }
+
+    /**
+     * Get the course this message is related to
+     */
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    /**
+     * Mark message as read
+     */
+    public function markAsRead(): bool
+    {
+        $this->is_read = true;
+        return $this->save();
+    }
+}
+</file>
+
+<file path="app/Models/Option.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Option extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['question_id', 'option_text', 'is_correct'];
+
+    protected $casts = ['is_correct' => 'boolean'];
+
+    public function question()
+    {
+        return $this->belongsTo(Question::class);
+    }
+}
+</file>
+
+<file path="app/Models/Question.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Question extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['quiz_id', 'question_text', 'points'];
+
+    public function quiz()
+    {
+        return $this->belongsTo(Quiz::class);
+    }
+
+    public function options()
+    {
+        return $this->hasMany(Option::class);
+    }
+}
+</file>
+
+<file path="app/Models/Quiz.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Quiz extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['course_id', 'title', 'description', 'time_limit_minutes', 'pass_percentage', 'max_attempts'];
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
+    }
+}
+</file>
+
+<file path="app/Models/QuizAttempt.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class QuizAttempt extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'quiz_id',
+        'score',
+        'total_points',
+        'passed',
+        'answers',
+        'started_at',
+        'completed_at',
+    ];
+
+    protected $casts = [
+        'passed' => 'boolean',
+        'answers' => 'array',
+        'started_at' => 'datetime',
+        'completed_at' => 'datetime',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function quiz()
+    {
+        return $this->belongsTo(Quiz::class);
+    }
+}
+</file>
+
+<file path="app/Models/Review.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Review extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'course_id',
+        'rating',
+        'comment',
+    ];
+
+    /**
+     * Get the user that wrote the review.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the course that owns the review.
+     */
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
+    }
+}
+</file>
+
+<file path="app/Models/TutorDetail.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class TutorDetail extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'cv_path',
+        'is_verified',
+        'bio',
+        'specialization',
+    ];
+
+    protected $casts = [
+        'is_verified' => 'boolean',
+    ];
+
+    /**
+     * Get the user that owns the tutor details
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Admin/CourseController.php">
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Course;
+use Illuminate\Http\Request;
+
+class CourseController extends Controller
+{
+    /**
+     * Display all courses
+     */
+    public function index()
+    {
+        $courses = Course::with('tutor')
+            ->latest()
+            ->paginate(10);
+
+        $allCount = Course::count();
+        $pendingCount = Course::where('status', 'pending')->count();
+        $approvedCount = Course::where('status', 'approved')->count();
+        $rejectedCount = Course::where('status', 'rejected')->count();
+
+        return view('admin.courses.index', compact('courses', 'allCount', 'pendingCount', 'approvedCount', 'rejectedCount'));
+    }
+
+    /**
+     * Display pending courses
+     */
+    public function pending()
+    {
+        $courses = Course::where('status', 'pending')
+            ->with('tutor')
+            ->latest()
+            ->paginate(10);
+
+        return view('admin.courses.pending', compact('courses'));
+    }
+
+    /**
+     * Approve a course
+     */
+    public function approve(Course $course)
+    {
+        $course->update(['status' => 'approved']);
+
+        if ($course->tutor) {
+            $course->tutor->notify(new \App\Notifications\CourseStatusUpdated($course, 'approved'));
+        }
+
+        return back()->with('success', 'تم الموافقة على الكورس بنجاح');
+    }
+
+    /**
+     * Reject a course
+     */
+    public function reject(Course $course)
+    {
+        $course->update(['status' => 'rejected']);
+
+        if ($course->tutor) {
+            $course->tutor->notify(new \App\Notifications\CourseStatusUpdated($course, 'rejected'));
+        }
+
+        return back()->with('success', 'تم رفض الكورس');
+    }
+
+    /**
+     * Show course details
+     */
+    public function show(Course $course)
+    {
+        $course->load(['tutor', 'contents', 'enrollments.student']);
+
+        return view('admin.courses.show', compact('course'));
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Auth/RegisteredUserController.php">
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+use Illuminate\View\View;
+
+class RegisteredUserController extends Controller
+{
+    /**
+     * Display the registration view.
+     */
+    public function create(): View
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Handle an incoming registration request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', 'string', 'in:student,tutor'], // Only student/tutor allowed
+        ]);
+
+        // FIXED: Create user without role first, then set role explicitly
+        // This prevents Mass Assignment attacks - role must be from validated list
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+        
+        // FIXED: Set role explicitly after creation (safe because it's validated above)
+        $user->role = $request->role;
+        $user->save();
+
+        if ($request->role === 'tutor') {
+            $user->tutorDetails()->create([
+                'is_verified' => false,
+            ]);
+        }
+
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        return redirect(route('dashboard', absolute: false));
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/CertificateController.php">
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Course;
+use App\Models\CourseCertificate;
+use App\Models\QuizAttempt;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class CertificateController extends Controller
+{
+    /**
+     * Show "My Certificates" for student
+     */
+    public function myCertificates()
+    {
+        $certificates = Auth::user()->courseCertificates()
+            ->with(['course.tutor'])
+            ->where('status', 'approved')
+            ->latest()
+            ->paginate(9);
+
+        return view('student.certificates.index', compact('certificates'));
+    }
+
+    /**
+     * Verify certificate publicly
+     */
+    public function verify($code)
+    {
+        $certificate = CourseCertificate::where('certificate_code', $code)
+            ->where('status', 'approved')
+            ->with(['user', 'course.tutor'])
+            ->firstOrFail();
+
+        return view('certificate.verify', compact('certificate'));
+    }
+
+    /**
+     * Show the certificate for a passed quiz or course.
+     */
+    public function show(Request $request, $id)
+    {
+        // Try finding CourseCertificate first
+        $certificate = CourseCertificate::find($id);
+
+        if ($certificate) {
+            // Check access: Owner or Admin or Tutor of course or Public if Approved
+            if (Auth::id() !== $certificate->user_id && !auth()->user()?->isAdmin() && !auth()->user()?->isTutor()) {
+                abort(403);
+            }
+            return view('certificate.show', compact('certificate'));
+        }
+
+        // Fallback to old QuizAttempt logic (if needed, or can be removed if deprecated)
+        $attempt = QuizAttempt::findOrFail($id);
+
+        if ($attempt->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if (!$attempt->passed) {
+            abort(403, 'Certificate only available for passed quizzes.');
+        }
+
+        $course = $attempt->quiz->course;
+        $user = Auth::user();
+
+        return view('certificates.quiz-show', compact('attempt', 'course', 'user'));
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Student/EnrollmentController.php">
+<?php
+
+namespace App\Http\Controllers\Student;
+
+use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\Enrollment;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class EnrollmentController extends Controller
+{
+    /**
+     * Enroll in a course (initiate)
+     */
+    public function enroll(Course $course)
+    {
+        if ($course->status !== 'approved') {
+            return back()->with('error', 'هذا الكورس غير متاح');
+        }
+
+        $user = Auth::user();
+
+        // Check if already enrolled
+        $existingEnrollment = $user->enrollments()
+            ->where('course_id', $course->id)
+            ->first();
+
+        if ($existingEnrollment) {
+            if ($existingEnrollment->payment_status === 'paid') {
+                return redirect()->route('student.courses.watch', $course)
+                    ->with('info', 'أنت مسجل بالفعل في هذا الكورس');
+            }
+            // If pending, redirect to payment
+            return redirect()->route('student.enrollment.payment', $existingEnrollment);
+        }
+
+        // Create new enrollment
+        $enrollment = Enrollment::create([
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'payment_status' => 'pending',
+        ]);
+
+        // If course is free, mark as paid immediately
+        if ($course->price <= 0) {
+            $enrollment->update(['payment_status' => 'paid']);
+
+            // Send Notification to Tutor
+            // FIXED: $course->tutor is already a User model, not TutorDetails
+            if ($course->tutor) {
+                $course->tutor->notify(new \App\Notifications\NewEnrollment($enrollment));
+            }
+
+            return redirect()->route('student.courses.watch', $course)
+                ->with('success', 'تم التسجيل بنجاح في الكورس المجاني');
+        }
+
+        return redirect()->route('student.enrollment.payment', $enrollment);
+    }
+
+    /**
+     * Show payment page (simulated)
+     */
+    public function showPayment(Enrollment $enrollment)
+    {
+        if ($enrollment->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($enrollment->payment_status === 'paid') {
+            return redirect()->route('student.courses.watch', $enrollment->course);
+        }
+
+        $enrollment->load('course.tutor');
+
+        return view('student.enrollment.payment', compact('enrollment'));
+    }
+
+    /**
+     * Process payment (simulated)
+     */
+    public function processPayment(Request $request, Enrollment $enrollment)
+    {
+        if ($enrollment->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // Simulate payment processing
+        // In real application, integrate with payment gateway here
+
+        $enrollment->update(['payment_status' => 'paid']);
+
+        // Send Notification to Tutor
+        if ($enrollment->course && $enrollment->course->tutor && $enrollment->course->tutor->user) {
+            $enrollment->course->tutor->user->notify(new \App\Notifications\NewEnrollment($enrollment));
+        }
+
+        return redirect()->route('student.courses.watch', $enrollment->course)
+            ->with('success', 'تم الدفع بنجاح! يمكنك الآن مشاهدة الكورس');
+    }
+
+    /**
+     * My enrollments
+     */
+    public function myEnrollments()
+    {
+        $enrollments = Auth::user()->enrollments()
+            ->with('course.tutor')
+            ->latest()
+            ->paginate(10);
+
+        return view('student.enrollment.my-enrollments', compact('enrollments'));
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Tutor/DashboardController.php">
+<?php
+
+namespace App\Http\Controllers\Tutor;
+
+use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\Enrollment;
+use Illuminate\Support\Facades\Auth;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        $user = Auth::user();
+        $tutorDetail = $user->tutorDetails;
+
+        $stats = [
+            'total_courses' => $user->courses()->count(),
+            'approved_courses' => $user->courses()->where('status', 'approved')->count(),
+            'pending_courses' => $user->courses()->where('status', 'pending')->count(),
+            'total_students' => Enrollment::whereIn('course_id', $user->courses()->pluck('id'))
+                ->where('payment_status', 'paid')
+                ->distinct('user_id')
+                ->count('user_id'),
+            'is_verified' => $tutorDetail?->is_verified ?? false,
+        ];
+
+        $recentCourses = $user->courses()
+            ->with('enrollments')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $recentEnrollments = Enrollment::whereIn('course_id', $user->courses()->pluck('id'))
+            ->with(['user', 'course'])
+            ->where('payment_status', 'paid')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('tutor.dashboard', compact('stats', 'recentCourses', 'recentEnrollments', 'tutorDetail'));
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Tutor/ProfileController.php">
+<?php
+
+namespace App\Http\Controllers\Tutor;
+
+use App\Http\Controllers\Controller;
+use App\Models\TutorDetail;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
+class ProfileController extends Controller
+{
+    /**
+     * Show profile form
+     */
+    public function edit()
+    {
+        $user = Auth::user();
+        $tutorDetail = $user->tutorDetails ?? new TutorDetail();
+
+        return view('tutor.profile.edit', compact('user', 'tutorDetail'));
+    }
+
+    /**
+     * Update profile
+     */
+    public function update(Request $request)
+    {
+        $request->validate([
+            'bio' => 'nullable|string|max:1000',
+            'specialization' => 'nullable|string|max:255',
+            'cv' => 'nullable|file|mimes:pdf,doc,docx|max:5120', // 5MB max
+        ]);
+
+        $user = Auth::user();
+
+        // Create or get tutor details
+        $tutorDetail = $user->tutorDetails ?? new TutorDetail(['user_id' => $user->id]);
+
+        $tutorDetail->bio = $request->bio;
+        $tutorDetail->specialization = $request->specialization;
+
+        // Handle CV upload
+        if ($request->hasFile('cv')) {
+            // Delete old CV if exists
+            if ($tutorDetail->cv_path) {
+                Storage::disk('public')->delete($tutorDetail->cv_path);
+            }
+
+            $path = $request->file('cv')->store('cvs', 'public');
+            $tutorDetail->cv_path = $path;
+        }
+
+        $tutorDetail->save();
+
+        if (!$tutorDetail->is_verified) {
+            $admins = \App\Models\User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new \App\Notifications\TutorVerificationRequested($user));
+            }
+        }
+
+        return back()->with('success', 'تم تحديث الملف الشخصي بنجاح');
+    }
+
+    /**
+     * Download CV
+     */
+    public function downloadCv()
+    {
+        $user = Auth::user();
+        $tutorDetail = $user->tutorDetails;
+
+        if (!$tutorDetail || !$tutorDetail->cv_path) {
+            return back()->with('error', 'لا يوجد سيرة ذاتية');
+        }
+
+        return response()->download(Storage::disk('public')->path($tutorDetail->cv_path));
+    }
+}
+</file>
+
+<file path="app/Models/Course.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Course extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'tutor_id',
+        'title',
+        'description',
+        'price',
+        'thumbnail',
+        'status',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+    ];
+
+    /**
+     * Get the tutor who created this course
+     */
+    public function tutor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'tutor_id');
+    }
+
+    /**
+     * Get the contents/lessons of this course
+     */
+    public function contents(): HasMany
+    {
+        return $this->hasMany(CourseContent::class)->orderBy('order');
+    }
+
+    /**
+     * Get the enrollments for this course
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    /**
+     * Check if course is approved
+     */
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
+
+    /**
+     * Check if course is pending
+     */
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    /**
+     * Get students count enrolled in this course
+     */
+    public function getStudentsCountAttribute(): int
+    {
+        return $this->enrollments()->where('payment_status', 'paid')->count();
+    }
+
+    /**
+     * Get reviews for this course
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get quizzes for this course
+     */
+    public function quizzes(): HasMany
+    {
+        return $this->hasMany(Quiz::class);
+    }
+
+    /**
+     * Get average rating for this course
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+}
+</file>
+
+<file path="app/Models/CourseContent.php">
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class CourseContent extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'course_id',
+        'title',
+        'type',
+        'youtube_video_id',
+        'file_path',
+        'link_url',
+        'quiz_id',
+        'text_content',
+        'order',
+        'description',
+    ];
+
+    /**
+     * Content type constants
+     */
+    const TYPE_VIDEO = 'video';
+    const TYPE_FILE = 'file';
+    const TYPE_IMAGE = 'image';
+    const TYPE_TEXT = 'text';
+    const TYPE_QUIZ = 'quiz';
+    const TYPE_LINK = 'link';
+
+    /**
+     * Get the course this content belongs to
+     */
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    /**
+     * Get the quiz associated with this content
+     */
+    public function quiz(): BelongsTo
+    {
+        return $this->belongsTo(Quiz::class);
+    }
+
+    /**
+     * Extract YouTube video ID from URL
+     */
+    public static function extractYoutubeId(string $url): ?string
+    {
+        $pattern = '/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/';
+
+        if (preg_match($pattern, $url, $matches)) {
+            return $matches[1];
+        }
+
+        // If it's already just an ID
+        if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $url)) {
+            return $url;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the embed URL for the video
+     */
+    public function getEmbedUrlAttribute(): ?string
+    {
+        if ($this->type === self::TYPE_VIDEO && $this->youtube_video_id) {
+            return "https://www.youtube.com/embed/{$this->youtube_video_id}";
+        }
+        return null;
+    }
+
+    /**
+     * Check if content is video type
+     */
+    public function isVideo(): bool
+    {
+        return $this->type === self::TYPE_VIDEO;
+    }
+
+    /**
+     * Check if content is file type
+     */
+    public function isFile(): bool
+    {
+        return $this->type === self::TYPE_FILE;
+    }
+
+    /**
+     * Check if content is image type
+     */
+    public function isImage(): bool
+    {
+        return $this->type === self::TYPE_IMAGE;
+    }
+
+    /**
+     * Check if content is text type
+     */
+    public function isText(): bool
+    {
+        return $this->type === self::TYPE_TEXT;
+    }
+
+    /**
+     * Check if content is quiz type
+     */
+    public function isQuiz(): bool
+    {
+        return $this->type === self::TYPE_QUIZ;
+    }
+
+    /**
+     * Check if content is link type
+     */
+    public function isLink(): bool
+    {
+        return $this->type === self::TYPE_LINK;
+    }
+
+    /**
+     * Get type label in Arabic
+     */
+    public function getTypeLabelAttribute(): string
+    {
+        return match ($this->type) {
+            self::TYPE_VIDEO => 'فيديو',
+            self::TYPE_FILE => 'ملف',
+            self::TYPE_IMAGE => 'صورة',
+            self::TYPE_TEXT => 'نص/ملاحظات',
+            self::TYPE_QUIZ => 'اختبار',
+            self::TYPE_LINK => 'رابط خارجي',
+            default => 'غير معروف',
+        };
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Admin/TutorController.php">
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\TutorDetail;
+use Illuminate\Http\Request;
+
+class TutorController extends Controller
+{
+    /**
+     * Display a listing of tutors
+     */
+    public function index()
+    {
+        $tutors = User::where('role', 'tutor')
+            ->with(['tutorDetails', 'courses'])
+            ->latest()
+            ->paginate(10);
+
+        $allCount = User::where('role', 'tutor')->count();
+
+        $verifiedCount = User::where('role', 'tutor')
+            ->whereHas('tutorDetails', fn($q) => $q->where('is_verified', true))
+            ->count();
+
+        $pendingCount = User::where('role', 'tutor')
+            ->whereHas('tutorDetails', fn($q) => $q->where('is_verified', false))
+            ->count();
+
+        return view('admin.tutors.index', compact('tutors', 'allCount', 'verifiedCount', 'pendingCount'));
+    }
+
+    /**
+     * Display pending tutors for verification
+     */
+    public function pending()
+    {
+        $tutors = User::where('role', 'tutor')
+            ->with(['tutorDetails', 'courses'])
+            ->whereHas('tutorDetails', fn($q) => $q->where('is_verified', false))
+            ->latest()
+            ->paginate(10);
+
+        return view('admin.tutors.pending', compact('tutors'));
+    }
+
+    /**
+     * Verify a tutor
+     */
+    public function verify(User $tutor)
+    {
+        if ($tutor->role !== 'tutor') {
+            return back()->with('error', 'المستخدم ليس معلماً');
+        }
+
+        // FIXED: Null check for tutorDetails
+        if (!$tutor->tutorDetails) {
+            return back()->with('error', 'لا توجد بيانات للمعلم');
+        }
+
+        $tutor->tutorDetails->update(['is_verified' => true]);
+
+        return back()->with('success', 'تم التحقق من المعلم بنجاح');
+    }
+
+    /**
+     * Reject/Unverify a tutor
+     */
+    public function reject(User $tutor)
+    {
+        if ($tutor->role !== 'tutor') {
+            return back()->with('error', 'المستخدم ليس معلماً');
+        }
+
+        // FIXED: Null check for tutorDetails
+        if (!$tutor->tutorDetails) {
+            return back()->with('error', 'لا توجد بيانات للمعلم');
+        }
+
+        $tutor->tutorDetails->update(['is_verified' => false]);
+
+        return back()->with('success', 'تم رفض المعلم');
+    }
+
+    /**
+     * Show tutor details
+     */
+    public function show(User $tutor)
+    {
+        if ($tutor->role !== 'tutor') {
+            abort(404);
+        }
+
+        $tutor->load(['tutorDetails', 'courses.contents']);
+
+        return view('admin.tutors.show', compact('tutor'));
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Student/DashboardController.php">
+<?php
+
+namespace App\Http\Controllers\Student;
+
+use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\Enrollment;
+use Illuminate\Support\Facades\Auth;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        $user = Auth::user();
+        $userId = $user->id;
+
+        // PERFORMANCE FIX: Combine enrollment counts into one query
+        // Before: 3 separate COUNT queries
+        // After: 1 query with conditional counts
+        $enrollmentStats = Enrollment::where('user_id', $userId)
+            ->selectRaw("
+                SUM(CASE WHEN payment_status = 'paid' THEN 1 ELSE 0 END) as enrolled_courses,
+                SUM(CASE WHEN payment_status = 'pending' THEN 1 ELSE 0 END) as pending_enrollments
+            ")
+            ->first();
+
+        $stats = [
+            'enrolled_courses' => $enrollmentStats->enrolled_courses ?? 0,
+            'pending_enrollments' => $enrollmentStats->pending_enrollments ?? 0,
+            'earned_certificates' => $user->courseCertificates()->where('status', 'approved')->count(),
+        ];
+
+        $enrolledCourses = $user->enrollments()
+            ->with(['course.tutor'])
+            ->where('payment_status', 'paid')
+            ->latest()
+            ->take(6)
+            ->get();
+
+        // PERFORMANCE FIX: Cache enrolled course IDs to avoid subquery
+        $enrolledCourseIds = $user->enrollments()->pluck('course_id');
+        
+        $recommendedCourses = Course::where('status', 'approved')
+            ->whereNotIn('id', $enrolledCourseIds)
+            ->with('tutor')
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('student.dashboard', compact('stats', 'enrolledCourses', 'recommendedCourses'));
+    }
+}
+</file>
+
+<file path="app/Models/User.php">
+<?php
+
+namespace App\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class User extends Authenticatable
+{
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        // FIXED: Removed 'role' to prevent Mass Assignment privilege escalation
+        // Use $user->role = 'admin' explicitly when needed
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is tutor
+     */
+    public function isTutor(): bool
+    {
+        return $this->role === 'tutor';
+    }
+
+    /**
+     * Check if user is student
+     */
+    public function isStudent(): bool
+    {
+        return $this->role === 'student';
+    }
+
+    /**
+     * Get tutor details for this user
+     */
+    public function tutorDetails(): HasOne
+    {
+        return $this->hasOne(TutorDetail::class);
+    }
+
+    /**
+     * Get courses created by this tutor
+     */
+    public function courses(): HasMany
+    {
+        return $this->hasMany(Course::class, 'tutor_id');
+    }
+
+    /**
+     * Get enrollments for this student
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    /**
+     * Get messages sent by this user
+     */
+    public function sentMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
+     * Get messages received by this user
+     */
+    public function receivedMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    /**
+     * Get content progress for this user
+     */
+    public function contentProgress(): HasMany
+    {
+        return $this->hasMany(ContentProgress::class);
+    }
+
+    /**
+     * Get course certificates for this user
+     */
+    public function courseCertificates(): HasMany
+    {
+        return $this->hasMany(CourseCertificate::class);
+    }
+
+    /**
+     * Check if user completed a content
+     */
+    public function hasCompletedContent($contentId): bool
+    {
+        return $this->contentProgress()
+            ->where('course_content_id', $contentId)
+            ->where('completed', true)
+            ->exists();
+    }
+
+    /**
+     * Get completed contents for this user
+     */
+    public function completedContents(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(CourseContent::class, 'content_progress')
+            ->withPivot('completed', 'completed_at')
+            ->wherePivot('completed', true)
+            ->withTimestamps();
+    }
+
+    /**
+     * Get completed contents count for a course
+     */
+    public function getCompletedContentsCount($courseId): int
+    {
+        return $this->contentProgress()
+            ->whereHas('courseContent', fn($q) => $q->where('course_id', $courseId))
+            ->where('completed', true)
+            ->count();
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Student/CourseController.php">
+<?php
+
+namespace App\Http\Controllers\Student;
+
+use App\Http\Controllers\Controller;
+use App\Models\Course;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class CourseController extends Controller
+{
+    /**
+     * Browse all approved courses
+     */
+    public function index(Request $request)
+    {
+        $query = Course::where('status', 'approved')
+            ->with('tutor')
+            ->withCount([
+                'enrollments' => function ($query) {
+                    $query->where('payment_status', 'paid');
+                }
+            ])
+            ->withAvg('reviews', 'rating');
+
+        // Search
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Sort
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'price_low':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_high':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'popular':
+                $query->orderBy('enrollments_count', 'desc');
+                break;
+            default:
+                $query->latest();
+        }
+
+        $courses = $query->paginate(12);
+
+        return view('student.courses.index', compact('courses'));
+    }
+
+    /**
+     * My Enrolled Courses
+     */
+    public function myCourses()
+    {
+        $enrollments = Auth::user()->enrollments()
+            ->with([
+                'course' => function ($query) {
+                    $query->with('tutor')->withCount('contents');
+                }
+            ])
+            ->where('payment_status', 'paid')
+            ->latest()
+            ->paginate(12);
+
+        return view('student.courses.my-courses', compact('enrollments'));
+    }
+
+    /**
+     * Watch Course Content
+     */
+    public function watch(Course $course, $content = null)
+    {
+        // 1. Check Enrollment
+        $isEnrolled = Auth::user()->enrollments()
+            ->where('course_id', $course->id)
+            ->where('payment_status', 'paid')
+            ->exists();
+
+        if (!$isEnrolled) {
+            return redirect()->route('student.courses.show', $course)
+                ->with('error', 'يجب الاشتراك في الكورس أولاً');
+        }
+
+        // 2. Load Contents
+        $course->load(['contents' => fn($q) => $q->orderBy('order')]);
+
+        // 3. Determine Current Content
+        if ($content) {
+            $currentContent = $course->contents->where('id', $content)->first();
+        } else {
+            $currentContent = $course->contents->first();
+        }
+
+        // 4. Progress Stats
+        $totalContents = $course->contents->count();
+        $completedContents = Auth::user()->getCompletedContentsCount($course->id);
+        $progressPercent = $totalContents > 0 ? round(($completedContents / $totalContents) * 100) : 0;
+
+        $canRequestCertificate = $progressPercent == 100;
+
+        $certificateRequest = \App\Models\CourseCertificate::where('user_id', Auth::id())
+            ->where('course_id', $course->id)
+            ->latest()
+            ->first();
+
+        // 5. Current Content Status
+        $isCurrentCompleted = false;
+        if ($currentContent) {
+            $isCurrentCompleted = Auth::user()->hasCompletedContent($currentContent->id);
+        }
+
+        return view('student.courses.watch', compact(
+            'course',
+            'currentContent',
+            'totalContents',
+            'completedContents',
+            'progressPercent',
+            'canRequestCertificate',
+            'certificateRequest',
+            'isCurrentCompleted'
+        ));
+    }
+
+    /**
+     * Mark content as complete
+     */
+    public function markComplete(Request $request, Course $course, $contentId)
+    {
+        $user = Auth::user();
+
+        // FIXED: Validate content belongs to course (Prevents IDOR)
+        $content = $course->contents()->where('id', $contentId)->first();
+        
+        if (!$content) {
+            abort(404, 'المحتوى غير موجود في هذا الكورس');
+        }
+
+        // FIXED: Validate user is enrolled and paid
+        $isEnrolled = $user->enrollments()
+            ->where('course_id', $course->id)
+            ->where('payment_status', 'paid')
+            ->exists();
+
+        if (!$isEnrolled) {
+            abort(403, 'يجب التسجيل والدفع في الكورس أولاً');
+        }
+
+        // Use updateOrCreate to handle existing records properly
+        \App\Models\ContentProgress::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'course_content_id' => $content->id, // FIXED: Use validated content id
+            ],
+            [
+                'completed' => true,
+                'completed_at' => now(),
+            ]
+        );
+
+        return back()->with('success', 'تم إكمال الدرس بنجاح!');
+    }
+    public function show(Course $course)
+    {
+        $course->load([
+            'tutor.tutorDetails',
+            'contents' => fn($q) => $q->orderBy('order'),
+            'quizzes'
+        ])->loadCount([
+                    'enrollments' => fn($q) => $q->where('payment_status', 'paid')
+                ]);
+
+        $isEnrolled = Auth::check() && Auth::user()->enrollments()
+            ->where('course_id', $course->id)
+            ->where('payment_status', 'paid')
+            ->exists();
+
+        return view('student.courses.show', compact('course', 'isEnrolled'));
+    }
+
+    /**
+     * Request course certificate
+     */
+    public function requestCertificate(Request $request, Course $course)
+    {
+        $enrollment = Auth::user()->enrollments()
+            ->where('course_id', $course->id)
+            ->where('payment_status', 'paid')
+            ->first();
+
+        if (!$enrollment) {
+            return back()->with('error', 'يجب التسجيل في الكورس أولاً');
+        }
+
+        // Check if all contents completed
+        $totalContents = $course->contents()->count();
+        $completedContents = Auth::user()->getCompletedContentsCount($course->id);
+
+        if ($completedContents < $totalContents) {
+            return back()->with('error', 'يجب إكمال جميع الدروس أولاً');
+        }
+
+        // Check if already requested
+        $existing = \App\Models\CourseCertificate::where('user_id', Auth::id())
+            ->where('course_id', $course->id)
+            ->first();
+
+        if ($existing) {
+            return back()->with('info', 'لقد طلبت الشهادة مسبقاً');
+        }
+
+        $certificate = \App\Models\CourseCertificate::create([
+            'user_id' => Auth::id(),
+            'course_id' => $course->id,
+            'enrollment_id' => $enrollment->id,
+            'status' => 'pending',
+        ]);
+
+        // Send Notification to Tutor
+        if ($course->tutor) {
+            $course->tutor->notify(new \App\Notifications\CertificateRequested($certificate));
+        }
+
+        return back()->with('success', 'تم إرسال طلب الشهادة بنجاح! سيقوم المعلم بمراجعته.');
+    }
+}
+</file>
+
+<file path="app/Http/Controllers/Tutor/CourseController.php">
+<?php
+
+namespace App\Http\Controllers\Tutor;
+
+use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\CourseContent;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
+class CourseController extends Controller
+{
+    /**
+     * Display tutor's courses
+     */
+    public function index()
+    {
+        $courses = Auth::user()->courses()
+            ->withCount(['enrollments', 'contents'])
+            ->latest()
+            ->paginate(10);
+
+        return view('tutor.courses.index', compact('courses'));
+    }
+
+    /**
+     * Show create course form
+     */
+    public function create()
+    {
+        return view('tutor.courses.create');
+    }
+
+    /**
+     * Store a new course
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'thumbnail' => 'nullable|image|max:2048',
+        ]);
+
+        $data = $request->only(['title', 'description', 'price']);
+        $data['tutor_id'] = Auth::id();
+        $data['status'] = 'pending';
+
+        // Handle thumbnail upload
+        if ($request->hasFile('thumbnail')) {
+            $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+        }
+
+        $course = Course::create($data);
+
+        // Notify Admins
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\CourseSubmitted($course));
+        }
+
+        return redirect()->route('tutor.courses.edit', $course)
+            ->with('success', 'تم إنشاء الكورس بنجاح. يمكنك الآن إضافة المحتوى.');
+    }
+
+    /**
+     * Show edit course form
+     */
+    public function edit(Course $course)
+    {
+        $this->authorize('update', $course);
+
+        $course->load('contents');
+
+        return view('tutor.courses.edit', compact('course'));
+    }
+
+    /**
+     * Update course
+     */
+    public function update(Request $request, Course $course)
+    {
+        $this->authorize('update', $course);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'thumbnail' => 'nullable|image|max:2048',
+        ]);
+
+        $data = $request->only(['title', 'description', 'price']);
+
+        // Handle thumbnail upload
+        if ($request->hasFile('thumbnail')) {
+            // Delete old thumbnail
+            if ($course->thumbnail) {
+                Storage::disk('public')->delete($course->thumbnail);
+            }
+            $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+        }
+
+        $course->update($data);
+
+        return back()->with('success', 'تم تحديث الكورس بنجاح');
+    }
+
+    /**
+     * Delete course
+     */
+    public function destroy(Course $course)
+    {
+        $this->authorize('delete', $course);
+
+        // Delete thumbnail
+        if ($course->thumbnail) {
+            Storage::disk('public')->delete($course->thumbnail);
+        }
+
+        $course->delete();
+
+        return redirect()->route('tutor.courses.index')
+            ->with('success', 'تم حذف الكورس بنجاح');
+    }
+
+    /**
+     * Add content to course
+     */
+    public function addContent(Request $request, Course $course)
+    {
+        $this->authorize('update', $course);
+
+        $rules = [
+            'title' => 'required|string|max:255',
+            'type' => 'required|in:video,file,image,text,quiz,link',
+            'description' => 'nullable|string',
+        ];
+
+        // Type-specific validation
+        switch ($request->type) {
+            case 'video':
+                $rules['video_source'] = 'required|in:youtube,local,external';
+                break;
+            case 'file':
+                $rules['content_file'] = 'required|file|max:51200'; // 50MB max
+                break;
+            case 'image':
+                $rules['content_image'] = 'required|image|max:10240'; // 10MB max
+                break;
+            case 'text':
+                $rules['text_content'] = 'required|string';
+                break;
+            case 'link':
+                $rules['link_url'] = 'required|url';
+                break;
+            case 'quiz':
+                $rules['quiz_id'] = 'required|exists:quizzes,id';
+                break;
+        }
+
+        $request->validate($rules);
+
+        $maxOrder = $course->contents()->max('order') ?? 0;
+
+        $data = [
+            'title' => $request->title,
+            'type' => $request->type,
+            'description' => $request->description,
+            'order' => $maxOrder + 1,
+        ];
+
+        // Handle content based on type
+        switch ($request->type) {
+            case 'video':
+                if ($request->video_source === 'youtube') {
+                    $youtubeId = CourseContent::extractYoutubeId($request->youtube_url);
+                    if (!$youtubeId)
+                        return back()->with('error', 'رابط YouTube غير صالح');
+                    $data['youtube_video_id'] = $youtubeId;
+                } elseif ($request->video_source === 'local') {
+                    $request->validate(['video_file' => 'required|file|mimetypes:video/mp4,video/mpeg,video/quicktime|max:512000']); // 500MB
+                    $data['file_path'] = $request->file('video_file')->store("courses/{$course->id}/videos", 'public');
+                } elseif ($request->video_source === 'external') {
+                    $request->validate(['video_url' => 'required|url']);
+                    $data['link_url'] = $request->video_url;
+                }
+                break;
+
+            case 'file':
+                $data['file_path'] = $request->file('content_file')->store("courses/{$course->id}/files", 'public');
+                break;
+
+            case 'image':
+                $data['file_path'] = $request->file('content_image')->store("courses/{$course->id}/images", 'public');
+                break;
+
+            case 'text':
+                $data['text_content'] = $request->text_content;
+                break;
+
+            case 'link':
+                $data['link_url'] = $request->link_url;
+                break;
+
+            case 'quiz':
+                $data['quiz_id'] = $request->quiz_id;
+                break;
+        }
+
+        $course->contents()->create($data);
+
+        return back()->with('success', 'تمت إضافة المحتوى بنجاح');
+    }
+
+    /**
+     * Show edit content form
+     */
+    public function editContent(Course $course, CourseContent $content)
+    {
+        $this->authorize('update', $course);
+
+        if ($content->course_id !== $course->id) {
+            abort(403);
+        }
+
+        return view('tutor.courses.content.edit', compact('course', 'content'));
+    }
+
+    /**
+     * Update content
+     */
+    public function updateContent(Request $request, Course $course, CourseContent $content)
+    {
+        $this->authorize('update', $course);
+
+        if ($content->course_id !== $course->id) {
+            abort(403);
+        }
+
+        $rules = [
+            'title' => 'required|string|max:255',
+            'type' => 'required|in:video,file,image,text,quiz,link',
+            'description' => 'nullable|string',
+        ];
+
+        // Type-specific validation (same as store but nullable for files if not replacing)
+        switch ($request->type) {
+            case 'video':
+                $rules['youtube_url'] = 'required|string';
+                break;
+            case 'file':
+                $rules['content_file'] = 'nullable|file|max:51200';
+                break;
+            case 'image':
+                $rules['content_image'] = 'nullable|image|max:10240';
+                break;
+            case 'text':
+                $rules['text_content'] = 'required|string';
+                break;
+            case 'link':
+                $rules['link_url'] = 'required|url';
+                break;
+            case 'quiz':
+                $rules['quiz_id'] = 'required|exists:quizzes,id';
+                break;
+        }
+
+        $request->validate($rules);
+
+        $data = [
+            'title' => $request->title,
+            'type' => $request->type,
+            'description' => $request->description,
+        ];
+
+        switch ($request->type) {
+            case 'video':
+                if ($request->video_source === 'youtube') {
+                    $youtubeId = CourseContent::extractYoutubeId($request->youtube_url);
+                    if (!$youtubeId)
+                        return back()->with('error', 'رابط YouTube غير صالح');
+                    $data['youtube_video_id'] = $youtubeId;
+                    $data['file_path'] = null;
+                    $data['link_url'] = null;
+                } elseif ($request->video_source === 'local') {
+                    if ($request->hasFile('video_file')) {
+                        $request->validate(['video_file' => 'required|file|mimetypes:video/mp4,video/mpeg,video/quicktime|max:512000']);
+                        if ($content->file_path && $content->isVideo())
+                            Storage::disk('public')->delete($content->file_path);
+                        $data['file_path'] = $request->file('video_file')->store("courses/{$course->id}/videos", 'public');
+                        $data['youtube_video_id'] = null;
+                        $data['link_url'] = null;
+                    }
+                } elseif ($request->video_source === 'external') {
+                    $request->validate(['video_url' => 'required|url']);
+                    $data['link_url'] = $request->video_url;
+                    $data['youtube_video_id'] = null;
+                    $data['file_path'] = null;
+                }
+                break;
+
+            case 'file':
+                if ($request->hasFile('content_file')) {
+                    // Delete old file if exists
+                    if ($content->file_path && $content->isFile()) {
+                        Storage::disk('public')->delete($content->file_path);
+                    }
+                    $data['file_path'] = $request->file('content_file')->store("courses/{$course->id}/files", 'public');
+                }
+                break;
+
+            case 'image':
+                if ($request->hasFile('content_image')) {
+                    if ($content->file_path && $content->isImage()) {
+                        Storage::disk('public')->delete($content->file_path);
+                    }
+                    $data['file_path'] = $request->file('content_image')->store("courses/{$course->id}/images", 'public');
+                }
+                break;
+
+            case 'text':
+                $data['text_content'] = $request->text_content;
+                break;
+
+            case 'link':
+                $data['link_url'] = $request->link_url;
+                break;
+
+            case 'quiz':
+                $data['quiz_id'] = $request->quiz_id;
+                break;
+        }
+
+        $content->update($data);
+
+        return redirect()->route('tutor.courses.edit', $course)
+            ->with('success', 'تم تحديث المحتوى بنجاح');
+    }
+
+    /**
+     * Delete content
+     */
+    public function deleteContent(Course $course, CourseContent $content)
+    {
+        $this->authorize('update', $course);
+
+        if ($content->course_id !== $course->id) {
+            abort(403);
+        }
+
+        $content->delete();
+
+        return back()->with('success', 'تم حذف المحتوى بنجاح');
+    }
+
+    /**
+     * Reorder contents
+     */
+    public function reorderContents(Request $request, Course $course)
+    {
+        $this->authorize('update', $course);
+
+        $request->validate([
+            'order' => 'required|array',
+            'order.*' => 'integer|exists:course_contents,id',
+        ]);
+
+        foreach ($request->order as $index => $contentId) {
+            CourseContent::where('id', $contentId)
+                ->where('course_id', $course->id)
+                ->update(['order' => $index + 1]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Show course details
+     */
+    public function show(Course $course)
+    {
+        $this->authorize('view', $course);
+
+        $course->load(['contents', 'enrollments.student']);
+
+        // Get certificate requests for this course
+        $certificateRequests = \App\Models\CourseCertificate::where('course_id', $course->id)
+            ->with('user')
+            ->latest()
+            ->get();
+
+        // PERFORMANCE FIX: Batch fetch completed counts for all students in ONE query
+        // Before: N queries (1 per enrollment)
+        // After: 1 query total
+        $studentIds = $course->enrollments->pluck('student.id')->filter();
+        $totalContents = $course->contents->count();
+        
+        $completedCounts = [];
+        if ($studentIds->isNotEmpty()) {
+            $completedCounts = \App\Models\ContentProgress::whereIn('user_id', $studentIds)
+                ->whereHas('courseContent', fn($q) => $q->where('course_id', $course->id))
+                ->where('completed', true)
+                ->selectRaw('user_id, COUNT(*) as completed_count')
+                ->groupBy('user_id')
+                ->pluck('completed_count', 'user_id')
+                ->toArray();
+        }
+
+        // Calculate progress using pre-fetched data
+        $enrollmentsWithProgress = $course->enrollments->map(function ($enrollment) use ($totalContents, $completedCounts) {
+            $completedContents = $completedCounts[$enrollment->student->id] ?? 0;
+            $enrollment->progress_percent = $totalContents > 0 ? round(($completedContents / $totalContents) * 100) : 0;
+            $enrollment->completed_count = $completedContents;
+            $enrollment->total_count = $totalContents;
+            return $enrollment;
+        });
+
+        return view('tutor.courses.show', compact('course', 'certificateRequests', 'enrollmentsWithProgress'));
+    }
+
+    /**
+     * Issue certificate to student
+     */
+    public function issueCertificate(Request $request, \App\Models\CourseCertificate $certificate)
+    {
+        // Check if tutor owns the course
+        $course = $certificate->course;
+        $this->authorize('update', $course);
+
+        if (!$certificate->isPending()) {
+            return back()->with('error', 'هذا الطلب تمت معالجته مسبقاً');
+        }
+
+        $certificate->update([
+            'status' => 'approved',
+            'certificate_code' => \App\Models\CourseCertificate::generateCode(),
+            'issued_at' => now(),
+        ]);
+
+        // Send Notification
+        $certificate->user->notify(new \App\Notifications\CertificateIssued($certificate));
+
+        return back()->with('success', 'تم إصدار الشهادة بنجاح للطالب: ' . $certificate->user->name);
+    }
+
+    /**
+     * Reject certificate request
+     */
+    public function rejectCertificate(Request $request, \App\Models\CourseCertificate $certificate)
+    {
+        $course = $certificate->course;
+        $this->authorize('update', $course);
+
+        if (!$certificate->isPending()) {
+            return back()->with('error', 'هذا الطلب تمت معالجته مسبقاً');
+        }
+
+        $request->validate(['reason' => 'nullable|string|max:500']);
+
+        $certificate->update([
+            'status' => 'rejected',
+            'rejection_reason' => $request->reason ?? 'لم يتم استيفاء شروط الشهادة',
+        ]);
+
+        return back()->with('success', 'تم رفض طلب الشهادة');
+    }
+}
+</file>
+
+<file path="routes/web.php">
+<?php
+
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
+
+// Admin Controllers
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\TutorController as AdminTutorController;
+use App\Http\Controllers\Admin\CourseController as AdminCourseController;
+
+// Tutor Controllers
+use App\Http\Controllers\Tutor\DashboardController as TutorDashboardController;
+use App\Http\Controllers\Tutor\ProfileController as TutorProfileController;
+use App\Http\Controllers\Tutor\CourseController as TutorCourseController;
+
+// Student Controllers
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Student\CourseController as StudentCourseController;
+use App\Http\Controllers\Student\EnrollmentController;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\CertificateController;
+
+/*
+|--------------------------------------------------------------------------
+| Localized Routes (with /ar and /en prefix)
+|--------------------------------------------------------------------------
+*/
+Route::group([
+    'prefix' => LaravelLocalization::setLocale(),
+    'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
+], function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/', function () {
+        return view('welcome');
+    })->name('home');
+
+    // Public course browsing
+    Route::get('/courses', [StudentCourseController::class, 'index'])->name('courses.index');
+    Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->name('courses.show');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authenticated Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('auth')->group(function () {
+        // Messaging Routes
+        Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+        Route::get('/messages/{user}', [MessageController::class, 'show'])->name('messages.show');
+
+        // Certificate Routes
+        Route::get('/certificate/verify/{code}', [App\Http\Controllers\CertificateController::class, 'verify'])->name('certificate.verify');
+        Route::get('/certificate/{certificate}', [App\Http\Controllers\CertificateController::class, 'show'])->name('certificate.show');
+        Route::get('/my-certificates', [App\Http\Controllers\CertificateController::class, 'myCertificates'])
+            ->middleware(['auth'])
+            ->name('student.certificates');
+
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        // Tutor Management
+        Route::get('/tutors', [AdminTutorController::class, 'index'])->name('tutors.index');
+        Route::get('/tutors/pending', [AdminTutorController::class, 'pending'])->name('tutors.pending');
+        Route::get('/tutors/{tutor}', [AdminTutorController::class, 'show'])->name('tutors.show');
+        Route::post('/tutors/{tutor}/verify', [AdminTutorController::class, 'verify'])->name('tutors.verify');
+        Route::post('/tutors/{tutor}/reject', [AdminTutorController::class, 'reject'])->name('tutors.reject');
+
+        // Course Management
+        Route::get('/courses', [AdminCourseController::class, 'index'])->name('courses.index');
+        Route::get('/courses/pending', [AdminCourseController::class, 'pending'])->name('courses.pending');
+        Route::get('/courses/{course}', [AdminCourseController::class, 'show'])->name('courses.show');
+        Route::post('/courses/{course}/approve', [AdminCourseController::class, 'approve'])->name('courses.approve');
+        Route::post('/courses/{course}/reject', [AdminCourseController::class, 'reject'])->name('courses.reject');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tutor Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->group(function () {
+        Route::get('/dashboard', [TutorDashboardController::class, 'index'])->name('dashboard');
+
+        // Profile
+        Route::get('/profile', [TutorProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [TutorProfileController::class, 'update'])->name('profile.update');
+        Route::get('/profile/cv', [TutorProfileController::class, 'downloadCv'])->name('profile.cv');
+
+        // Courses
+        Route::resource('courses', TutorCourseController::class);
+        Route::post('/courses/{course}/content', [TutorCourseController::class, 'addContent'])->name('courses.content.add');
+        Route::get('/courses/{course}/content/{content}/edit', [TutorCourseController::class, 'editContent'])->name('courses.content.edit');
+        Route::put('/courses/{course}/content/{content}', [TutorCourseController::class, 'updateContent'])->name('courses.content.update');
+        Route::delete('/courses/{course}/content/{content}', [TutorCourseController::class, 'deleteContent'])->name('courses.content.delete');
+        Route::post('/courses/{course}/content/reorder', [TutorCourseController::class, 'reorderContents'])->name('courses.content.reorder');
+
+        // Quiz Management
+        Route::resource('courses.quizzes', \App\Http\Controllers\Tutor\QuizController::class);
+        Route::get('/courses/{course}/quizzes/{quiz}/builder', [\App\Http\Controllers\Tutor\QuizController::class, 'builder'])->name('courses.quizzes.builder');
+        Route::get('/courses/{course}/quizzes/{quiz}/results', [\App\Http\Controllers\Tutor\QuizController::class, 'results'])->name('courses.quizzes.results');
+        Route::get('/courses/{course}/quizzes/{quiz}/attempts/{attempt}', [\App\Http\Controllers\Tutor\QuizController::class, 'showAttempt'])->name('courses.quizzes.attempts.show');
+        Route::delete('/courses/{course}/quizzes/{quiz}/attempts', [\App\Http\Controllers\Tutor\QuizController::class, 'clearAttempts'])->name('courses.quizzes.attempts.clear');
+        Route::delete('/courses/{course}/quizzes/{quiz}/attempts/{attempt}', [\App\Http\Controllers\Tutor\QuizController::class, 'deleteAttempt'])->name('courses.quizzes.attempts.delete');
+        Route::post('/courses/{course}/quizzes/{quiz}/questions', [\App\Http\Controllers\Tutor\QuizController::class, 'storeQuestion'])->name('courses.quizzes.questions.store');
+        Route::delete('/courses/{course}/quizzes/{quiz}/questions/{question}', [\App\Http\Controllers\Tutor\QuizController::class, 'destroyQuestion'])->name('courses.quizzes.questions.destroy');
+
+        // Certificate Management
+        Route::post('/certificates/{certificate}/issue', [TutorCourseController::class, 'issueCertificate'])->name('certificates.issue');
+        Route::post('/certificates/{certificate}/reject', [TutorCourseController::class, 'rejectCertificate'])->name('certificates.reject');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Student Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
+        Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+
+        // Courses
+        Route::get('/courses', [StudentCourseController::class, 'index'])->name('courses.index');
+        Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->name('courses.show');
+        Route::get('/my-courses', [StudentCourseController::class, 'myCourses'])->name('courses.my');
+        Route::get('/courses/{course}/watch/{content?}', [StudentCourseController::class, 'watch'])->name('courses.watch');
+
+        // Enrollments
+        Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'enroll'])->name('enroll');
+        Route::get('/enrollment/{enrollment}/payment', [EnrollmentController::class, 'showPayment'])->name('enrollment.payment');
+        Route::post('/enrollment/{enrollment}/payment', [EnrollmentController::class, 'processPayment'])->name('enrollment.payment.process');
+        Route::get('/my-enrollments', [EnrollmentController::class, 'myEnrollments'])->name('enrollments.my');
+
+        // Quizzes
+        Route::get('/quizzes/{quiz}', [QuizController::class, 'show'])->name('quizzes.show');
+        Route::post('/quizzes/{quiz}', [QuizController::class, 'submit'])->name('quizzes.submit');
+        Route::get('/quizzes/{quiz}/result', [QuizController::class, 'result'])->name('quizzes.result');
+
+        // Certificates
+        Route::get('/certificates/{attempt}', [CertificateController::class, 'show'])->name('certificates.show');
+
+        // Progress & Certificates
+        Route::post('/courses/{course}/content/{content}/complete', [StudentCourseController::class, 'markComplete'])->name('courses.content.complete');
+        Route::post('/courses/{course}/request-certificate', [StudentCourseController::class, 'requestCertificate'])->name('courses.certificate.request');
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Legacy Dashboard Route (redirect based on role)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+        return match ($user->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'tutor' => redirect()->route('tutor.dashboard'),
+            'student' => redirect()->route('student.dashboard'),
+            default => redirect()->route('login'),
+        };
+    })->middleware(['auth'])->name('dashboard');
+
+}); // End of localization group
+
+require __DIR__ . '/auth.php';
+</file>
+
+</files>

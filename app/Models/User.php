@@ -23,7 +23,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        // FIXED: Removed 'role' to prevent Mass Assignment privilege escalation
+        // Use $user->role = 'admin' explicitly when needed
     ];
 
     /**

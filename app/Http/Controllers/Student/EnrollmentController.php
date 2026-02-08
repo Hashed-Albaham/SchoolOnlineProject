@@ -47,8 +47,9 @@ class EnrollmentController extends Controller
             $enrollment->update(['payment_status' => 'paid']);
 
             // Send Notification to Tutor
-            if ($course->tutor && $course->tutor->user) {
-                $course->tutor->user->notify(new \App\Notifications\NewEnrollment($enrollment));
+            // FIXED: $course->tutor is already a User model, not TutorDetails
+            if ($course->tutor) {
+                $course->tutor->notify(new \App\Notifications\NewEnrollment($enrollment));
             }
 
             return redirect()->route('student.courses.watch', $course)
@@ -91,8 +92,9 @@ class EnrollmentController extends Controller
         $enrollment->update(['payment_status' => 'paid']);
 
         // Send Notification to Tutor
-        if ($enrollment->course && $enrollment->course->tutor && $enrollment->course->tutor->user) {
-            $enrollment->course->tutor->user->notify(new \App\Notifications\NewEnrollment($enrollment));
+        // FIXED: $course->tutor is already a User model, not TutorDetails
+        if ($enrollment->course && $enrollment->course->tutor) {
+            $enrollment->course->tutor->notify(new \App\Notifications\NewEnrollment($enrollment));
         }
 
         return redirect()->route('student.courses.watch', $enrollment->course)

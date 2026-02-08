@@ -13,6 +13,7 @@ class ChatBox extends Component
     public $courseId;
     public $newMessage = '';
     public $messages = [];
+    public $rateLimitExceeded = false; // FIXED: Track rate limit status
 
     protected $rules = [
         'newMessage' => 'required|string|max:1000',
@@ -67,6 +68,16 @@ class ChatBox extends Component
         if (!$this->receiverId) {
             return;
         }
+
+        // FIXED: Rate limiting - max 10 messages per minute
+        $key = 'chat-messages:' . Auth::id();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 10)) {
+            $this->rateLimitExceeded = true;
+            $this->addError('newMessage', 'لقد أرسلت رسائل كثيرة. انتظر قليلاً.');
+            return;
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($key, 60);
+        $this->rateLimitExceeded = false;
 
         $message = Message::create([
             'sender_id' => Auth::id(),
