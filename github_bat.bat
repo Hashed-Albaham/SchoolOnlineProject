@@ -46,7 +46,7 @@ if %errorlevel% neq 0 (
     echo [4/5] Setting up branch and remote...
     git branch -M main
     git remote remove origin 2>nul
-    git remote add origin https://github.com/Hashed-Albaham/Mikrotik_MCP_AI.git
+    git remote add origin https://github.com/Hashed-Albaham/SchoolOnlineProject.git
 ) else (
     echo [4/5] Branch already configured, skipping...
 )
@@ -55,7 +55,7 @@ echo.
 echo ---------------------------------
 echo READY TO PUSH!
 echo.
-echo Repository: https://github.com/Hashed-Albaham/Mikrotik_MCP_AI
+echo Repository: https://github.com/Hashed-Albaham/SchoolOnlineProject
 echo This will create a NEW version (commit) without overwriting previous ones.
 echo.
 echo Press any key to start uploading...
