@@ -1,8 +1,170 @@
-# دليل تثبيت المشروع - Installation Guide
+# Installation Guide | دليل التثبيت
 
-## 📋 المتطلبات الأساسية
+**[English](#english) | [العربية](#arabic)**
 
-### البرمجيات المطلوبة
+---
+
+<a name="english"></a>
+# 📦 English Installation Guide
+
+## System Requirements
+
+| Software | Required Version | Download |
+|----------|------------------|----------|
+| PHP | 8.2 or higher | [php.net](https://php.net) |
+| Composer | 2.0+ | [getcomposer.org](https://getcomposer.org) |
+| Node.js | 18.0+ | [nodejs.org](https://nodejs.org) |
+| MySQL | 8.0+ | [mysql.com](https://mysql.com) |
+| XAMPP (Windows) | 8.2+ | [apachefriends.org](https://apachefriends.org) |
+
+### Required PHP Extensions
+```
+bcmath, ctype, curl, dom, fileinfo, gd, json, 
+mbstring, openssl, pdo, pdo_mysql, tokenizer, xml, zip
+```
+
+---
+
+## 🖥️ Installation on Windows (XAMPP)
+
+### Step 1: Download and Install XAMPP
+1. Download XAMPP from [apachefriends.org](https://apachefriends.org)
+2. Install XAMPP in `C:\xampp`
+3. Start Apache and MySQL from XAMPP Control Panel
+
+### Step 2: Clone the Project
+```cmd
+cd C:\xampp\htdocs
+git clone https://github.com/Hashed-Albaham/SchoolOnlineProject.git
+cd SchoolOnlineProject
+```
+
+### Step 3: Install Dependencies
+```cmd
+composer install
+npm install
+```
+
+### Step 4: Setup Environment
+```cmd
+copy .env.example .env
+php artisan key:generate
+```
+
+### Step 5: Configure Database
+1. Open phpMyAdmin: http://localhost/phpmyadmin
+2. Create database named `school_online`
+3. Edit `.env` file:
+```env
+DB_DATABASE=school_online
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### Step 6: Run Migrations
+```cmd
+php artisan migrate
+php artisan storage:link
+```
+
+### Step 7: Start the Project
+```cmd
+:: Terminal 1 - Server
+php artisan serve
+
+:: Terminal 2 - Vite
+npm run dev
+```
+
+### Step 8: Open Browser
+```
+http://127.0.0.1:8000
+```
+
+---
+
+## 🐧 Installation on Linux/Ubuntu
+
+### Step 1: Install Requirements
+```bash
+sudo apt update && sudo apt upgrade -y
+
+sudo apt install php8.2 php8.2-cli php8.2-common php8.2-mysql \
+    php8.2-zip php8.2-gd php8.2-mbstring php8.2-curl php8.2-xml \
+    php8.2-bcmath php8.2-tokenizer -y
+
+# Install Composer
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+
+# Install Node.js
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install nodejs -y
+
+# Install MySQL
+sudo apt install mysql-server -y
+```
+
+### Step 2: Setup MySQL
+```bash
+sudo mysql -u root -p
+```
+```sql
+CREATE DATABASE school_online CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'school_user'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON school_online.* TO 'school_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+### Steps 3-7: Same as Windows
+
+---
+
+## 🐳 Installation with Docker
+
+```bash
+git clone https://github.com/Hashed-Albaham/SchoolOnlineProject.git
+cd SchoolOnlineProject
+
+composer require laravel/sail --dev
+php artisan sail:install
+
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan migrate
+```
+
+---
+
+## 🔧 Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Permission denied | `chmod -R 775 storage bootstrap/cache` |
+| Class not found | `composer dump-autoload` |
+| Vite manifest not found | `npm run build` |
+| 419 Page Expired | `php artisan cache:clear` |
+
+---
+
+## 📱 Default Login Credentials
+
+After running `php artisan db:seed`:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@example.com | password |
+| Tutor | tutor@example.com | password |
+| Student | student@example.com | password |
+
+---
+
+---
+
+<a name="arabic"></a>
+# 📦 دليل التثبيت بالعربية
+
+## متطلبات النظام
 
 | البرنامج | الإصدار المطلوب | التحميل |
 |----------|-----------------|---------|
@@ -82,10 +244,8 @@ http://127.0.0.1:8000
 
 ### الخطوة 1: تثبيت المتطلبات
 ```bash
-# تحديث النظام
 sudo apt update && sudo apt upgrade -y
 
-# تثبيت PHP والإضافات
 sudo apt install php8.2 php8.2-cli php8.2-common php8.2-mysql \
     php8.2-zip php8.2-gd php8.2-mbstring php8.2-curl php8.2-xml \
     php8.2-bcmath php8.2-tokenizer -y
@@ -114,113 +274,33 @@ FLUSH PRIVILEGES;
 EXIT;
 ```
 
-### الخطوة 3: تحميل وإعداد المشروع
-```bash
-cd /var/www/html
-sudo git clone https://github.com/Hashed-Albaham/SchoolOnlineProject.git
-cd SchoolOnlineProject
-sudo chown -R $USER:$USER .
-
-composer install
-npm install
-
-cp .env.example .env
-php artisan key:generate
-```
-
-### الخطوة 4: تعديل `.env`
-```env
-DB_DATABASE=school_online
-DB_USERNAME=school_user
-DB_PASSWORD=your_password
-```
-
-### الخطوة 5: التشغيل
-```bash
-php artisan migrate
-php artisan storage:link
-php artisan serve &
-npm run dev
-```
-
----
-
-## 🍎 التثبيت على macOS
-
-### الخطوة 1: تثبيت Homebrew
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-### الخطوة 2: تثبيت المتطلبات
-```bash
-brew install php@8.2 composer node mysql
-brew services start mysql
-```
-
-### الخطوة 3: إكمال الإعداد
-اتبع نفس خطوات Linux من الخطوة 2.
+### الخطوات 3-7: نفس خطوات Windows
 
 ---
 
 ## 🐳 التثبيت باستخدام Docker
 
-### الخطوة 1: تثبيت Docker
-- Windows/Mac: [Docker Desktop](https://docker.com/products/docker-desktop)
-- Linux: `sudo apt install docker.io docker-compose`
-
-### الخطوة 2: تشغيل المشروع
 ```bash
 git clone https://github.com/Hashed-Albaham/SchoolOnlineProject.git
 cd SchoolOnlineProject
 
-# تثبيت Sail
 composer require laravel/sail --dev
 php artisan sail:install
 
-# تشغيل Docker
 ./vendor/bin/sail up -d
-
-# تشغيل Migrations
 ./vendor/bin/sail artisan migrate
-```
-
-### الخطوة 3: الوصول
-```
-http://localhost
 ```
 
 ---
 
 ## 🔧 حل المشاكل الشائعة
 
-### مشكلة: Permission denied (storage)
-```bash
-chmod -R 775 storage bootstrap/cache
-```
-
-### مشكلة: Class not found
-```bash
-composer dump-autoload
-php artisan optimize:clear
-```
-
-### مشكلة: Vite manifest not found
-```bash
-npm run build
-```
-
-### مشكلة: 419 Page Expired
-```bash
-php artisan cache:clear
-php artisan config:clear
-```
-
-### مشكلة: SQLSTATE Access denied
-تأكد من:
-1. صحة اسم قاعدة البيانات في `.env`
-2. صحة اسم المستخدم وكلمة المرور
-3. أن MySQL يعمل
+| المشكلة | الحل |
+|---------|------|
+| Permission denied | `chmod -R 775 storage bootstrap/cache` |
+| Class not found | `composer dump-autoload` |
+| Vite manifest not found | `npm run build` |
+| 419 Page Expired | `php artisan cache:clear` |
 
 ---
 
@@ -233,24 +313,3 @@ php artisan config:clear
 | Admin | admin@example.com | password |
 | Tutor | tutor@example.com | password |
 | Student | student@example.com | password |
-
----
-
-## ✅ التحقق من التثبيت
-
-```bash
-# التحقق من PHP
-php -v
-
-# التحقق من Composer
-composer -V
-
-# التحقق من Node
-node -v
-
-# التحقق من Laravel
-php artisan --version
-
-# التحقق من قاعدة البيانات
-php artisan migrate:status
-```
