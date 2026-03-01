@@ -36,7 +36,7 @@ git rm --cached *.log >nul 2>nul
 git add .
 
 echo [3/5] Committing files with timestamp...
-set COMMIT_MSG=Update: Mikrotik_MCP Platform - %mydate% %mytime%
+set COMMIT_MSG=Update: Mikrotik_MCP Platfozrm - %mydate% %mytime%
 echo Commit message: %COMMIT_MSG%
 git commit -m "%COMMIT_MSG%"
 

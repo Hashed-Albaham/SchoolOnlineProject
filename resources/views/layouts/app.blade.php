@@ -1,3 +1,4 @@
+@php use Mcamara\LaravelLocalization\Facades\LaravelLocalization; @endphp
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="{{ LaravelLocalization::getCurrentLocaleDirection() }}"
     class="{{ app()->getLocale() === 'ar' ? 'font-arabic' : 'font-english' }}">
@@ -92,7 +93,6 @@
 
     <div class="min-h-screen flex flex-col">
         @include('layouts.navigation')
-
         <!-- Page Heading -->
         @isset($header)
             <header class="bg-luxury-800/50 backdrop-blur-xl border-b border-white/5">
@@ -115,11 +115,11 @@
                         <div class="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center">
                             <span class="text-luxury-900 font-bold">P</span>
                         </div>
-                        <span class="text-sm text-luxury-400">© {{ date('Y') }} ProSkill. جميع الحقوق محفوظة.</span>
+                        <span class="text-sm text-luxury-400">© {{ date('Y') }} ProSkill. {{ __('site.rights_reserved') }}</span>
                     </div>
                     <div class="flex items-center gap-6 text-sm text-luxury-400">
-                        <a href="#" class="hover:text-gold-400 transition">سياسة الخصوصية</a>
-                        <a href="#" class="hover:text-gold-400 transition">الشروط والأحكام</a>
+                        <a href="#" class="hover:text-gold-400 transition">{{ __('site.privacy_policy') }}</a>
+                        <a href="#" class="hover:text-gold-400 transition">{{ __('site.terms_conditions') }}</a>
                     </div>
                 </div>
             </div>

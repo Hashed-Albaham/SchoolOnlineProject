@@ -81,6 +81,7 @@ Route::group([
         Route::get('/tutors/{tutor}', [AdminTutorController::class, 'show'])->name('tutors.show');
         Route::post('/tutors/{tutor}/verify', [AdminTutorController::class, 'verify'])->name('tutors.verify');
         Route::post('/tutors/{tutor}/reject', [AdminTutorController::class, 'reject'])->name('tutors.reject');
+        Route::post('/tutors/{tutor}/approve-all-courses', [AdminTutorController::class, 'approveAllCourses'])->name('tutors.approveAllCourses');
 
         // Course Management
         Route::get('/courses', [AdminCourseController::class, 'index'])->name('courses.index');
@@ -88,6 +89,7 @@ Route::group([
         Route::get('/courses/{course}', [AdminCourseController::class, 'show'])->name('courses.show');
         Route::post('/courses/{course}/approve', [AdminCourseController::class, 'approve'])->name('courses.approve');
         Route::post('/courses/{course}/reject', [AdminCourseController::class, 'reject'])->name('courses.reject');
+        Route::post('/courses/{course}/unapprove', [AdminCourseController::class, 'unapprove'])->name('courses.unapprove');
     });
 
     /*
@@ -122,8 +124,10 @@ Route::group([
         Route::delete('/courses/{course}/quizzes/{quiz}/questions/{question}', [\App\Http\Controllers\Tutor\QuizController::class, 'destroyQuestion'])->name('courses.quizzes.questions.destroy');
 
         // Certificate Management
+        Route::get('/certificates', [TutorCourseController::class, 'certificatesIndex'])->name('certificates.index');
         Route::post('/certificates/{certificate}/issue', [TutorCourseController::class, 'issueCertificate'])->name('certificates.issue');
         Route::post('/certificates/{certificate}/reject', [TutorCourseController::class, 'rejectCertificate'])->name('certificates.reject');
+        Route::post('/certificates/{certificate}/revoke', [TutorCourseController::class, 'revokeCertificate'])->name('certificates.revoke');
     });
 
     /*
@@ -176,7 +180,7 @@ Route::group([
         };
     })->middleware(['auth'])->name('dashboard');
 
-}); // End of localization group
+    require __DIR__ . '/auth.php';
 
-require __DIR__ . '/auth.php';
+}); // End of localization group
 

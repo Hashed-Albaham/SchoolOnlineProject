@@ -39,14 +39,16 @@ class MessageSent extends Notification implements ShouldQueue
      */
     public function toArray(object $notifiable): array
     {
+        $senderName = $this->message->sender->name ?? '';
         return [
             'type' => 'new_message',
-            'title' => 'رسالة جديدة من ' . $this->message->sender->name,
+            'title' => __('site.new_message_from', ['name' => $senderName]),
             'message' => $this->message->content,
             'link' => route('messages.show', $this->message->sender_id),
             'icon' => 'message',
             'color' => 'blue',
             'sender_id' => $this->message->sender_id,
+            'sender_name' => $senderName,
         ];
     }
 }

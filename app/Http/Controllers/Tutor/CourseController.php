@@ -58,6 +58,7 @@ class CourseController extends Controller
         // Notify Admins
         $admins = \App\Models\User::where('role', 'admin')->get();
         foreach ($admins as $admin) {
+            /** @var \App\Models\User $admin */
             $admin->notify(new \App\Notifications\CourseSubmitted($course));
         }
 
@@ -430,7 +431,7 @@ class CourseController extends Controller
         $this->authorize('update', $course);
 
         if (!$certificate->isPending()) {
-            return back()->with('error', 'هذا الطلب تمت معالجته مسبقاً');
+            return back()->with('error', __('site.already_processed'));
         }
 
         $certificate->update([
@@ -442,7 +443,7 @@ class CourseController extends Controller
         // Send Notification
         $certificate->user->notify(new \App\Notifications\CertificateIssued($certificate));
 
-        return back()->with('success', 'تم إصدار الشهادة بنجاح للطالب: ' . $certificate->user->name);
+        return back()->with('success', __('site.certificate_issued_success'));
     }
 
     /**
@@ -454,16 +455,90 @@ class CourseController extends Controller
         $this->authorize('update', $course);
 
         if (!$certificate->isPending()) {
-            return back()->with('error', 'هذا الطلب تمت معالجته مسبقاً');
+            return back()->with('error', __('site.already_processed'));
         }
 
         $request->validate(['reason' => 'nullable|string|max:500']);
 
         $certificate->update([
             'status' => 'rejected',
-            'rejection_reason' => $request->reason ?? 'لم يتم استيفاء شروط الشهادة',
+            'rejection_reason' => $request->reason ?? __('site.certificate_conditions_not_met'),
         ]);
 
-        return back()->with('success', 'تم رفض طلب الشهادة');
+        return back()->with('success', __('site.certificate_rejected'));
+    }
+
+    /**
+     * Show certificates management page
+     */
+    public function certificatesIndex()
+    {
+        $user = Auth::user();
+        $allCourses = $user->courses()->get(['id', 'title']);
+        $courseIds = $allCourses->pluck('id')->toArray();
+
+        if (empty($courseIds)) {
+            $certificates = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15);
+            $counts = ['all' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0];
+            $status = null;
+            $courseFilter = null;
+            $sort = 'newest';
+            return view('tutor.certificates.index', compact('certificates', 'allCourses', 'counts', 'status', 'courseFilter', 'sort'));
+        }
+
+        $query = \App\Models\CourseCertificate::whereIn('course_id', $courseIds)
+            ->with(['user', 'course']);
+
+        // Filter by status
+        $status = request('status');
+        if ($status && in_array($status, ['pending', 'approved', 'rejected'])) {
+            $query->where('status', $status);
+        }
+
+        // Filter by course
+        $courseFilter = request('course_id');
+        if ($courseFilter) {
+            $query->where('course_id', $courseFilter);
+        }
+
+        // Sort
+        $sort = request('sort', 'newest');
+        if ($sort === 'oldest') {
+            $query->oldest();
+        } else {
+            $query->latest();
+        }
+
+        $certificates = $query->paginate(15)->withQueryString();
+
+        // Counts per status
+        $counts = [
+            'all' => \App\Models\CourseCertificate::whereIn('course_id', $courseIds)->count(),
+            'pending' => \App\Models\CourseCertificate::whereIn('course_id', $courseIds)->where('status', 'pending')->count(),
+            'approved' => \App\Models\CourseCertificate::whereIn('course_id', $courseIds)->where('status', 'approved')->count(),
+            'rejected' => \App\Models\CourseCertificate::whereIn('course_id', $courseIds)->where('status', 'rejected')->count(),
+        ];
+
+        return view('tutor.certificates.index', compact('certificates', 'allCourses', 'counts', 'status', 'courseFilter', 'sort'));
+    }
+
+    /**
+     * Revoke an issued certificate
+     */
+    public function revokeCertificate(\App\Models\CourseCertificate $certificate)
+    {
+        $course = $certificate->course;
+        $this->authorize('update', $course);
+
+        if ($certificate->status !== 'approved') {
+            return back()->with('error', __('site.only_issued_can_revoke'));
+        }
+
+        $certificate->update([
+            'status' => 'rejected',
+            'rejection_reason' => __('site.certificate_revoked_by_tutor'),
+        ]);
+
+        return back()->with('success', __('site.certificate_revoked_success'));
     }
 }

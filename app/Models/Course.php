@@ -89,6 +89,14 @@ class Course extends Model
     }
 
     /**
+     * Get certificates for this course
+     */
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(CourseCertificate::class);
+    }
+
+    /**
      * Get average rating for this course
      */
     public function getAverageRatingAttribute(): float

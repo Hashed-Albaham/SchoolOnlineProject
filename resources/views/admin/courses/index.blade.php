@@ -2,15 +2,15 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-white">إدارة الكورسات</h2>
-                <p class="text-luxury-400 text-sm mt-1">مراجعة والموافقة على الكورسات المقدمة</p>
+                <h2 class="text-2xl font-bold text-white">{{ __('site.manage_courses') }}</h2>
+                <p class="text-luxury-400 text-sm mt-1">{{ __('site.review_approve_courses_desc') }}</p>
             </div>
             <a href="{{ route('admin.courses.pending') }}" 
                 class="px-4 py-2 rounded-xl text-sm font-medium border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 transition flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                بانتظار الموافقة ({{ $pendingCount ?? 0 }})
+                {{ __('site.pending_approval_count', ['count' => $pendingCount ?? 0]) }}
             </a>
         </div>
     </x-slot>
@@ -23,7 +23,7 @@
                 <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-luxury-400 text-sm">جميع الكورسات</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.all_courses') }}</p>
                             <p class="text-3xl font-bold text-white mt-1">{{ $allCount ?? 0 }}</p>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
@@ -37,7 +37,7 @@
                 <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-luxury-400 text-sm">كورسات معتمدة</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.approved_courses_label') }}</p>
                             <p class="text-3xl font-bold text-white mt-1">{{ $approvedCount ?? 0 }}</p>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
@@ -51,7 +51,7 @@
                 <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-luxury-400 text-sm">بانتظار الموافقة</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.pending_approval_label') }}</p>
                             <p class="text-3xl font-bold text-white mt-1">{{ $pendingCount ?? 0 }}</p>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
@@ -65,7 +65,7 @@
                 <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-luxury-400 text-sm">كورسات مرفوضة</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.rejected_courses_label') }}</p>
                             <p class="text-3xl font-bold text-white mt-1">{{ $rejectedCount ?? 0 }}</p>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center">
@@ -80,7 +80,7 @@
             <!-- Courses Grid -->
             <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
                 <div class="p-6 border-b border-white/5">
-                    <h3 class="font-semibold text-white">جميع الكورسات</h3>
+                    <h3 class="font-semibold text-white">{{ __('site.all_courses') }}</h3>
                 </div>
                 
                 @if(isset($courses) && $courses->count() > 0)
@@ -97,13 +97,13 @@
                                     @endif
                                     
                                     <!-- Status Badge -->
-                                    <div class="absolute top-3 right-3">
+                                    <div class="absolute top-3 {{ app()->getLocale() === 'ar' ? 'left-3' : 'right-3' }}">
                                         @if($course->status === 'approved')
-                                            <span class="px-2.5 py-1 text-xs rounded-lg bg-green-500/90 text-white font-medium">معتمد</span>
+                                            <span class="px-2.5 py-1 text-xs rounded-lg bg-green-500/90 text-white font-medium">{{ __('site.status_approved') }}</span>
                                         @elseif($course->status === 'pending')
-                                            <span class="px-2.5 py-1 text-xs rounded-lg bg-yellow-500/90 text-luxury-900 font-medium">بانتظار</span>
+                                            <span class="px-2.5 py-1 text-xs rounded-lg bg-yellow-500/90 text-luxury-900 font-medium">{{ __('site.status_pending') }}</span>
                                         @else
-                                            <span class="px-2.5 py-1 text-xs rounded-lg bg-red-500/90 text-white font-medium">مرفوض</span>
+                                            <span class="px-2.5 py-1 text-xs rounded-lg bg-red-500/90 text-white font-medium">{{ __('site.status_rejected') }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -117,22 +117,22 @@
                                             <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center">
                                                 <span class="text-white text-xs font-semibold">{{ substr($course->tutor->name ?? 'M', 0, 1) }}</span>
                                             </div>
-                                            <span class="text-sm text-luxury-400">{{ $course->tutor->name ?? 'معلم' }}</span>
+                                            <span class="text-sm text-luxury-400">{{ $course->tutor->name ?? __('site.tutor_label') }}</span>
                                         </div>
                                         <span class="text-gold-400 font-bold">
-                                            @if($course->price > 0) ${{ $course->price }} @else مجاني @endif
+                                            @if($course->price > 0) ${{ $course->price }} @else {{ __('site.free') }} @endif
                                         </span>
                                     </div>
                                     
                                     <div class="flex items-center gap-2">
                                         <a href="{{ route('admin.courses.show', $course) }}" 
                                             class="flex-1 text-center py-2.5 rounded-xl bg-royal-500/20 text-royal-400 text-sm font-medium hover:bg-royal-500/30 transition">
-                                            عرض التفاصيل
+                                            {{ __('site.view_details') }}
                                         </a>
                                         @if($course->status === 'pending')
                                             <form action="{{ route('admin.courses.approve', $course) }}" method="POST" class="flex-shrink-0">
                                                 @csrf
-                                                <button type="submit" class="p-2.5 rounded-xl bg-green-500/20 text-green-400 hover:bg-green-500/30 transition" title="موافقة">
+                                                <button type="submit" class="p-2.5 rounded-xl bg-green-500/20 text-green-400 hover:bg-green-500/30 transition" title="{{ __('site.approve_action') }}">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                     </svg>
@@ -140,8 +140,8 @@
                                             </form>
                                             <form action="{{ route('admin.courses.reject', $course) }}" method="POST" class="flex-shrink-0">
                                                 @csrf
-                                                <button type="submit" class="p-2.5 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition" title="رفض"
-                                                    onclick="return confirm('هل أنت متأكد من رفض هذا الكورس؟')">
+                                                <button type="submit" class="p-2.5 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition" title="{{ __('site.reject_action') }}"
+                                                    onclick="return confirm('{{ __('site.confirm_reject_course') }}')">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                     </svg>
@@ -166,7 +166,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                             </svg>
                         </div>
-                        <p class="text-luxury-400">لا توجد كورسات حالياً</p>
+                        <p class="text-luxury-400">{{ __('site.no_courses_currently') }}</p>
                     </div>
                 @endif
             </div>

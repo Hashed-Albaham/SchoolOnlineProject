@@ -4,6 +4,17 @@
         <div class="fixed top-0 left-0 right-0 h-1 bg-gold-gradient"></div>
 
         <div class="w-full max-w-md">
+            <!-- Language Switcher & Back -->
+            <div class="flex justify-between items-center mb-4">
+                <a href="{{ route('home') }}" class="flex items-center gap-2 text-sm text-luxury-400 hover:text-gold-400 transition">
+                    <svg class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    {{ __('site.back_to_home') }}
+                </a>
+                <x-language-switcher />
+            </div>
+
             <!-- Logo -->
             <div class="text-center mb-8">
                 <a href="{{ route('home') }}" class="inline-flex items-center gap-3 group">
@@ -41,7 +52,7 @@
                             <input id="email" type="email" name="email" :value="old('email')" required autofocus
                                 autocomplete="username"
                                 class="w-full ps-12 pe-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition"
-                                placeholder="{{ __('site.placeholder_email') ?? 'example@email.com' }}">
+                                placeholder="{{ __('site.placeholder_email') }}">
                         </div>
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                     </div>

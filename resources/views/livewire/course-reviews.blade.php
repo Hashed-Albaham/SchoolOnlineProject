@@ -1,7 +1,7 @@
 <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 mt-8">
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h3 class="text-xl font-bold text-white mb-1">تقييمات الطلاب</h3>
+            <h3 class="text-xl font-bold text-white mb-1">{{ __('site.student_reviews') }}</h3>
             <div class="flex items-center gap-2">
                 <div class="flex text-gold-400">
                     @for($i = 1; $i <= 5; $i++)
@@ -13,7 +13,7 @@
                     @endfor
                 </div>
                 <span class="text-white font-bold">{{ number_format($averageRating, 1) }}</span>
-                <span class="text-luxury-400 text-sm">({{ $totalReviews }} تقييم)</span>
+                <span class="text-luxury-400 text-sm">({{ $totalReviews }} {{ __('site.review_unit') }})</span>
             </div>
         </div>
     </div>
@@ -21,10 +21,10 @@
     <!-- Review Form -->
     @if($canReview)
         <div class="bg-white/5 rounded-xl p-6 mb-8 border border-white/5">
-            <h4 class="text-lg font-semibold text-white mb-4">أضف تقييمك</h4>
+            <h4 class="text-lg font-semibold text-white mb-4">{{ __('site.add_review') }}</h4>
             <form wire:submit.prevent="submitReview">
                 <div class="mb-4">
-                    <label class="block text-luxury-300 text-sm mb-2">التقييم</label>
+                    <label class="block text-luxury-300 text-sm mb-2">{{ __('site.rating_label') }}</label>
                     <div class="flex gap-2 text-gold-400">
                         @for($i = 1; $i <= 5; $i++)
                             <button type="button" wire:click="$set('rating', {{ $i }})"
@@ -39,17 +39,17 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-luxury-300 text-sm mb-2">تعليقك (اختياري)</label>
+                    <label class="block text-luxury-300 text-sm mb-2">{{ __('site.comment_optional') }}</label>
                     <textarea wire:model="comment" rows="3"
                         class="w-full bg-luxury-900 border border-white/10 rounded-lg text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-0"
-                        placeholder="ما رأيك في هذا الكورس؟"></textarea>
+                        placeholder="{{ __('site.review_placeholder') }}"></textarea>
                     @error('comment') <span class="text-red-400 text-sm">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="flex justify-end">
                     <button type="submit"
                         class="px-6 py-2 bg-gold-gradient text-luxury-900 font-bold rounded-lg hover:shadow-glow transition">
-                        نشر التقييم
+                        {{ __('site.publish_review') }}
                     </button>
                 </div>
             </form>
@@ -89,7 +89,7 @@
             </div>
         @empty
             <div class="text-center py-8 text-luxury-400">
-                لا توجد تقييمات حتى الآن. كن أول من يقيم!
+                {{ __('site.no_reviews_yet') }}
             </div>
         @endforelse
     </div>

@@ -2,14 +2,14 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-white">كورساتي</h2>
-                <p class="text-luxury-400 text-sm mt-1">إدارة وتعديل الكورسات الخاصة بك</p>
+                <h2 class="text-2xl font-bold text-white">{{ __('site.my_courses') }}</h2>
+                <p class="text-luxury-400 text-sm mt-1">{{ __('site.manage_edit_courses_desc') }}</p>
             </div>
             <a href="{{ route('tutor.courses.create') }}" class="btn-premium px-6 py-3 rounded-xl text-sm font-semibold inline-flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
-                إنشاء كورس جديد
+                {{ __('site.create_new_course') }}
             </a>
         </div>
     </x-slot>
@@ -38,13 +38,13 @@
                                 @endif
                                 
                                 <!-- Status Badge -->
-                                <div class="absolute top-3 right-3">
+                                <div class="absolute top-3 {{ app()->getLocale() === 'ar' ? 'left-3' : 'right-3' }}">
                                     @if($course->status === 'approved')
-                                        <span class="px-2.5 py-1 text-xs rounded-lg bg-green-500/90 text-white font-medium">معتمد</span>
+                                        <span class="px-2.5 py-1 text-xs rounded-lg bg-green-500/90 text-white font-medium">{{ __('site.status_approved') }}</span>
                                     @elseif($course->status === 'pending')
-                                        <span class="px-2.5 py-1 text-xs rounded-lg bg-yellow-500/90 text-luxury-900 font-medium">قيد المراجعة</span>
+                                        <span class="px-2.5 py-1 text-xs rounded-lg bg-yellow-500/90 text-luxury-900 font-medium">{{ __('site.under_review_label') }}</span>
                                     @else
-                                        <span class="px-2.5 py-1 text-xs rounded-lg bg-red-500/90 text-white font-medium">مرفوض</span>
+                                        <span class="px-2.5 py-1 text-xs rounded-lg bg-red-500/90 text-white font-medium">{{ __('site.status_rejected') }}</span>
                                     @endif
                                 </div>
                             </div>
@@ -55,14 +55,14 @@
                                 
                                 <div class="flex items-center justify-between text-sm mb-4">
                                     <span class="text-gold-400 font-bold">
-                                        @if($course->price > 0) ${{ $course->price }} @else مجاني @endif
+                                        @if($course->price > 0) ${{ $course->price }} @else {{ __('site.free') }} @endif
                                     </span>
-                                    <span class="text-luxury-400">{{ $course->contents_count ?? 0 }} درس</span>
+                                    <span class="text-luxury-400">{{ $course->contents_count ?? 0 }} {{ __('site.lesson_unit') }}</span>
                                 </div>
                                 
                                 <div class="flex items-center justify-between text-sm text-luxury-400 mb-4">
                                     <a href="{{ route('tutor.courses.show', $course) }}" class="hover:text-gold-400 transition">
-                                        {{ $course->enrollments_count ?? 0 }} طالب ←
+                                        {{ $course->enrollments_count ?? 0 }} {{ __('site.student_unit') }} ←
                                     </a>
                                     <span>{{ $course->created_at->format('Y/m/d') }}</span>
                                 </div>
@@ -70,18 +70,18 @@
                                 <div class="flex items-center gap-3">
                                     <a href="{{ route('tutor.courses.edit', $course) }}" 
                                         class="flex-1 text-center py-2.5 rounded-xl bg-royal-500/20 text-royal-400 text-sm font-medium hover:bg-royal-500/30 transition">
-                                        تعديل
+                                        {{ __('site.edit') }}
                                     </a>
                                     <a href="{{ route('tutor.courses.edit', $course) }}#content-section" 
                                         class="flex-1 text-center py-2.5 rounded-xl bg-gold-500/20 text-gold-400 text-sm font-medium hover:bg-gold-500/30 transition">
-                                        المحتوى
+                                        {{ __('site.content_label') }}
                                     </a>
                                     <form action="{{ route('tutor.courses.destroy', $course) }}" method="POST" class="flex-shrink-0">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" 
                                             class="p-2.5 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition"
-                                            onclick="return confirm('هل أنت متأكد من حذف هذا الكورس؟')">
+                                            onclick="return confirm('{{ __('site.confirm_delete_course') }}')">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
@@ -105,11 +105,11 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
                     </div>
-                    <h4 class="text-xl font-semibold text-white mb-2">لم تنشئ أي كورسات بعد</h4>
-                    <p class="text-luxury-400 mb-6">شارك معرفتك مع الآخرين وابدأ بإنشاء أول كورس لك</p>
+                    <h4 class="text-xl font-semibold text-white mb-2">{{ __('site.no_courses_created_yet') }}</h4>
+                    <p class="text-luxury-400 mb-6">{{ __('site.share_knowledge_desc') }}</p>
                     <a href="{{ route('tutor.courses.create') }}" class="btn-premium px-8 py-3 rounded-xl font-semibold inline-flex items-center gap-2">
-                        إنشاء كورس جديد
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {{ __('site.create_new_course') }}
+                        <svg class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                         </svg>
                     </a>

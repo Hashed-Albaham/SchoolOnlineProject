@@ -66,22 +66,38 @@ class TutorController extends Controller
     }
 
     /**
-     * Reject/Unverify a tutor
+     * Reject/Unverify a tutor and reject all their courses
      */
     public function reject(User $tutor)
     {
         if ($tutor->role !== 'tutor') {
-            return back()->with('error', 'المستخدم ليس معلماً');
+            return back()->with('error', __('site.not_a_tutor'));
         }
 
-        // FIXED: Null check for tutorDetails
         if (!$tutor->tutorDetails) {
-            return back()->with('error', 'لا توجد بيانات للمعلم');
+            return back()->with('error', __('site.no_tutor_data'));
         }
 
         $tutor->tutorDetails->update(['is_verified' => false]);
 
-        return back()->with('success', 'تم رفض المعلم');
+        // Reject all tutor's courses
+        $tutor->courses()->update(['status' => 'rejected']);
+
+        return back()->with('success', __('site.tutor_rejected_courses_revoked'));
+    }
+
+    /**
+     * Approve all courses for a tutor
+     */
+    public function approveAllCourses(User $tutor)
+    {
+        if ($tutor->role !== 'tutor') {
+            return back()->with('error', __('site.not_a_tutor'));
+        }
+
+        $tutor->courses()->update(['status' => 'approved']);
+
+        return back()->with('success', __('site.all_courses_approved'));
     }
 
     /**

@@ -56,11 +56,12 @@ class ProfileController extends Controller
         if (!$tutorDetail->is_verified) {
             $admins = \App\Models\User::where('role', 'admin')->get();
             foreach ($admins as $admin) {
+                /** @var \App\Models\User $admin */
                 $admin->notify(new \App\Notifications\TutorVerificationRequested($user));
             }
         }
 
-        return back()->with('success', 'تم تحديث الملف الشخصي بنجاح');
+        return back()->with('success', __('site.profile_updated_success'));
     }
 
     /**
@@ -72,7 +73,7 @@ class ProfileController extends Controller
         $tutorDetail = $user->tutorDetails;
 
         if (!$tutorDetail || !$tutorDetail->cv_path) {
-            return back()->with('error', 'لا يوجد سيرة ذاتية');
+            return back()->with('error', __('site.no_cv_available'));
         }
 
         return response()->download(Storage::disk('public')->path($tutorDetail->cv_path));

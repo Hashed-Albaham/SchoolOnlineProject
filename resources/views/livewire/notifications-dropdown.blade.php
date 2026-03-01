@@ -31,17 +31,8 @@
         @if($unreadMessagesCount > 0)
             <div class="px-4 py-2 bg-blue-500/10 border-b border-blue-500/10">
                 <a href="{{ route('messages.index') }}" class="flex items-center justify-between text-blue-400 hover:text-blue-300 transition group">
-                    <span class="text-xs font-medium"> لديك {{ $unreadMessagesCount }} رسائل غير مقروءة</span>
-                    <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                </a>
-            </div>
-        @endif
-
-        @if($unreadMessagesCount > 0)
-            <div class="px-4 py-2 bg-blue-500/10 border-b border-blue-500/10">
-                <a href="{{ route('messages.index') }}" class="flex items-center justify-between text-blue-400 hover:text-blue-300 transition group">
-                    <span class="text-xs font-medium"> لديك {{ $unreadMessagesCount }} رسائل غير مقروءة</span>
-                    <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <span class="text-xs font-medium">{{ __('site.unread_messages_count', ['count' => $unreadMessagesCount]) }}</span>
+                    <svg class="w-4 h-4 transform rtl:rotate-180 group-hover:-translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </a>
             </div>
         @endif
@@ -81,7 +72,10 @@
                             </div>
                         </div>
                         <div class="flex-1">
-                            <p class="text-sm font-medium text-white">{{ $notification->data['title'] ?? 'إشعار جديد' }}</p>
+                            <p class="text-sm font-medium text-white">{{ $notification->data['title'] ?? __('site.new_notification') }}</p>
+                            @if($type == 'new_message' && isset($notification->data['sender_name']))
+                                <p class="text-xs text-blue-400 mt-0.5">{{ $notification->data['sender_name'] }}</p>
+                            @endif
                             <p class="text-xs text-luxury-400 mt-1 line-clamp-2">{{ $notification->data['message'] ?? '' }}</p>
                             <p class="text-[10px] text-luxury-500 mt-2">{{ $notification->created_at->diffForHumans() }}</p>
                         </div>
@@ -90,7 +84,7 @@
             @empty
                 <div class="py-12 text-center text-luxury-500">
                     <svg class="w-12 h-12 mx-auto mb-3 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    <p class="text-sm">{{ __('site.no_notifications') ?? 'لا توجد إشعارات حالياً' }}</p>
+                    <p class="text-sm">{{ __('site.no_notifications') }}</p>
                 </div>
             @endforelse
         </div>

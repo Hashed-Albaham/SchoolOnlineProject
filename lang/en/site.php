@@ -103,7 +103,6 @@ return [
     'certificate_code' => 'Certificate Code',
     'issued_at' => 'Issued At',
     'pending_certificates' => 'Pending Certificate Requests',
-    'pending_certificates' => 'Pending Certificate Requests',
     'issued_certificates' => 'Issued Certificates',
     'certificate_verified' => 'Verified Certificate',
     'certificate_valid_msg' => 'This certificate is valid and issued by our platform',
@@ -249,9 +248,7 @@ return [
     'approve_course' => 'Approve Course',
     'reject_course' => 'Reject Course',
     'all_tutors' => 'All Tutors',
-    'pending_tutors' => 'Pending Tutors',
     'all_courses' => 'All Courses',
-    'pending_courses' => 'Pending Courses',
 
     // ========================================
     // Tutor
@@ -269,7 +266,7 @@ return [
     'student_dashboard' => 'Student Dashboard',
     'my_learning' => 'My Learning',
     'continue_learning' => 'Continue Learning',
-    'view_certificate' => 'View Certificate',
+    // 'view_certificate' already defined in Certificates section
     'watch_course' => 'Watch Course',
 
     // ========================================
@@ -322,9 +319,7 @@ return [
     'success' => 'Success',
     'warning' => 'Warning',
     'info' => 'Info',
-    'free' => 'Free',
-    'tutor' => 'Tutor',
-    'active' => 'Active',
+    // 'free', 'tutor', 'active' already defined above
     'show_more' => 'Show More',
     'continue_learning_arrow' => 'Continue Learning →',
 
@@ -376,57 +371,56 @@ return [
     'support' => 'Support',
     'faq' => 'FAQ',
     'contact_us' => 'Contact Us',
-    'privacy_policy' => 'Privacy Policy',
+    // 'privacy_policy' already defined in Footer section
     'contact_header' => 'Contact Us',
     'rights_reserved' => 'All rights reserved.',
 
     // ========================================
     // Auth Pages
     // ========================================
-    'welcome_back' => 'Welcome Back',
+    // 'welcome_back' already defined in Dashboard section
     'login_to_continue' => 'Login to continue',
-    'email' => 'Email Address',
-    'password' => 'Password',
-    'remember_me' => 'Remember me',
-    'forgot_password' => 'Forgot your password?',
+    // 'email' already defined in Users section
+    // 'password' already defined in Users section
+    // 'remember_me', 'forgot_password' already defined in Users section
     'login_btn' => 'Login',
-    'or' => 'Or',
+    // 'or' already defined in Misc section
     'no_account' => 'Don\'t have an account?',
     'register_now' => 'Register Now',
     'create_new_account' => 'Create New Account',
     'join_us_desc' => 'Join us and start your learning journey',
     'full_name' => 'Full Name',
     'account_type' => 'Account Type',
-    'student' => 'Student',
+    // 'student' already defined in Users section
     'student_desc' => 'To learn and enroll in courses',
-    'tutor' => 'Tutor',
+    // 'tutor' already defined in Users section
     'tutor_desc' => 'To create and publish courses',
-    'confirm_password' => 'Confirm Password',
+    // 'confirm_password' already defined in Users section
     'create_account_btn' => 'Create Account',
     'already_have_account' => 'Already have an account?',
     'login_now' => 'Login',
     'placeholder_name' => 'Your Full Name',
+    'placeholder_email' => 'example@email.com',
 
     // ========================================
     // Dashboard Specifics
     // ========================================
     'welcome_user' => 'Welcome, :name',
     'keep_learning' => 'Keep learning and improving your skills',
-    'discover_new_courses' => 'Discover New Courses',
+    // 'discover_new_courses' already defined below in Student Dashboard
     'enrolled_courses' => 'Enrolled Courses',
     'active_course' => 'Active Course',
     'pending_payment' => 'Pending Payment',
     'waiting' => 'Waiting',
     'earned_certificates' => 'Earned Certificates',
     'complete_course_certificate' => 'Complete a course to earn a certificate',
-    'browse_courses' => 'Browse Courses',
+    // 'browse_courses' already defined in Courses section
     'discover_new_content' => 'Discover new content',
     'edit_info' => 'Edit Information',
     'my_enrolled_courses' => 'My Enrolled Courses',
     'no_enrolled_courses_yet' => 'You have not enrolled in any courses yet',
     'start_learning_now' => 'Start your learning journey now',
     'browse_courses_btn' => 'Browse Courses',
-    'recommended_courses' => 'Recommended Courses',
     'recommended_courses' => 'Recommended Courses',
     'no_courses_available' => 'No courses available at the moment',
     'explore_courses' => 'Explore Courses',
@@ -439,13 +433,13 @@ return [
     'no_search_results' => 'No results found for ":search"',
     'no_courses_available_msg' => 'No courses available right now, stay tuned for more!',
     'lessons_count' => 'Lessons',
-    'messages' => 'Messages',
+    // 'messages' already defined in Navigation section
     'search_results' => 'Search Results',
-    'cancel' => 'Cancel',
+    // 'cancel' already defined in Common Actions section
     'no_contacts' => 'No previous conversations, start connecting now!',
     'online' => 'Online',
     'start_conversation_now' => 'Start the conversation and connect with others',
-    'type_message' => 'Type your message here...',
+    // 'type_message' already defined in Messages section
 
     // Tutor Dashboard
     'tutor_welcome' => 'Welcome :name, have a productive day',
@@ -495,4 +489,250 @@ return [
     'no_notifications' => 'No notifications at the moment',
     'mark_all_read' => 'Mark all as read',
     'new_notification_from' => 'New notification from :name',
+
+    // ========================================
+    // Welcome Page (Missing Keys)
+    // ========================================
+    'stats_title' => 'Statistics',
+    'start_now' => 'Start Now',
+
+    // ========================================
+    // Admin Tutors Page
+    // ========================================
+    'review_all_tutors_desc' => 'View and review all tutors on the platform',
+    'pending_verification_count' => 'Pending Verification (:count)',
+    'verified_tutors' => 'Verified Tutors',
+    'join_date' => 'Join Date',
+    'view_details' => 'View Details',
+    'no_tutors_registered' => 'No tutors registered currently',
+    'course_unit' => 'course',
+
+    // ========================================
+    // Admin Courses Page
+    // ========================================
+    'review_approve_courses_desc' => 'Review and approve submitted courses',
+    'pending_approval_count' => 'Pending Approval (:count)',
+    'approved_courses_label' => 'Approved Courses',
+    'pending_approval_label' => 'Pending Approval',
+    'rejected_courses_label' => 'Rejected Courses',
+    'status_approved' => 'Approved',
+    'status_pending' => 'Pending',
+    'status_rejected' => 'Rejected',
+    'no_courses_currently' => 'No courses currently',
+    'approve_action' => 'Approve',
+    'reject_action' => 'Reject',
+    'confirm_reject_course' => 'Are you sure you want to reject this course?',
+
+    // ========================================
+    // Student My Courses Page
+    // ========================================
+    'courses_enrolled_in' => 'Courses you enrolled in',
+    'discover_more' => 'Discover More',
+    'payment_paid' => 'Paid',
+    'lesson_unit' => 'lesson',
+    'enrolled_on' => 'Enrolled:',
+    'confirm_delete_course' => 'Are you sure you want to delete this course?',
+    'no_enrolled_yet' => 'You haven\'t enrolled in any courses yet',
+    'start_learning_journey' => 'Start your learning journey now and discover amazing courses',
+    'tutor_label' => 'Tutor',
+
+    // ========================================
+    // Tutor Courses Page
+    // ========================================
+    'manage_edit_courses_desc' => 'Manage and edit your courses',
+    'under_review_label' => 'Under Review',
+    'student_unit' => 'student',
+    'content_label' => 'Content',
+    'no_courses_created_yet' => 'You haven\'t created any courses yet',
+    'share_knowledge_desc' => 'Share your knowledge with others and create your first course',
+
+    // ========================================
+    // Student Dashboard & Pages
+    // ========================================
+    'welcome2' => 'Welcome',
+    'continue_learning_msg' => 'Continue your learning journey',
+    'discover_new_courses' => 'Discover New Courses',
+    // 'continue_learning_arrow' already defined in Misc section
+    'students_count' => 'students',
+    // 'lessons_count' already defined above
+    // 'select_conversation' already defined in Messages section
+
+    // ========================================
+    // Course Show Page
+    // ========================================
+    // 'course_details' already defined in Courses section
+    'course_content' => 'Course Content',
+    'no_content_available' => 'No content available currently',
+    'quizzes_section' => 'Quizzes',
+    // 'start_quiz' already defined in Quizzes section
+    'enroll_to_access' => 'Enroll to access',
+    'continue_learning_btn' => 'Continue Learning',
+    'enrolled_in_course' => 'You are enrolled in this course',
+    'subscribe_now' => 'Subscribe Now',
+    'register_free' => 'Register for Free',
+    'refund_guarantee' => '30-day money back guarantee',
+    'lifetime_access' => 'Lifetime access',
+    'completion_certificate' => 'Completion certificate',
+    'tutor_support' => 'Tutor support',
+    'the_tutor' => 'Tutor',
+    'deleted_user' => 'Deleted user',
+    'message_tutor' => 'Message Tutor',
+
+    // ========================================
+    // Reviews
+    // ========================================
+    'student_reviews' => 'Student Reviews',
+    'review_unit' => 'review',
+    'add_review' => 'Add Your Review',
+    'rating_label' => 'Rating',
+    'comment_optional' => 'Your comment (optional)',
+    'review_placeholder' => 'What do you think about this course?',
+    'publish_review' => 'Publish Review',
+    'no_reviews_yet' => 'No reviews yet. Be the first to review!',
+
+    // ========================================
+    // Profile Page
+    // ========================================
+    'profile_settings' => 'Profile Settings',
+    'profile_settings_desc' => 'Manage your account settings and preferences',
+    'profile_info' => 'Profile Information',
+    'profile_info_desc' => 'Update your account\'s profile information and email address.',
+    // 'update_password' already defined in Profile section
+    'update_password_desc' => 'Ensure your account is using a long, random password to stay secure.',
+    // 'current_password' already defined in Users section
+    // 'new_password' already defined in Users section
+    // 'confirm_password' already defined in Users section
+    // 'save' already defined in Common Actions section
+    'saved' => 'Saved.',
+    // 'delete_account' already defined in Profile section
+
+    // ========================================
+    // Admin Course Show Page
+    // ========================================
+    'admin_course_details' => 'Course Details',
+    'admin_course_review_desc' => 'Review course content and take appropriate action',
+    // 'status_approved', 'status_pending', 'status_rejected' already defined in Admin Courses section
+    'status_pending_short' => 'Pending',
+    'price' => 'Price',
+    'lessons_total' => 'Total Lessons',
+    // 'enrolled_students' already defined in Enrollment section
+    'creation_date' => 'Creation Date',
+    'view_profile' => 'View Profile',
+    // 'approve_course', 'reject_course' already defined in Admin section
+    'unapprove_course' => 'Revoke Approval',
+    // 'confirm_reject_course' already defined in Admin Courses section
+    'confirm_unapprove_course' => 'Are you sure you want to revoke this course approval?',
+    'course_rejected_success' => 'Course has been rejected',
+    'course_unapproved_success' => 'Course approval has been revoked',
+    'no_content_in_course' => 'No content in this course yet',
+
+    // ========================================
+    // Admin Tutor Show Page
+    // ========================================
+    'admin_tutor_details' => 'Tutor Details',
+    'admin_tutor_review_desc' => 'Review tutor information and take appropriate action',
+    // 'verified_account', 'pending_verification' already defined in Tutor Dashboard
+    // 'specialization' already defined in Users section
+    'not_specified' => 'Not specified',
+    'courses_count' => 'Number of Courses',
+    // 'course_unit' already defined in Admin Tutors section
+    // 'join_date' already defined in Admin Tutors section
+    'about_tutor' => 'About the Tutor',
+    // 'download_cv' already defined in Tutor section
+    'verify_tutor' => 'Verify & Approve',
+    'revoke_verification' => 'Revoke Verification',
+    'confirm_revoke_tutor' => 'Are you sure? This will also reject all their courses.',
+    'approve_all_courses' => 'Approve All Courses',
+    'confirm_approve_all_courses' => 'Are you sure you want to approve all courses for this tutor?',
+    'not_a_tutor' => 'User is not a tutor',
+    'no_tutor_data' => 'No tutor data available',
+    'tutor_rejected_courses_revoked' => 'Tutor rejected and all courses revoked',
+    'all_courses_approved' => 'All courses have been approved',
+    'tutor_courses' => 'Tutor Courses',
+    'tutor_no_courses' => 'This tutor has not created any courses yet',
+
+    // ========================================
+    // Tutor Profile Page
+    // ========================================
+    // 'tutor_profile' already defined in Tutor section
+    'tutor_profile_desc' => 'Manage your professional profile and CV',
+    'verification_status' => 'Verification Status',
+    'account_verified' => 'Your account is verified',
+    'awaiting_verification' => 'Awaiting admin verification',
+    'complete_profile_hint' => 'Complete your profile and upload your CV to speed up the verification process.',
+    'bio_label' => 'About You',
+    'bio_placeholder' => 'Write a brief description about your experience and qualifications...',
+    'specialization_placeholder' => 'E.g: Programming, Mathematics, English...',
+    'cv_label' => 'CV (Resume)',
+    'cv_uploaded' => 'CV has been uploaded',
+    'download' => 'Download',
+    'cv_file_hint' => 'PDF, DOC, DOCX - Maximum 5MB',
+    'save_changes' => 'Save Changes',
+    'profile_updated_success' => 'Profile updated successfully',
+    'no_cv_available' => 'No CV available',
+
+    // ========================================
+    // Pending Pages & Misc
+    // ========================================
+    'pending_courses_title' => 'Courses Pending Approval',
+    'pending_courses_desc' => 'Review new courses before publishing',
+    'back_to_all_courses' => 'Back to All Courses',
+    'pending_courses_list' => 'Pending Courses',
+    // 'by_tutor' already defined in Courses section
+    // 'deleted_user' already defined in Course Show Page
+    // 'details' already defined in Common Actions
+    // 'approve' already defined in Admin section
+    // 'reject' already defined in Admin section
+    'are_you_sure' => 'Are you sure?',
+    // 'no_pending_courses' already defined in Admin Dashboard
+    'pending_tutors_title' => 'Tutors Pending Verification',
+    'pending_tutors_desc' => 'Review new tutor requests',
+    'back_to_list' => 'Back to List',
+    'pending_tutors_list' => 'Tutors Pending Verification',
+    // 'the_tutor' already defined in Course Show Page
+    // 'courses' already defined in Navigation
+    // 'actions' already defined in Common Actions
+    // 'verify' already defined in Admin section
+    'no_pending_tutors' => 'No tutors pending verification',
+    'description' => 'Description',
+    // 'message_tutor' already defined in Course Show Page
+    'new_message_from' => 'New message from :name',
+    'unread_messages_count' => 'You have :count unread messages',
+    'new_notification' => 'New Notification',
+    // 'no_notifications' already defined in Admin Dashboard
+    'you' => 'You',
+    // 'admin' already defined in Users section
+    'search_people' => 'Search for a person...',
+    'pending_certificates' => 'Pending Certificates',
+    'issued_count' => ':count issued',
+    'manage_certificates' => 'Manage Certificates',
+    'issue_review_certificates' => 'Issue and review certificates',
+    'certificates_page_desc' => 'Review and manage certificate requests for your courses',
+    'back_to_dashboard' => 'Back to Dashboard',
+    'issue_certificate' => 'Issue Certificate',
+    'issued' => 'Issued',
+    'no_certificate_requests' => 'No certificate requests for this course',
+    'no_courses_for_certificates' => 'You have no courses yet',
+    'certificate_rejected' => 'Certificate request rejected',
+    'certificate_issued_success' => 'Certificate issued successfully',
+    // 'are_you_sure' already defined above
+    'already_processed' => 'This request has already been processed',
+    'certificate_conditions_not_met' => 'Certificate conditions were not met',
+    // 'all' already defined in Common Actions
+    // 'all_courses' already defined in Admin section
+    'newest_first' => 'Newest First',
+    'oldest_first' => 'Oldest First',
+    'filter' => 'Filter',
+    'reset' => 'Reset',
+    'status' => 'Status',
+    // 'date' already defined in Misc section
+    'code' => 'Code',
+    // 'actions' already defined in Common Actions
+    'revoke_certificate' => 'Revoke Certificate',
+    'confirm_revoke_certificate' => 'Are you sure you want to revoke this certificate?',
+    'only_issued_can_revoke' => 'Only issued certificates can be revoked',
+    'certificate_revoked_by_tutor' => 'Certificate was revoked by the tutor',
+    'certificate_revoked_success' => 'Certificate revoked successfully',
+    'certificates_will_appear_here' => 'Certificate requests from students will appear here',
+    'session_expired' => 'Your session has expired. Please try again.',
 ];

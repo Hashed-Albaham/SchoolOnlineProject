@@ -63,7 +63,17 @@ class CourseController extends Controller
             $course->tutor->notify(new \App\Notifications\CourseStatusUpdated($course, 'rejected'));
         }
 
-        return back()->with('success', 'تم رفض الكورس');
+        return back()->with('success', __('site.course_rejected_success'));
+    }
+
+    /**
+     * Unapprove a course (revoke approval)
+     */
+    public function unapprove(Course $course)
+    {
+        $course->update(['status' => 'pending']);
+
+        return back()->with('success', __('site.course_unapproved_success'));
     }
 
     /**

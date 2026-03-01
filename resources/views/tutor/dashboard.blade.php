@@ -54,7 +54,7 @@
             @endif
 
             <!-- Stats Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                 <!-- My Courses -->
                 <div class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
@@ -128,10 +128,26 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Pending Certificates -->
+                <a href="{{ route('tutor.courses.index') }}?tab=certificates" class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 hover:border-purple-500/30 transition group">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-luxury-400 text-sm font-medium">{{ __('site.pending_certificates') }}</p>
+                            <p class="text-3xl font-bold text-white mt-2">{{ $stats['pending_certificates'] ?? 0 }}</p>
+                            <p class="text-purple-400 text-xs mt-1">{{ __('site.issued_count', ['count' => $stats['issued_certificates'] ?? 0]) }}</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-110 transition-transform">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
             </div>
 
             <!-- Quick Actions -->
-            <div class="grid lg:grid-cols-3 gap-6 mb-8">
+            <div class="grid lg:grid-cols-4 gap-6 mb-8">
                 <a href="{{ route('tutor.courses.create') }}"
                     class="group bg-gradient-to-br from-gold-500/10 to-gold-600/5 border border-gold-500/20 hover:border-gold-500/40 rounded-2xl p-6 transition-all">
                     <div class="flex items-center gap-4">
@@ -180,6 +196,21 @@
                         <div>
                             <p class="font-semibold text-white text-lg">{{ __('site.profile') }}</p>
                             <p class="text-luxury-400 text-sm">{{ __('site.edit_profile_bio') }}</p>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="{{ route('tutor.certificates.index') }}"
+                    class="group bg-luxury-800/50 backdrop-blur-xl border border-white/5 hover:border-purple-500/30 rounded-2xl p-6 transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-xl bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-white text-lg">{{ __('site.manage_certificates') }}</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.issue_review_certificates') }}</p>
                         </div>
                     </div>
                 </a>

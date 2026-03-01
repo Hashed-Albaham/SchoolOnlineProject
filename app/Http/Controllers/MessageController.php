@@ -10,6 +10,38 @@ use Illuminate\Support\Facades\Auth;
 class MessageController extends Controller
 {
     /**
+     * Get unread message counts per sender for the current user
+     */
+    private function getUnreadCounts($userId)
+    {
+        return Message::where('receiver_id', $userId)
+            ->where('is_read', false)
+            ->selectRaw('sender_id, COUNT(*) as unread_count')
+            ->groupBy('sender_id')
+            ->pluck('unread_count', 'sender_id');
+    }
+
+    /**
+     * Get last message for each contact
+     */
+    private function getLastMessages($userId, $contactIds)
+    {
+        $lastMessages = [];
+        foreach ($contactIds as $contactId) {
+            $lastMessage = Message::where(function ($q) use ($userId, $contactId) {
+                $q->where('sender_id', $userId)->where('receiver_id', $contactId);
+            })->orWhere(function ($q) use ($userId, $contactId) {
+                $q->where('sender_id', $contactId)->where('receiver_id', $userId);
+            })->latest()->first();
+
+            if ($lastMessage) {
+                $lastMessages[$contactId] = $lastMessage;
+            }
+        }
+        return $lastMessages;
+    }
+
+    /**
      * Display a listing of conversations.
      */
     public function index()
@@ -20,15 +52,13 @@ class MessageController extends Controller
         $isSearch = false;
 
         if ($searchQuery) {
-            // FIXED: Sanitize search query to prevent SQL wildcard injection
             $sanitizedSearch = addcslashes($searchQuery, '%_\\');
             $contacts = User::where('name', 'like', '%' . $sanitizedSearch . '%')
                 ->where('id', '!=', $userId)
-                ->limit(50) // FIXED: Add limit to prevent DoS
+                ->limit(50)
                 ->get();
             $isSearch = true;
         } else {
-            // Get list of users the current user has exchanged messages with
             $sentIDs = Message::where('sender_id', $userId)->pluck('receiver_id');
             $receivedIDs = Message::where('receiver_id', $userId)->pluck('sender_id');
 
@@ -36,7 +66,17 @@ class MessageController extends Controller
             $contacts = User::whereIn('id', $contactIDs)->get();
         }
 
-        return view('messages.index', compact('contacts', 'searchQuery', 'isSearch'));
+        $unreadCounts = $this->getUnreadCounts($userId);
+        $lastMessages = $this->getLastMessages($userId, $contacts->pluck('id'));
+
+        // Sort contacts: those with unread messages first, then by last message time
+        $contacts = $contacts->sortByDesc(function ($contact) use ($unreadCounts, $lastMessages) {
+            $hasUnread = $unreadCounts->get($contact->id, 0) > 0 ? 1 : 0;
+            $lastTime = isset($lastMessages[$contact->id]) ? $lastMessages[$contact->id]->created_at->timestamp : 0;
+            return $hasUnread * 10000000000 + $lastTime;
+        })->values();
+
+        return view('messages.index', compact('contacts', 'searchQuery', 'isSearch', 'unreadCounts', 'lastMessages'));
     }
 
     /**
@@ -46,15 +86,20 @@ class MessageController extends Controller
     {
         $userId = Auth::id();
 
+        // Mark messages from this user as read
+        Message::where('sender_id', $user->id)
+            ->where('receiver_id', $userId)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
         $searchQuery = request()->query('search');
-        $isSearch = false; // Usually false when viewing a specific chat, but could be adapted
+        $isSearch = false;
 
         if ($searchQuery) {
-            // FIXED: Sanitize search query to prevent SQL wildcard injection
             $sanitizedSearch = addcslashes($searchQuery, '%_\\');
             $contacts = User::where('name', 'like', '%' . $sanitizedSearch . '%')
                 ->where('id', '!=', $userId)
-                ->limit(50) // FIXED: Add limit to prevent DoS
+                ->limit(50)
                 ->get();
             $isSearch = true;
         } else {
@@ -63,12 +108,21 @@ class MessageController extends Controller
             $contactIDs = $sentIDs->merge($receivedIDs)->unique();
             $contacts = User::whereIn('id', $contactIDs)->get();
 
-            // Ensure the currently viewed user is in the contacts list
             if (!$contacts->contains('id', $user->id)) {
                 $contacts->prepend($user);
             }
         }
 
-        return view('messages.index', compact('contacts', 'user', 'searchQuery', 'isSearch'));
+        $unreadCounts = $this->getUnreadCounts($userId);
+        $lastMessages = $this->getLastMessages($userId, $contacts->pluck('id'));
+
+        $contacts = $contacts->sortByDesc(function ($contact) use ($unreadCounts, $lastMessages) {
+            $hasUnread = $unreadCounts->get($contact->id, 0) > 0 ? 1 : 0;
+            $lastTime = isset($lastMessages[$contact->id]) ? $lastMessages[$contact->id]->created_at->timestamp : 0;
+            return $hasUnread * 10000000000 + $lastTime;
+        })->values();
+
+        return view('messages.index', compact('contacts', 'user', 'searchQuery', 'isSearch', 'unreadCounts', 'lastMessages'));
     }
 }
+

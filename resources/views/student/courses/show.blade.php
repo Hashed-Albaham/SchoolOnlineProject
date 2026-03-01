@@ -7,7 +7,7 @@
                 </svg>
             </a>
             <div>
-                <h2 class="text-2xl font-bold text-white">تفاصيل الكورس</h2>
+                <h2 class="text-2xl font-bold text-white">{{ __('site.course_details') }}</h2>
             </div>
         </div>
     </x-slot>
@@ -39,13 +39,13 @@
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                     </svg>
-                                    <span>{{ $course->contents->count() ?? 0 }} درس</span>
+                                    <span>{{ $course->contents->count() ?? 0 }} {{ __('site.lessons_count') }}</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                                     </svg>
-                                    <span>{{ $course->enrollments_count ?? 0 }} طالب مسجل</span>
+                                    <span>{{ $course->enrollments_count ?? 0 }} {{ __('site.students_count') }}</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@
                     <!-- Course Content -->
                     <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
                         <div class="p-6 border-b border-white/5">
-                            <h3 class="font-semibold text-white">محتوى الكورس</h3>
+                            <h3 class="font-semibold text-white">{{ __('site.course_content') }}</h3>
                         </div>
                         
                         @if($course->contents->count() > 0)
@@ -93,7 +93,7 @@
                             </div>
                         @else
                             <div class="p-8 text-center">
-                                <p class="text-luxury-400">لا يوجد محتوى متاح حالياً</p>
+                                <p class="text-luxury-400">{{ __('site.no_content_available') }}</p>
                             </div>
                         @endif
                     </div>
@@ -104,7 +104,7 @@
                     <!-- Quizzes Section -->
                     @if($course->quizzes->count() > 0)
                         <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 mt-8">
-                            <h3 class="text-xl font-bold text-white mb-4">الاختبارات</h3>
+                            <h3 class="text-xl font-bold text-white mb-4">{{ __('site.quizzes_section') }}</h3>
                             <div class="space-y-4">
                                 @foreach($course->quizzes as $quiz)
                                     <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
@@ -114,10 +114,10 @@
                                         </div>
                                         @if($isEnrolled)
                                             <a href="{{ route('student.quizzes.show', $quiz) }}" class="px-4 py-2 bg-royal-600 text-white font-medium rounded-lg hover:bg-royal-700 transition">
-                                                بدء الاختبار
+                                                {{ __('site.start_quiz') }}
                                             </a>
                                         @else
-                                            <span class="text-luxury-500 text-sm">سجل للدخول</span>
+                                            <span class="text-luxury-500 text-sm">{{ __('site.enroll_to_access') }}</span>
                                         @endif
                                     </div>
                                 @endforeach
@@ -137,7 +137,7 @@
                             @if($course->price > 0)
                                 <p class="text-4xl font-bold text-gradient">${{ $course->price }}</p>
                             @else
-                                <p class="text-4xl font-bold text-green-400">مجاني</p>
+                                <p class="text-4xl font-bold text-green-400">{{ __('site.free') }}</p>
                             @endif
                         </div>
                         
@@ -150,14 +150,14 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    متابعة التعلم
+                                    {{ __('site.continue_learning_btn') }}
                                 </span>
                             </a>
                             <p class="text-center text-green-400 text-sm">
                                 <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                 </svg>
-                                أنت مسجل في هذا الكورس
+                                {{ __('site.enrolled_in_course') }}
                             </p>
                         @else
                             <form action="{{ route('student.enroll', $course) }}" method="POST">
@@ -168,18 +168,18 @@
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                             </svg>
-                                            اشترك الآن
+                                            {{ __('site.subscribe_now') }}
                                         @else
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                             </svg>
-                                            سجل مجاناً
+                                            {{ __('site.register_free') }}
                                         @endif
                                     </span>
                                 </button>
                             </form>
                             @if($course->price > 0)
-                                <p class="text-center text-luxury-500 text-xs mt-3">ضمان استرداد الأموال خلال 30 يوم</p>
+                                <p class="text-center text-luxury-500 text-xs mt-3">{{ __('site.refund_guarantee') }}</p>
                             @endif
                         @endif
                         
@@ -189,31 +189,31 @@
                                 <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                                <span>وصول مدى الحياة</span>
+                                <span>{{ __('site.lifetime_access') }}</span>
                             </div>
                             <div class="flex items-center gap-3 text-luxury-300">
                                 <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                                <span>شهادة إتمام</span>
+                                <span>{{ __('site.completion_certificate') }}</span>
                             </div>
                             <div class="flex items-center gap-3 text-luxury-300">
                                 <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                                <span>دعم المعلم</span>
+                                <span>{{ __('site.tutor_support') }}</span>
                             </div>
                         </div>
                         
                         <!-- Tutor -->
                         <div class="border-t border-white/5 mt-6 pt-6">
-                            <p class="text-luxury-400 text-sm mb-3">المعلم</p>
+                            <p class="text-luxury-400 text-sm mb-3">{{ __('site.the_tutor') }}</p>
                             <div class="flex items-center gap-3">
                                 <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center">
                                     <span class="text-white font-semibold">{{ substr($course->tutor->name ?? 'M', 0, 1) }}</span>
                                 </div>
                                 <div>
-                                    <p class="font-medium text-white">{{ $course->tutor?->name ?? 'مستخدم محذوف' }}</p>
+                                    <p class="font-medium text-white">{{ $course->tutor?->name ?? __('site.deleted_user') }}</p>
                                     @if($course->tutor && $course->tutor->tutorDetails)
                                         <p class="text-sm text-luxury-400">{{ $course->tutor->tutorDetails->specialization ?? '' }}</p>
                                     @endif
@@ -223,7 +223,7 @@
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                                                 </svg>
-                                                مراسلة المعلم
+                                                {{ __('site.message_tutor') }}
                                             </a>
                                         @endif
                                     @endauth

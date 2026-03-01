@@ -18,7 +18,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'localizationRedirect' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter::class,
             'localeViewPath' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationViewPath::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            '*/logout',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            return redirect()->back()->withInput()->with('error', __('site.session_expired'));
+        });
     })->create();

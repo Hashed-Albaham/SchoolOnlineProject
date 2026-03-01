@@ -19,7 +19,7 @@
                 <form action="{{ route('messages.index') }}" method="GET">
                     <div class="relative">
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="{{ __('site.search_placeholder') }}"
+                            placeholder="{{ __('site.search_people') }}"
                             class="w-full bg-luxury-900 text-white text-sm rounded-xl border border-white/10 focus:ring-1 focus:ring-gold-500 py-3 pl-10 pr-4 placeholder-luxury-500 transition-all">
                         <button type="submit" class="absolute left-3 top-3 text-luxury-500 hover:text-gold-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,32 +42,48 @@
                 @endif
 
                 @forelse($contacts as $contact)
+                            @php
+                                $unread = isset($unreadCounts) ? ($unreadCounts[$contact->id] ?? 0) : 0;
+                                $lastMsg = isset($lastMessages) ? ($lastMessages[$contact->id] ?? null) : null;
+                            @endphp
                             <a href="{{ route('messages.show', $contact->id) }}" class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group
                                            {{ isset($user) && $user->id == $contact->id
                     ? 'bg-gold-500/10 border border-gold-500/20'
-                    : 'hover:bg-white/5 border border-transparent' }}">
+                    : ($unread > 0 ? 'bg-blue-500/5 border border-blue-500/10 hover:bg-blue-500/10' : 'hover:bg-white/5 border border-transparent') }}">
                                 <div class="relative">
                                     <div
                                         class="w-12 h-12 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-105 transition-transform">
                                         {{ substr($contact->name, 0, 1) }}
                                     </div>
-                                    <!-- Online Status Indicator (Placeholder) -->
-                                    <span
-                                        class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-luxury-900 rounded-full"></span>
+                                    @if($unread > 0)
+                                        <span class="absolute -top-1 {{ app()->getLocale() === 'ar' ? '-left-1' : '-right-1' }} w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-[10px] text-white font-bold border-2 border-luxury-900">
+                                            {{ $unread > 9 ? '9+' : $unread }}
+                                        </span>
+                                    @endif
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex justify-between items-center mb-1">
-                                        <h3
-                                            class="text-sm font-bold text-white truncate group-hover:text-gold-400 transition-colors">
+                                        <h3 class="text-sm font-bold {{ $unread > 0 ? 'text-white' : 'text-luxury-300' }} truncate group-hover:text-gold-400 transition-colors">
                                             {{ $contact->name }}
                                         </h3>
-                                        <span class="text-[10px] text-luxury-500">
-                                            {{-- Time placeholder or last message time --}}
-                                        </span>
+                                        @if($lastMsg)
+                                            <span class="text-[10px] {{ $unread > 0 ? 'text-blue-400' : 'text-luxury-500' }}">
+                                                {{ $lastMsg->created_at->diffForHumans(null, true, true) }}
+                                            </span>
+                                        @endif
                                     </div>
-                                    <p class="text-xs text-luxury-400 truncate">
-                                        {{ $contact->role == 'tutor' ? __('site.tutor') : __('site.student') }}
-                                    </p>
+                                    @if($lastMsg)
+                                        <p class="text-xs {{ $unread > 0 ? 'text-luxury-300 font-medium' : 'text-luxury-500' }} truncate">
+                                            @if($lastMsg->sender_id === auth()->id())
+                                                <span class="text-luxury-500">{{ __('site.you') }}: </span>
+                                            @endif
+                                            {{ Str::limit($lastMsg->content, 40) }}
+                                        </p>
+                                    @else
+                                        <p class="text-xs text-luxury-500 truncate">
+                                            {{ $contact->role == 'tutor' ? __('site.tutor') : ($contact->role == 'admin' ? __('site.admin') : __('site.student')) }}
+                                        </p>
+                                    @endif
                                 </div>
                             </a>
                 @empty
