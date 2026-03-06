@@ -104,9 +104,7 @@
                         @foreach($certificateRequests->where('status', 'pending') as $request)
                             <div class="flex items-center justify-between p-4 bg-yellow-500/10 rounded-xl border border-yellow-500/10">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center text-white font-bold">
-                                        {{ substr($request->user->name, 0, 1) }}
-                                    </div>
+                                        <x-avatar :user="$request->user" sizeClasses="w-10 h-10" iconClasses="w-5 h-5" />
                                     <div>
                                         <p class="text-white font-medium">{{ $request->user->name }}</p>
                                         <p class="text-luxury-400 text-sm">{{ $request->user->email }}</p>
@@ -198,9 +196,7 @@
                                             <tr class="hover:bg-white/5 transition">
                                                 <td class="py-4">
                                                     <div class="flex items-center gap-3">
-                                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center text-white font-bold">
-                                                            {{ substr($enrollment->student->name ?? 'S', 0, 1) }}
-                                                        </div>
+                                                            <x-avatar :user="$enrollment->student" sizeClasses="w-10 h-10" iconClasses="w-5 h-5" />
                                                         <div>
                                                             <span class="text-white font-medium">{{ $enrollment->student->name ?? 'غير معروف' }}</span>
                                                             <p class="text-luxury-500 text-xs">{{ $enrollment->student->email ?? '' }}</p>

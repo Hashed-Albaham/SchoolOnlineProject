@@ -52,8 +52,8 @@
                     : ($unread > 0 ? 'bg-blue-500/5 border border-blue-500/10 hover:bg-blue-500/10' : 'hover:bg-white/5 border border-transparent') }}">
                                 <div class="relative">
                                     <div
-                                        class="w-12 h-12 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-105 transition-transform">
-                                        {{ substr($contact->name, 0, 1) }}
+                                        class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden shadow-lg group-hover:scale-105 transition-transform flex-shrink-0">
+                                        <x-avatar :user="$contact" sizeClasses="w-full h-full" iconClasses="w-6 h-6" />
                                     </div>
                                     @if($unread > 0)
                                         <span class="absolute -top-1 {{ app()->getLocale() === 'ar' ? '-left-1' : '-right-1' }} w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-[10px] text-white font-bold border-2 border-luxury-900">
@@ -121,10 +121,7 @@
                         </a>
 
                         <div class="relative">
-                            <div
-                                class="w-10 h-10 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center text-white font-bold shadow-md">
-                                {{ substr($user->name, 0, 1) }}
-                            </div>
+                            <x-avatar :user="$user" sizeClasses="w-10 h-10" iconClasses="w-5 h-5" />
                             <span
                                 class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-luxury-900 rounded-full"></span>
                         </div>

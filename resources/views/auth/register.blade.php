@@ -165,6 +165,22 @@
                         <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                     </div>
 
+                    <!-- [REQ] Terms Agreement -->
+                    <div>
+                        <label class="flex items-start gap-3 cursor-pointer group">
+                            <input type="checkbox" name="agreed_to_terms" value="1"
+                                {{ old('agreed_to_terms') ? 'checked' : '' }}
+                                class="mt-1 w-5 h-5 rounded bg-white/5 border-white/20 text-gold-500 focus:ring-gold-500/20 focus:ring-offset-0">
+                            <span class="text-sm text-luxury-400 group-hover:text-luxury-300 transition">
+                                {{ __('site.agree_to') }}
+                                <a href="{{ route('pages.terms') }}" target="_blank" class="text-gold-400 hover:text-gold-300 underline">{{ __('site.terms_conditions') }}</a>
+                                {{ __('site.and') }}
+                                <a href="{{ route('pages.privacy') }}" target="_blank" class="text-gold-400 hover:text-gold-300 underline">{{ __('site.privacy_policy') }}</a>
+                            </span>
+                        </label>
+                        <x-input-error :messages="$errors->get('agreed_to_terms')" class="mt-2" />
+                    </div>
+
                     <!-- Submit Button -->
                     <button type="submit" class="btn-premium w-full py-4 rounded-xl bg-gold-400 font-semibold text-lg">
                         {{ __('site.create_account_btn') }}

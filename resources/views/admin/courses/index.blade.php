@@ -5,13 +5,22 @@
                 <h2 class="text-2xl font-bold text-white">{{ __('site.manage_courses') }}</h2>
                 <p class="text-luxury-400 text-sm mt-1">{{ __('site.review_approve_courses_desc') }}</p>
             </div>
-            <a href="{{ route('admin.courses.pending') }}" 
-                class="px-4 py-2 rounded-xl text-sm font-medium border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 transition flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                {{ __('site.pending_approval_count', ['count' => $pendingCount ?? 0]) }}
-            </a>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('admin.categories.index') }}" 
+                    class="px-4 py-2 rounded-xl text-sm font-medium border border-royal-500/30 text-royal-400 hover:bg-royal-500/10 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                    {{ __('site.categories') }}
+                </a>
+                <a href="{{ route('admin.courses.pending') }}" 
+                    class="px-4 py-2 rounded-xl text-sm font-medium border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {{ __('site.pending_approval_count', ['count' => $pendingCount ?? 0]) }}
+                </a>
+            </div>
         </div>
     </x-slot>
 

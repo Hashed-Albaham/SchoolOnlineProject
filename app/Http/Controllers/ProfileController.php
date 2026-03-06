@@ -32,6 +32,16 @@ class ProfileController extends Controller
             $request->user()->email_verified_at = null;
         }
 
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if it exists
+            if ($request->user()->avatar) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($request->user()->avatar);
+            }
+            
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $request->user()->avatar = $path;
+        }
+
         $request->user()->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
@@ -56,5 +66,15 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    /**
+     * Mark all user notifications as read.
+     */
+    public function markAsRead(Request $request): RedirectResponse
+    {
+        $request->user()->unreadNotifications->markAsRead();
+
+        return back()->with('status', 'notifications-read');
     }
 }

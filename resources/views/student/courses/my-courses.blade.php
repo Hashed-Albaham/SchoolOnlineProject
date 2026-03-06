@@ -34,11 +34,19 @@
                                 <div class="absolute inset-0 bg-gradient-to-t from-luxury-900/80 to-transparent"></div>
                                 
                                 <!-- Status Badge -->
-                                <div class="absolute top-3 {{ app()->getLocale() === 'ar' ? 'left-3' : 'right-3' }}">
+                                <div class="absolute top-3 flex flex-col gap-2 {{ app()->getLocale() === 'ar' ? 'left-3' : 'right-3' }}">
                                     @if($enrollment->payment_status === 'paid')
                                         <span class="px-2.5 py-1 text-xs rounded-lg bg-green-500/90 text-white font-medium">{{ __('site.payment_paid') }}</span>
                                     @else
                                         <span class="px-2.5 py-1 text-xs rounded-lg bg-yellow-500/90 text-luxury-900 font-medium">{{ __('site.pending_payment') }}</span>
+                                    @endif
+                                    
+                                    @if($enrollment->enrollment_status === 'approved')
+                                        <span class="px-2.5 py-1 text-xs rounded-lg bg-green-500/90 text-white font-medium">{{ __('site.approved') }}</span>
+                                    @elseif($enrollment->enrollment_status === 'pending_approval')
+                                        <span class="px-2.5 py-1 text-xs rounded-lg bg-yellow-500/90 text-luxury-900 font-medium">{{ __('site.pending_approval') }}</span>
+                                    @else
+                                        <span class="px-2.5 py-1 text-xs rounded-lg bg-red-500/90 text-white font-medium">{{ __('site.rejected') }}</span>
                                     @endif
                                 </div>
                             </div>
@@ -48,9 +56,7 @@
                                 <h3 class="font-semibold text-white line-clamp-2 mb-2 min-h-[3rem]">{{ $enrollment->course->title }}</h3>
                                 
                                 <div class="flex items-center gap-2 mb-4">
-                                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center">
-                                        <span class="text-white text-xs font-semibold">{{ substr($enrollment->course->tutor?->name ?? 'M', 0, 1) }}</span>
-                                    </div>
+                                    <x-avatar :user="$enrollment->course->tutor" sizeClasses="w-6 h-6" iconClasses="w-3 h-3" />
                                     <span class="text-sm text-luxury-400">{{ $enrollment->course->tutor?->name ?? __('site.tutor_label') }}</span>
                                 </div>
                                 
@@ -64,7 +70,7 @@
                                     <span class="text-gold-400">{{ __('site.enrolled_on') }} {{ $enrollment->created_at->format('Y/m/d') }}</span>
                                 </div>
                                 
-                                @if($enrollment->payment_status === 'paid')
+                                @if($enrollment->canAccess())
                                     <a href="{{ route('student.courses.watch', $enrollment->course) }}" 
                                         class="w-full block text-center py-3 rounded-xl bg-gold-gradient text-luxury-900 font-semibold hover:shadow-glow transition">
                                         <span class="flex items-center justify-center gap-2">
@@ -75,6 +81,15 @@
                                             {{ __('site.continue_learning') }}
                                         </span>
                                     </a>
+                                @elseif($enrollment->payment_status === 'paid' && $enrollment->enrollment_status === 'pending_approval')
+                                    <div class="w-full block text-center py-3 rounded-xl bg-luxury-800 text-luxury-400 font-semibold border border-white/5 cursor-not-allowed">
+                                        <span class="flex items-center justify-center gap-2">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            {{ __('site.enrollment_pending_approval') }}
+                                        </span>
+                                    </div>
                                 @else
                                     <a href="{{ route('student.enrollment.payment', $enrollment) }}" 
                                         class="w-full block text-center py-3 rounded-xl bg-yellow-500/20 text-yellow-400 font-semibold hover:bg-yellow-500/30 transition">

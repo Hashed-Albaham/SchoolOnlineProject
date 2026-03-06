@@ -94,11 +94,7 @@
                                     </h3>
 
                                     <div class="flex items-center gap-2 mb-3">
-                                        <div
-                                            class="w-6 h-6 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center">
-                                            <span
-                                                class="text-white text-xs font-semibold">{{ substr($course->tutor->name ?? 'M', 0, 1) }}</span>
-                                        </div>
+                                        <x-avatar :user="$course->tutor" sizeClasses="w-5 h-5" iconClasses="w-3 h-3 text-white" />
                                         <span
                                             class="text-sm text-luxury-400">{{ $course->tutor->name ?? __('site.instructor') }}</span>
                                     </div>

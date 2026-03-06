@@ -43,6 +43,27 @@ class DashboardController extends Controller
                 ->count()
             : 0;
 
+        $pendingEnrollments = $courseIds->isNotEmpty() 
+            ? Enrollment::whereIn('course_id', $courseIds)
+                ->where('payment_status', 'paid')
+                ->where('enrollment_status', 'pending_approval')
+                ->count()
+            : 0;
+
+        $approvedEnrollments = $courseIds->isNotEmpty() 
+            ? Enrollment::whereIn('course_id', $courseIds)
+                ->where('payment_status', 'paid')
+                ->where('enrollment_status', 'approved')
+                ->count()
+            : 0;
+
+        $rejectedEnrollments = $courseIds->isNotEmpty() 
+            ? Enrollment::whereIn('course_id', $courseIds)
+                ->where('payment_status', 'paid')
+                ->where('enrollment_status', 'rejected')
+                ->count()
+            : 0;
+
         $stats = [
             'total_courses' => $courseStats->total_courses ?? 0,
             'approved_courses' => $courseStats->approved_courses ?? 0,
@@ -51,6 +72,9 @@ class DashboardController extends Controller
             'is_verified' => $tutorDetail?->is_verified ?? false,
             'pending_certificates' => $pendingCertificates,
             'issued_certificates' => $issuedCertificates,
+            'pending_enrollments' => $pendingEnrollments,
+            'approved_enrollments' => $approvedEnrollments,
+            'rejected_enrollments' => $rejectedEnrollments,
         ];
 
         $recentCourses = $user->courses()

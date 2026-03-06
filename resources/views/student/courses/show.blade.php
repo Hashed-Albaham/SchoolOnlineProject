@@ -159,7 +159,21 @@
                                 </svg>
                                 {{ __('site.enrolled_in_course') }}
                             </p>
-                        @else
+                        @elseif(isset($enrollment) && $enrollment->enrollment_status === 'pending_approval')
+                            <div class="bg-yellow-500/20 text-yellow-500 w-full py-4 rounded-xl font-semibold text-center block mb-4 border border-yellow-500/30">
+                                <span class="flex items-center justify-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ __('site.enrollment_pending_approval') }}
+                                </span>
+                            </div>
+                        @elseif(isset($enrollment) && $enrollment->enrollment_status === 'rejected')
+                            <div class="bg-red-500/20 text-red-400 w-full py-4 rounded-xl font-semibold text-center block mb-4 border border-red-500/30">
+                                <span class="flex items-center justify-center gap-2">
+                                    {{ __('site.enrollment_rejected') ?? 'Your request was rejected' }}
+                                </span>
+                            </div>
                             <form action="{{ route('student.enroll', $course) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn-premium w-full py-4 rounded-xl font-semibold">
@@ -209,9 +223,7 @@
                         <div class="border-t border-white/5 mt-6 pt-6">
                             <p class="text-luxury-400 text-sm mb-3">{{ __('site.the_tutor') }}</p>
                             <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center">
-                                    <span class="text-white font-semibold">{{ substr($course->tutor->name ?? 'M', 0, 1) }}</span>
-                                </div>
+                                <x-avatar :user="$course->tutor" sizeClasses="w-12 h-12" iconClasses="w-6 h-6" />
                                 <div>
                                     <p class="font-medium text-white">{{ $course->tutor?->name ?? __('site.deleted_user') }}</p>
                                     @if($course->tutor && $course->tutor->tutorDetails)

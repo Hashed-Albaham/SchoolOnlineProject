@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Auth;
 class CertificateController extends Controller
 {
     /**
-     * Show "My Certificates" for student
+     * Show "My Certificates" for student.
+     *
+     * @return \Illuminate\View\View
      */
     public function myCertificates()
     {
@@ -25,7 +27,10 @@ class CertificateController extends Controller
     }
 
     /**
-     * Verify certificate publicly
+     * Verify certificate publicly by code.
+     *
+     * @param  string  $code
+     * @return \Illuminate\View\View
      */
     public function verify($code)
     {
@@ -39,6 +44,13 @@ class CertificateController extends Controller
 
     /**
      * Show the certificate for a passed quiz or course.
+     *
+     * SECURITY FIX [C3]: Fixed IDOR vulnerability - previously ANY tutor could
+     * view ANY certificate. Now only the tutor who owns the course can view it.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
     public function show(Request $request, $id)
     {
@@ -46,14 +58,23 @@ class CertificateController extends Controller
         $certificate = CourseCertificate::find($id);
 
         if ($certificate) {
-            // Check access: Owner or Admin or Tutor of course or Public if Approved
-            if (Auth::id() !== $certificate->user_id && !auth()->user()?->isAdmin() && !auth()->user()?->isTutor()) {
-                abort(403);
+            $certificate->load('course');
+
+            // SECURITY FIX [C3]: Strict access control
+            // Allowed: Certificate owner, Admin, or the Tutor who owns the course
+            $user = auth()->user();
+            $isOwner = Auth::id() === $certificate->user_id;
+            $isAdmin = $user?->isAdmin();
+            $isCoursetutor = $user?->isTutor() && $certificate->course && $certificate->course->tutor_id === $user->id;
+
+            if (!$isOwner && !$isAdmin && !$isCoursetutor) {
+                abort(403, 'غير مصرح لك بمشاهدة هذه الشهادة');
             }
+
             return view('certificate.show', compact('certificate'));
         }
 
-        // Fallback to old QuizAttempt logic (if needed, or can be removed if deprecated)
+        // Fallback to old QuizAttempt logic
         $attempt = QuizAttempt::findOrFail($id);
 
         if ($attempt->user_id !== Auth::id()) {

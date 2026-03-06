@@ -83,6 +83,80 @@
                         @enderror
                     </div>
 
+                    <!-- [REQ] Qualifications Section -->
+                    <div class="border-t border-white/10 pt-6 mb-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            🎓 {{ __('site.qualifications') }}
+                        </h3>
+
+                        <!-- University -->
+                        <div class="mb-4">
+                            <label for="university" class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.university') }}</label>
+                            <input type="text" name="university" id="university"
+                                value="{{ old('university', $tutorDetail->university ?? '') }}"
+                                class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition"
+                                placeholder="{{ __('site.university_placeholder') }}">
+                            @error('university')
+                                <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Graduation Year -->
+                        <div class="mb-4">
+                            <label for="graduation_year" class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.graduation_year') }}</label>
+                            <input type="number" name="graduation_year" id="graduation_year"
+                                value="{{ old('graduation_year', $tutorDetail->graduation_year ?? '') }}"
+                                min="2000" max="{{ date('Y') + 1 }}"
+                                class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition"
+                                placeholder="{{ date('Y') }}">
+                            @error('graduation_year')
+                                <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Degree Certificate Upload -->
+                        <div class="mb-4">
+                            <label for="degree_certificate" class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.degree_certificate') }}</label>
+                            @if($tutorDetail->degree_certificate_path ?? false)
+                                <div class="mb-3 flex items-center gap-2 text-green-400">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="text-sm">{{ __('site.certificate_uploaded') }}</span>
+                                </div>
+                            @endif
+                            <input type="file" name="degree_certificate" id="degree_certificate" accept=".pdf,.jpg,.jpeg,.png"
+                                class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-luxury-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gold-500/20 file:text-gold-400 hover:file:bg-gold-500/30 transition">
+                            <p class="text-sm text-luxury-500 mt-2">{{ __('site.degree_certificate_hint') }}</p>
+                            @error('degree_certificate')
+                                <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="mb-4">
+                            <label for="skills" class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.skills_label') }}</label>
+                            <textarea name="skills" id="skills" rows="3"
+                                class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition"
+                                placeholder="{{ __('site.skills_placeholder') }}">{{ old('skills', $tutorDetail->skills ?? '') }}</textarea>
+                            @error('skills')
+                                <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Portfolio URL -->
+                        <div class="mb-4">
+                            <label for="portfolio_url" class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.portfolio_url') }}</label>
+                            <input type="url" name="portfolio_url" id="portfolio_url"
+                                value="{{ old('portfolio_url', $tutorDetail->portfolio_url ?? '') }}"
+                                class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition"
+                                placeholder="https://github.com/username">
+                            @error('portfolio_url')
+                                <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
                     <!-- CV Upload -->
                     <div class="mb-8">
                         <label for="cv" class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.cv_label') }}</label>

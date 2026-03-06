@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Http\Request;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 // Admin Controllers
@@ -21,6 +23,23 @@ use App\Http\Controllers\Student\EnrollmentController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CertificateController;
+
+/*
+|--------------------------------------------------------------------------
+| SECURITY FIX [C2]: Rate Limiting for Sensitive Routes
+|--------------------------------------------------------------------------
+*/
+RateLimiter::for('enroll', function (Request $request) {
+    return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
+});
+
+RateLimiter::for('payment', function (Request $request) {
+    return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+});
+
+RateLimiter::for('messaging', function (Request $request) {
+    return \Illuminate\Cache\RateLimiting\Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -45,15 +64,21 @@ Route::group([
     Route::get('/courses', [StudentCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->name('courses.show');
 
+    // [PP1] Public Pages
+    Route::get('/privacy', [\App\Http\Controllers\PageController::class, 'privacy'])->name('pages.privacy');
+    Route::get('/terms', [\App\Http\Controllers\PageController::class, 'terms'])->name('pages.terms');
+
     /*
     |--------------------------------------------------------------------------
     | Authenticated Routes
     |--------------------------------------------------------------------------
     */
     Route::middleware('auth')->group(function () {
-        // Messaging Routes
-        Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
-        Route::get('/messages/{user}', [MessageController::class, 'show'])->name('messages.show');
+        // Messaging Routes (SECURITY FIX [C2]: Rate Limited)
+        Route::middleware('throttle:messaging')->group(function () {
+            Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+            Route::get('/messages/{user}', [MessageController::class, 'show'])->name('messages.show');
+        });
 
         // Certificate Routes
         Route::get('/certificate/verify/{code}', [App\Http\Controllers\CertificateController::class, 'verify'])->name('certificate.verify');
@@ -65,6 +90,7 @@ Route::group([
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('/notifications/mark-as-read', [ProfileController::class, 'markAsRead'])->name('notifications.markAsRead');
     });
 
     /*
@@ -75,6 +101,13 @@ Route::group([
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+        // [A3] User Management
+        Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+        Route::get('/users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+
         // Tutor Management
         Route::get('/tutors', [AdminTutorController::class, 'index'])->name('tutors.index');
         Route::get('/tutors/pending', [AdminTutorController::class, 'pending'])->name('tutors.pending');
@@ -83,13 +116,57 @@ Route::group([
         Route::post('/tutors/{tutor}/reject', [AdminTutorController::class, 'reject'])->name('tutors.reject');
         Route::post('/tutors/{tutor}/approve-all-courses', [AdminTutorController::class, 'approveAllCourses'])->name('tutors.approveAllCourses');
 
-        // Course Management
+        // Course Management [A4] with edit/delete
         Route::get('/courses', [AdminCourseController::class, 'index'])->name('courses.index');
         Route::get('/courses/pending', [AdminCourseController::class, 'pending'])->name('courses.pending');
         Route::get('/courses/{course}', [AdminCourseController::class, 'show'])->name('courses.show');
+        Route::get('/courses/{course}/edit', [AdminCourseController::class, 'edit'])->name('courses.edit');
+        Route::put('/courses/{course}', [AdminCourseController::class, 'update'])->name('courses.update');
+        Route::delete('/courses/{course}', [AdminCourseController::class, 'destroy'])->name('courses.destroy');
         Route::post('/courses/{course}/approve', [AdminCourseController::class, 'approve'])->name('courses.approve');
         Route::post('/courses/{course}/reject', [AdminCourseController::class, 'reject'])->name('courses.reject');
         Route::post('/courses/{course}/unapprove', [AdminCourseController::class, 'unapprove'])->name('courses.unapprove');
+        // [A9] Review Management
+        Route::delete('/courses/{course}/reviews/{review}', [AdminCourseController::class, 'deleteReview'])->name('courses.reviews.destroy');
+        // [A10] Admin Content/Lesson Management
+        Route::delete('/courses/{course}/content/{content}', [AdminCourseController::class, 'deleteContent'])->name('courses.content.destroy');
+
+        // [A6] Enrollment/Subscription Management
+        Route::get('/enrollments', [\App\Http\Controllers\Admin\EnrollmentController::class, 'index'])->name('enrollments.index');
+        Route::patch('/enrollments/{enrollment}/status', [\App\Http\Controllers\Admin\EnrollmentController::class, 'updateStatus'])->name('enrollments.updateStatus');
+
+        // [A5] Category Management
+        Route::get('/categories', [\App\Http\Controllers\Admin\CategoryController::class, 'index'])->name('categories.index');
+        Route::get('/categories/create', [\App\Http\Controllers\Admin\CategoryController::class, 'create'])->name('categories.create');
+        Route::post('/categories', [\App\Http\Controllers\Admin\CategoryController::class, 'store'])->name('categories.store');
+        Route::get('/categories/{category}/edit', [\App\Http\Controllers\Admin\CategoryController::class, 'edit'])->name('categories.edit');
+        Route::put('/categories/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'destroy'])->name('categories.destroy');
+
+        // [A7] Reports & Analytics
+        Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
+
+        // [PAY1] Payment Methods Management
+        Route::resource('payment-methods', \App\Http\Controllers\Admin\PaymentMethodController::class)->names([
+            'index'   => 'payment_methods.index',
+            'create'  => 'payment_methods.create',
+            'store'   => 'payment_methods.store',
+            'edit'    => 'payment_methods.edit',
+            'update'  => 'payment_methods.update',
+            'destroy' => 'payment_methods.destroy',
+        ]);
+        Route::post('/payment-methods/{paymentMethod}/toggle', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'toggle'])->name('payment_methods.toggle');
+
+        // [PAY2] Admin Payout Management
+        Route::get('/payouts', [\App\Http\Controllers\Admin\PayoutController::class, 'index'])->name('payouts.index');
+        Route::post('/payouts/{payoutRequest}/approve', [\App\Http\Controllers\Admin\PayoutController::class, 'approve'])->name('payouts.approve');
+        Route::post('/payouts/{payoutRequest}/reject', [\App\Http\Controllers\Admin\PayoutController::class, 'reject'])->name('payouts.reject');
+        Route::post('/payouts/{payoutRequest}/mark-paid', [\App\Http\Controllers\Admin\PayoutController::class, 'markPaid'])->name('payouts.markPaid');
+
+        // [A8] Admin Chat Oversight
+        Route::get('/chat', [\App\Http\Controllers\Admin\ChatController::class, 'index'])->name('chat.index');
+        Route::get('/chat/{user1}/{user2}', [\App\Http\Controllers\Admin\ChatController::class, 'show'])->name('chat.show');
+        Route::delete('/chat/messages/{message}', [\App\Http\Controllers\Admin\ChatController::class, 'destroyMessage'])->name('chat.destroyMessage');
     });
 
     /*
@@ -97,7 +174,7 @@ Route::group([
     | Tutor Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->group(function () {
+    Route::middleware(['auth', 'role:tutor,admin'])->prefix('tutor')->name('tutor.')->group(function () {
         Route::get('/dashboard', [TutorDashboardController::class, 'index'])->name('dashboard');
 
         // Profile
@@ -128,6 +205,18 @@ Route::group([
         Route::post('/certificates/{certificate}/issue', [TutorCourseController::class, 'issueCertificate'])->name('certificates.issue');
         Route::post('/certificates/{certificate}/reject', [TutorCourseController::class, 'rejectCertificate'])->name('certificates.reject');
         Route::post('/certificates/{certificate}/revoke', [TutorCourseController::class, 'revokeCertificate'])->name('certificates.revoke');
+
+        // [E1] Enrollment Approval Management
+        Route::get('/enrollments', [TutorCourseController::class, 'enrollmentsIndex'])->name('enrollments.index');
+        Route::post('/enrollments/{enrollment}/approve', [TutorCourseController::class, 'approveEnrollment'])->name('enrollments.approve');
+        Route::post('/enrollments/{enrollment}/reject', [TutorCourseController::class, 'rejectEnrollment'])->name('enrollments.reject');
+
+        // [T1] Tutor Reports & Analytics
+        Route::get('/reports', [\App\Http\Controllers\Tutor\ReportController::class, 'index'])->name('reports.index');
+
+        // [PAY2] Tutor Payout Requests
+        Route::get('/payouts', [\App\Http\Controllers\Tutor\PayoutController::class, 'index'])->name('payouts.index');
+        Route::post('/payouts', [\App\Http\Controllers\Tutor\PayoutController::class, 'store'])->name('payouts.store');
     });
 
     /*
@@ -144,10 +233,14 @@ Route::group([
         Route::get('/my-courses', [StudentCourseController::class, 'myCourses'])->name('courses.my');
         Route::get('/courses/{course}/watch/{content?}', [StudentCourseController::class, 'watch'])->name('courses.watch');
 
-        // Enrollments
-        Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'enroll'])->name('enroll');
+        // Enrollments (SECURITY FIX [C2]: Rate Limited)
+        Route::middleware('throttle:enroll')->group(function () {
+            Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'enroll'])->name('enroll');
+        });
         Route::get('/enrollment/{enrollment}/payment', [EnrollmentController::class, 'showPayment'])->name('enrollment.payment');
-        Route::post('/enrollment/{enrollment}/payment', [EnrollmentController::class, 'processPayment'])->name('enrollment.payment.process');
+        Route::middleware('throttle:payment')->group(function () {
+            Route::post('/enrollment/{enrollment}/payment', [EnrollmentController::class, 'processPayment'])->name('enrollment.payment.process');
+        });
         Route::get('/my-enrollments', [EnrollmentController::class, 'myEnrollments'])->name('enrollments.my');
 
         // Quizzes

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Tutor;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Course;
 use App\Models\CourseContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class CourseController extends Controller
@@ -29,7 +31,15 @@ class CourseController extends Controller
      */
     public function create()
     {
-        return view('tutor.courses.create');
+        // [V1] SECURITY: Prevent unverified tutors from creating courses
+        $tutorDetail = Auth::user()->tutorDetails;
+        if (!$tutorDetail || !$tutorDetail->is_verified) {
+            return redirect()->route('tutor.dashboard')
+                ->with('error', __('site.tutor_not_verified_cannot_create'));
+        }
+
+        $categories = Category::active()->orderBy('order')->get();
+        return view('tutor.courses.create', compact('categories'));
     }
 
     /**
@@ -42,11 +52,13 @@ class CourseController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'thumbnail' => 'nullable|image|max:2048',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
-        $data = $request->only(['title', 'description', 'price']);
+        $data = $request->only(['title', 'description', 'price', 'category_id']);
         $data['tutor_id'] = Auth::id();
-        $data['status'] = 'pending';
+        // NOTE: 'status' removed from $fillable (Security Fix M4)
+        // Must be set explicitly after creation
 
         // Handle thumbnail upload
         if ($request->hasFile('thumbnail')) {
@@ -54,6 +66,9 @@ class CourseController extends Controller
         }
 
         $course = Course::create($data);
+        // SECURITY FIX [M4]: Set status explicitly (not via mass assignment)
+        $course->status = 'pending';
+        $course->save();
 
         // Notify Admins
         $admins = \App\Models\User::where('role', 'admin')->get();
@@ -74,8 +89,9 @@ class CourseController extends Controller
         $this->authorize('update', $course);
 
         $course->load('contents');
+        $categories = Category::active()->orderBy('order')->get();
 
-        return view('tutor.courses.edit', compact('course'));
+        return view('tutor.courses.edit', compact('course', 'categories'));
     }
 
     /**
@@ -90,9 +106,10 @@ class CourseController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'thumbnail' => 'nullable|image|max:2048',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
-        $data = $request->only(['title', 'description', 'price']);
+        $data = $request->only(['title', 'description', 'price', 'category_id']);
 
         // Handle thumbnail upload
         if ($request->hasFile('thumbnail')) {
@@ -422,7 +439,14 @@ class CourseController extends Controller
     }
 
     /**
-     * Issue certificate to student
+     * Issue certificate to student.
+     *
+     * SECURITY FIX [C1]: Wrapped in DB::transaction() to ensure
+     * atomicity of certificate approval + code generation + notification.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\CourseCertificate  $certificate
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function issueCertificate(Request $request, \App\Models\CourseCertificate $certificate)
     {
@@ -434,16 +458,19 @@ class CourseController extends Controller
             return back()->with('error', __('site.already_processed'));
         }
 
-        $certificate->update([
-            'status' => 'approved',
-            'certificate_code' => \App\Models\CourseCertificate::generateCode(),
-            'issued_at' => now(),
-        ]);
+        // SECURITY FIX [C1]: DB Transaction for certificate issuance
+        return DB::transaction(function () use ($certificate) {
+            $certificate->update([
+                'status' => 'approved',
+                'certificate_code' => \App\Models\CourseCertificate::generateCode(),
+                'issued_at' => now(),
+            ]);
 
-        // Send Notification
-        $certificate->user->notify(new \App\Notifications\CertificateIssued($certificate));
+            // Send Notification
+            $certificate->user->notify(new \App\Notifications\CertificateIssued($certificate));
 
-        return back()->with('success', __('site.certificate_issued_success'));
+            return back()->with('success', __('site.certificate_issued_success'));
+        });
     }
 
     /**
@@ -511,12 +538,20 @@ class CourseController extends Controller
 
         $certificates = $query->paginate(15)->withQueryString();
 
-        // Counts per status
+        // PERFORMANCE FIX [M6]: Combine 4 separate COUNT queries into 1
+        $countStats = \App\Models\CourseCertificate::whereIn('course_id', $courseIds)
+            ->selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected
+            ")->first();
+
         $counts = [
-            'all' => \App\Models\CourseCertificate::whereIn('course_id', $courseIds)->count(),
-            'pending' => \App\Models\CourseCertificate::whereIn('course_id', $courseIds)->where('status', 'pending')->count(),
-            'approved' => \App\Models\CourseCertificate::whereIn('course_id', $courseIds)->where('status', 'approved')->count(),
-            'rejected' => \App\Models\CourseCertificate::whereIn('course_id', $courseIds)->where('status', 'rejected')->count(),
+            'all' => $countStats->total ?? 0,
+            'pending' => $countStats->pending ?? 0,
+            'approved' => $countStats->approved ?? 0,
+            'rejected' => $countStats->rejected ?? 0,
         ];
 
         return view('tutor.certificates.index', compact('certificates', 'allCourses', 'counts', 'status', 'courseFilter', 'sort'));
@@ -540,5 +575,66 @@ class CourseController extends Controller
         ]);
 
         return back()->with('success', __('site.certificate_revoked_success'));
+    }
+
+    // ══════════════════════════════════════════════════════
+    // [E1] ENROLLMENT APPROVAL MANAGEMENT
+    // ══════════════════════════════════════════════════════
+
+    /**
+     * [E1] Show enrollments for tutor's courses (pending/approved/rejected).
+     */
+    public function enrollmentsIndex()
+    {
+        $tutor = Auth::user();
+        $courseIds = $tutor->courses()->pluck('id');
+
+        $enrollments = \App\Models\Enrollment::whereIn('course_id', $courseIds)
+            ->with(['user', 'course'])
+            ->latest()
+            ->paginate(15);
+
+        $pendingCount = \App\Models\Enrollment::whereIn('course_id', $courseIds)
+            ->where('enrollment_status', 'pending_approval')
+            ->count();
+
+        return view('tutor.enrollments.index', compact('enrollments', 'pendingCount'));
+    }
+
+    /**
+     * [E1] Approve a student's enrollment request.
+     */
+    public function approveEnrollment(\App\Models\Enrollment $enrollment)
+    {
+        // SECURITY: Verify tutor owns this course
+        $course = $enrollment->course;
+        if (!$course || $course->tutor_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $enrollment->update(['enrollment_status' => 'approved']);
+
+        // Notify student
+        if ($enrollment->user) {
+            $enrollment->user->notify(new \App\Notifications\EnrollmentApproved($enrollment));
+        }
+
+        return back()->with('success', __('site.enrollment_approved_success'));
+    }
+
+    /**
+     * [E1] Reject a student's enrollment request.
+     */
+    public function rejectEnrollment(\App\Models\Enrollment $enrollment)
+    {
+        // SECURITY: Verify tutor owns this course
+        $course = $enrollment->course;
+        if (!$course || $course->tutor_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $enrollment->update(['enrollment_status' => 'rejected']);
+
+        return back()->with('success', __('site.enrollment_rejected_success'));
     }
 }

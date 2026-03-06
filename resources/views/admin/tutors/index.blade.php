@@ -89,9 +89,7 @@
                                     <tr class="hover:bg-white/5 transition">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center">
-                                                    <span class="text-white font-semibold">{{ substr($tutor->name, 0, 1) }}</span>
-                                                </div>
+                                                <x-avatar :user="$tutor" sizeClasses="w-10 h-10" iconClasses="w-5 h-5" />
                                                 <div>
                                                     <p class="font-medium text-white">{{ $tutor->name }}</p>
                                                     <p class="text-sm text-luxury-400">{{ $tutor->email }}</p>

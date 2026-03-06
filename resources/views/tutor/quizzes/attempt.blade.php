@@ -20,9 +20,7 @@
             <div class="bg-luxury-800/50 border border-white/5 rounded-xl p-6 mb-8">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-white text-xl font-bold">
-                            {{ mb_substr($attempt->user->name, 0, 1) }}
-                        </div>
+                        <x-avatar :user="$attempt->user" sizeClasses="w-12 h-12" iconClasses="w-6 h-6" />
                         <div>
                             <h3 class="text-white font-bold text-lg">{{ $attempt->user->name }}</h3>
                             <p class="text-luxury-400 text-sm">{{ $attempt->user->email }}</p>

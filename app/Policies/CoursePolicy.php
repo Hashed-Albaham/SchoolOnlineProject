@@ -51,7 +51,7 @@ class CoursePolicy
      */
     public function update(User $user, Course $course): bool
     {
-        return $user->id === $course->tutor_id;
+        return $user->id === $course->tutor_id || $user->isAdmin();
     }
 
     /**

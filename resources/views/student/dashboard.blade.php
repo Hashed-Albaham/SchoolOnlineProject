@@ -172,12 +172,27 @@
                                         <div class="flex items-center justify-between mb-3">
                                             <p class="text-luxury-400 text-sm">
                                                 {{ $enrollment->course->tutor->name ?? __('site.tutor') }}</p>
-                                            <span class="text-xs px-2 py-1 rounded-lg bg-green-500/20 text-green-400">{{ __('site.active') }}</span>
-                                        </div>
-                                        <a href="{{ route('student.courses.watch', $enrollment->course->id) }}"
-                                            class="w-full block text-center py-2.5 rounded-xl bg-gold-500/20 text-gold-400 font-medium hover:bg-gold-500/30 transition">
-                                            {{ __('site.continue_learning_arrow') }}
-                                        </a>
+                                            @if($enrollment->canAccess())
+                                                <span class="text-xs px-2 py-1 rounded-lg bg-green-500/20 text-green-400">{{ __('site.active') }}</span>
+                                            </div>
+                                            <a href="{{ route('student.courses.watch', $enrollment->course->id) }}"
+                                                class="w-full block text-center py-2.5 rounded-xl bg-gold-500/20 text-gold-400 font-medium hover:bg-gold-500/30 transition">
+                                                {{ __('site.continue_learning_arrow') }}
+                                            </a>
+                                            @elseif($enrollment->payment_status === 'paid' && $enrollment->enrollment_status === 'pending_approval')
+                                                <span class="text-xs px-2 py-1 rounded-lg bg-yellow-500/20 text-yellow-400">{{ __('site.pending_approval') }}</span>
+                                            </div>
+                                            <div class="w-full block text-center py-2.5 rounded-xl bg-luxury-800 text-luxury-400 font-medium border border-white/5 cursor-not-allowed">
+                                                {{ __('site.enrollment_pending_approval') }}
+                                            </div>
+                                            @else
+                                                <span class="text-xs px-2 py-1 rounded-lg bg-yellow-500/20 text-yellow-400">{{ __('site.pending_payment') }}</span>
+                                            </div>
+                                            <a href="{{ route('student.enrollment.payment', $enrollment) }}"
+                                                class="w-full block text-center py-2.5 rounded-xl bg-yellow-500/20 text-yellow-400 font-medium hover:bg-yellow-500/30 transition">
+                                                {{ __('site.complete_payment') }}
+                                            </a>
+                                            @endif
                                     </div>
                                 </div>
                                 @endif

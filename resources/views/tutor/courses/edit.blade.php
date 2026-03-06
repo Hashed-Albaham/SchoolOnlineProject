@@ -96,6 +96,23 @@
                         @enderror
                     </div>
 
+                    <!-- Category -->
+                    <div>
+                        <label for="category_id" class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.category') }}</label>
+                        <select id="category_id" name="category_id"
+                            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition [&>option]:bg-luxury-800 [&>option]:text-white">
+                            <option value="">{{ __('site.select_category') }}</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}" {{ old('category_id', $course->category_id) == $cat->id ? 'selected' : '' }}>
+                                    {{ $cat->localized_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('category_id')
+                            <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Current Thumbnail -->
                     @if($course->thumbnail)
                         <div>

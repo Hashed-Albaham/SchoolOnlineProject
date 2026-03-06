@@ -11,18 +11,33 @@ class Course extends Model
 {
     use HasFactory;
 
+    /**
+     * SECURITY FIX [M4]: Removed 'status' from $fillable to prevent
+     * Mass Assignment privilege escalation. Status must be set explicitly:
+     * $course->status = 'pending'; or via ->update(['status' => 'approved'])
+     * from authorized admin controllers only.
+     */
     protected $fillable = [
         'tutor_id',
+        'category_id',
         'title',
         'description',
         'price',
         'thumbnail',
-        'status',
+        // 'status' - REMOVED: Set explicitly to prevent tutors from self-approving
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
     ];
+
+    /**
+     * Get the category of this course
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     /**
      * Get the tutor who created this course

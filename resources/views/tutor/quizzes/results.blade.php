@@ -67,9 +67,7 @@
                                     <tr class="hover:bg-white/5 transition">
                                         <td class="px-6 py-4">
                                             <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-white font-bold">
-                                                    {{ mb_substr($attempt->user->name, 0, 1) }}
-                                                </div>
+                                                <x-avatar :user="$attempt->user" sizeClasses="w-10 h-10" iconClasses="w-5 h-5" />
                                                 <div>
                                                     <p class="text-white font-medium">{{ $attempt->user->name }}</p>
                                                     <p class="text-luxury-500 text-sm">{{ $attempt->user->email }}</p>

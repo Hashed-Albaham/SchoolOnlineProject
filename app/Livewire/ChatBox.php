@@ -69,6 +69,16 @@ class ChatBox extends Component
             return;
         }
 
+        // [MSG1] Verify the sender is allowed to message this receiver
+        $sender = Auth::user();
+        if ($sender->role !== 'admin') {
+            $allowedIds = app(\App\Http\Controllers\MessageController::class)->getAllowedContactIdsStatic($sender);
+            if (!$allowedIds->contains($this->receiverId)) {
+                $this->addError('newMessage', __('site.chat_not_allowed'));
+                return;
+            }
+        }
+
         // FIXED: Rate limiting - max 10 messages per minute
         $key = 'chat-messages:' . Auth::id();
         if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 10)) {

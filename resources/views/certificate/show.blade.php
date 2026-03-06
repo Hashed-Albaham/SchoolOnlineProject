@@ -32,29 +32,15 @@
     </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start py-8 px-4">
 
-    <div class="fixed top-4 left-4 no-print flex gap-2">
-        <button onclick="window.print()"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                </path>
-            </svg>
-            {{ __('site.print') }}
-        </button>
-        <a href="{{ route('home') }}"
-            class="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition">
-            {{ __('site.back') }}
-        </a>
-    </div>
-
-    <!-- Certificate Container -->
-    <div
-        class="certificate-container w-[1123px] h-[794px] bg-white text-gray-900 relative shadow-2xl overflow-hidden mx-auto">
-        <!-- Border & Frame -->
-        <div class="absolute inset-4 border-4 border-double border-gold-500 pointer-events-none z-20"></div>
+    <!-- Certificate Wrapper for horizontal scroll on mobile -->
+    <div class="w-full overflow-x-auto pb-6 flex justify-start md:justify-center">
+        <!-- Certificate Container -->
+        <div
+            class="certificate-container w-[1123px] h-[794px] shrink-0 bg-white text-gray-900 relative shadow-2xl overflow-hidden mx-auto">
+            <!-- Border & Frame -->
+            <div class="absolute inset-4 border-4 border-double border-gold-500 pointer-events-none z-20"></div>
         <div class="absolute inset-8 border border-gold-300 pointer-events-none z-20"></div>
 
         <!-- Decorative Corners -->
@@ -141,7 +127,25 @@
                 <p class="text-[10px] text-gray-300">{{ route('certificate.verify', $certificate->certificate_code) }}
                 </p>
             </div>
+            </div>
         </div>
+    </div>
+
+    <!-- Action Buttons (Print, Back) -->
+    <div class="mt-6 mb-4 no-print flex gap-4 w-full justify-center">
+        <button onclick="window.print()"
+            class="px-6 py-3 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-blue-700 transition flex items-center gap-2 font-semibold">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                </path>
+            </svg>
+            {{ __('site.print') }}
+        </button>
+        <a href="{{ route('home') }}"
+            class="px-6 py-3 bg-gray-600 text-white rounded-xl shadow-lg hover:bg-gray-700 transition font-semibold">
+            {{ __('site.back') }}
+        </a>
     </div>
 
 </body>

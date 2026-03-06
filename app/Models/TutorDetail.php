@@ -16,10 +16,19 @@ class TutorDetail extends Model
         'is_verified',
         'bio',
         'specialization',
+        // [REQ] Qualification fields
+        'university',
+        'graduation_year',
+        'degree_certificate_path',
+        'skills',
+        'portfolio_url',
+        'agreed_to_terms',
     ];
 
     protected $casts = [
         'is_verified' => 'boolean',
+        'agreed_to_terms' => 'boolean',
+        'graduation_year' => 'integer',
     ];
 
     /**

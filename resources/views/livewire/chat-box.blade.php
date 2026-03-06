@@ -17,11 +17,11 @@
 
                     <div class="flex items-end gap-2 {{ $isMe ? 'flex-row' : 'flex-row-reverse' }}">
                         <!-- Avatar -->
-                        <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold border border-white/10 shadow-sm
-                                    {{ $isMe ? 'bg-gold-500/10 text-gold-400' : 'bg-royal-500/10 text-royal-400' }}">
-                            {{ substr($message['sender']['name'] ?? 'U', 0, 1) }}
-                        </div>
-
+                        @if($isMe)
+                            <x-avatar :user="auth()->user()" sizeClasses="w-8 h-8" iconClasses="w-4 h-4" />
+                        @else
+                            <x-avatar :user="\App\Models\User::find($message['sender_id'])" sizeClasses="w-8 h-8" iconClasses="w-4 h-4" />
+                        @endif
                         <div class="relative px-5 py-3.5 text-sm leading-relaxed shadow-md transition-all duration-300
                                     {{ $isMe
                                         ? 'bg-gradient-to-br from-royal-600 to-royal-700 text-white rounded-2xl rounded-tr-none shadow-royal-900/20'

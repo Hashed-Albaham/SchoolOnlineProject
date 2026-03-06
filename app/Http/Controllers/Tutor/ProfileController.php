@@ -30,6 +30,12 @@ class ProfileController extends Controller
             'bio' => 'nullable|string|max:1000',
             'specialization' => 'nullable|string|max:255',
             'cv' => 'nullable|file|mimes:pdf,doc,docx|max:5120', // 5MB max
+            // [REQ] Qualification fields
+            'university' => 'nullable|string|max:255',
+            'graduation_year' => 'nullable|integer|min:2000|max:' . (date('Y') + 1),
+            'degree_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'skills' => 'nullable|string|max:1000',
+            'portfolio_url' => 'nullable|url|max:255',
         ]);
 
         $user = Auth::user();
@@ -40,15 +46,28 @@ class ProfileController extends Controller
         $tutorDetail->bio = $request->bio;
         $tutorDetail->specialization = $request->specialization;
 
+        // [REQ] Qualification fields
+        $tutorDetail->university = $request->university;
+        $tutorDetail->graduation_year = $request->graduation_year;
+        $tutorDetail->skills = $request->skills;
+        $tutorDetail->portfolio_url = $request->portfolio_url;
+
         // Handle CV upload
         if ($request->hasFile('cv')) {
-            // Delete old CV if exists
             if ($tutorDetail->cv_path) {
                 Storage::disk('public')->delete($tutorDetail->cv_path);
             }
-
             $path = $request->file('cv')->store('cvs', 'public');
             $tutorDetail->cv_path = $path;
+        }
+
+        // [REQ] Handle Degree Certificate upload
+        if ($request->hasFile('degree_certificate')) {
+            if ($tutorDetail->degree_certificate_path) {
+                Storage::disk('public')->delete($tutorDetail->degree_certificate_path);
+            }
+            $path = $request->file('degree_certificate')->store('certificates', 'public');
+            $tutorDetail->degree_certificate_path = $path;
         }
 
         $tutorDetail->save();

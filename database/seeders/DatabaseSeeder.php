@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'admin',
         ]);
+        $admin->agreed_to_terms_at = now();
+        $admin->save();
 
         // Create Tutors
         $tutor1 = User::create([
@@ -32,12 +34,20 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'tutor',
         ]);
+        $tutor1->agreed_to_terms_at = now();
+        $tutor1->save();
 
         TutorDetail::create([
             'user_id' => $tutor1->id,
             'bio' => 'مطور ويب محترف بخبرة 10 سنوات في تطوير تطبيقات Laravel و PHP',
             'specialization' => 'تطوير الويب',
             'is_verified' => true,
+            // [REQ] Qualification fields
+            'university' => 'جامعة الملك سعود',
+            'graduation_year' => 2020,
+            'skills' => 'PHP, Laravel, JavaScript, Vue.js, MySQL, REST APIs, Docker, Git',
+            'portfolio_url' => 'https://github.com/ahmed-dev',
+            'agreed_to_terms' => true,
         ]);
 
         $tutor2 = User::create([
@@ -46,27 +56,42 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'tutor',
         ]);
+        $tutor2->agreed_to_terms_at = now();
+        $tutor2->save();
 
         TutorDetail::create([
             'user_id' => $tutor2->id,
             'bio' => 'خبيرة في علم البيانات والذكاء الاصطناعي',
             'specialization' => 'علم البيانات',
             'is_verified' => true,
+            // [REQ] Qualification fields
+            'university' => 'جامعة الأميرة نورة بنت عبدالرحمن',
+            'graduation_year' => 2021,
+            'skills' => 'Python, TensorFlow, Pandas, NumPy, Machine Learning, Data Visualization, SQL',
+            'portfolio_url' => 'https://github.com/sara-data',
+            'agreed_to_terms' => true,
         ]);
 
-        // Create unverified tutor
+        // Create unverified tutor (pending verification - [REQ] stays pending until verified)
         $tutor3 = User::create([
             'name' => 'محمد الجديد',
             'email' => 'tutor3@proskill.com',
             'password' => Hash::make('password'),
             'role' => 'tutor',
         ]);
+        $tutor3->agreed_to_terms_at = now();
+        $tutor3->save();
 
         TutorDetail::create([
             'user_id' => $tutor3->id,
             'bio' => 'معلم جديد في انتظار التحقق',
             'specialization' => 'التصميم',
             'is_verified' => false,
+            // [REQ] Incomplete qualifications - pending verification
+            'university' => 'جامعة الملك عبدالعزيز',
+            'graduation_year' => 2024,
+            'skills' => 'Figma, Adobe XD, UI/UX, HTML, CSS',
+            'agreed_to_terms' => true,
         ]);
 
         // Create Students
@@ -76,6 +101,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'student',
         ]);
+        $student1->agreed_to_terms_at = now();
+        $student1->save();
 
         $student2 = User::create([
             'name' => 'فاطمة الطالبة',
@@ -83,6 +110,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'student',
         ]);
+        $student2->agreed_to_terms_at = now();
+        $student2->save();
 
         // Create Courses
         $course1 = Course::create([

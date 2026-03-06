@@ -163,8 +163,31 @@
                 </div>
             </div>
 
+            <!-- Course Management Links for Admin -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 mt-6">
+                <a href="{{ route('tutor.courses.edit', $course) }}#content-section" class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 flex items-center gap-4 hover:bg-white/5 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-lg mb-1">إدارة المحتوى والدروس</h3>
+                        <p class="text-luxury-400 text-xs text-balance">إضافة وتعديل دروس الدورة كما يفعل المعلم</p>
+                    </div>
+                </a>
+                
+                <a href="{{ route('tutor.courses.quizzes.index', $course) }}" class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 flex items-center gap-4 hover:bg-white/5 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-royal-500/20 text-royal-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-lg mb-1">إدارة الاختبارات (Quizzes)</h3>
+                        <p class="text-luxury-400 text-xs text-balance">إضافة وتعديل أسئلة الاختبارات ونتائجها</p>
+                    </div>
+                </a>
+            </div>
+
             <!-- Course Contents -->
-            <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
+            <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden mt-6">
                 <div class="p-6 border-b border-white/5">
                     <h3 class="font-semibold text-white">{{ __('site.course_content') }}</h3>
                 </div>
@@ -177,21 +200,37 @@
                                     <div class="w-10 h-10 rounded-lg bg-royal-500/20 flex items-center justify-center flex-shrink-0">
                                         <span class="text-royal-400 font-semibold">{{ $index + 1 }}</span>
                                     </div>
-                                    <div class="flex-1">
+                                    <div class="flex-1 min-w-0">
                                         <h4 class="font-medium text-white">{{ $content->title }}</h4>
                                         @if($content->description)
                                             <p class="text-sm text-luxury-400 mt-1">{{ Str::limit($content->description, 100) }}</p>
                                         @endif
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="text-xs px-2 py-0.5 rounded-md bg-royal-500/20 text-royal-400">{{ $content->type ?? 'video' }}</span>
+                                        </div>
                                     </div>
-                                    @if($content->youtube_video_id)
-                                        <a href="https://www.youtube.com/watch?v={{ $content->youtube_video_id }}" target="_blank"
-                                            class="text-luxury-400 hover:text-gold-400 transition">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                        </a>
-                                    @endif
+                                    <div class="flex items-center gap-2 flex-shrink-0">
+                                        @if($content->youtube_video_id)
+                                            <a href="https://www.youtube.com/watch?v={{ $content->youtube_video_id }}" target="_blank"
+                                                class="p-2 rounded-lg text-luxury-400 hover:text-gold-400 hover:bg-white/5 transition" title="{{ __('site.watch_video') }}">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                            </a>
+                                        @endif
+                                        {{-- [A10] Admin Delete Content Button --}}
+                                        <form action="{{ route('admin.courses.content.destroy', [$course, $content]) }}" method="POST"
+                                            onsubmit="return confirm('{{ __('site.confirm_delete_content') }}')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition" title="{{ __('site.delete') }}">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach

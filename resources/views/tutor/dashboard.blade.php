@@ -54,7 +54,7 @@
             @endif
 
             <!-- Stats Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
                 <!-- My Courses -->
                 <div class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
@@ -140,6 +140,22 @@
                         <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-110 transition-transform">
                             <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Pending Enrollments -->
+                <a href="{{ route('tutor.enrollments.index') }}" class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 hover:border-blue-500/30 transition group">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-luxury-400 text-sm font-medium">{{ __('site.enrollment_requests') }}</p>
+                            <p class="text-3xl font-bold text-white mt-2">{{ $stats['pending_enrollments'] ?? 0 }}</p>
+                            <p class="text-blue-400 text-xs mt-1">{{ __('site.approved') }}: {{ $stats['approved_enrollments'] ?? 0 }}</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
                         </div>
                     </div>
@@ -305,11 +321,7 @@
                                 @foreach($recentEnrollments as $enrollment)
                                     <div class="flex items-center justify-between p-4 rounded-xl bg-white/5">
                                         <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                                                <span
-                                                    class="text-white font-semibold text-sm">{{ substr($enrollment->user->name ?? 'U', 0, 1) }}</span>
-                                            </div>
+                                            <x-avatar :user="$enrollment->user" sizeClasses="w-10 h-10" iconClasses="w-5 h-5" />
                                             <div>
                                                 <p class="font-medium text-white">
                                                     {{ $enrollment->user->name ?? __('site.student') }}</p>
@@ -327,7 +339,16 @@
                                                 </a>
                                             </div>
                                         </div>
-                                        <p class="text-xs text-luxury-500">{{ $enrollment->created_at->diffForHumans() }}</p>
+                                        <div class="flex flex-col items-end gap-1">
+                                            @if($enrollment->enrollment_status === 'approved')
+                                                <span class="px-2 py-1 text-[10px] rounded-lg bg-green-500/20 text-green-400">{{ __('site.approved') }}</span>
+                                            @elseif($enrollment->enrollment_status === 'pending_approval')
+                                                <span class="px-2 py-1 text-[10px] rounded-lg bg-yellow-500/20 text-yellow-400">{{ __('site.pending_approval') }}</span>
+                                            @else
+                                                <span class="px-2 py-1 text-[10px] rounded-lg bg-red-500/20 text-red-400">{{ __('site.rejected') }}</span>
+                                            @endif
+                                            <p class="text-[10px] text-luxury-500">{{ $enrollment->created_at->diffForHumans() }}</p>
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>

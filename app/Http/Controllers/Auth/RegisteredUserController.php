@@ -34,6 +34,7 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'in:student,tutor'], // Only student/tutor allowed
+            'agreed_to_terms' => ['required', 'accepted'], // [REQ] Must agree to terms
         ]);
 
         // FIXED: Create user without role first, then set role explicitly
@@ -46,11 +47,13 @@ class RegisteredUserController extends Controller
         
         // FIXED: Set role explicitly after creation (safe because it's validated above)
         $user->role = $request->role;
+        $user->agreed_to_terms_at = now(); // [REQ] Record terms agreement
         $user->save();
 
         if ($request->role === 'tutor') {
             $user->tutorDetails()->create([
                 'is_verified' => false,
+                'agreed_to_terms' => true, // [REQ] Tutor agreed to terms
             ]);
         }
 

@@ -23,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar',
         // FIXED: Removed 'role' to prevent Mass Assignment privilege escalation
         // Use $user->role = 'admin' explicitly when needed
     ];
@@ -47,6 +48,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'agreed_to_terms_at' => 'datetime', // [REQ]
         ];
     }
 

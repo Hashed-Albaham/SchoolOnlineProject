@@ -61,10 +61,7 @@
         @forelse($reviews as $review)
             <div class="border-b border-white/5 pb-6 last:border-0 last:pb-0">
                 <div class="flex items-start gap-4">
-                    <div
-                        class="w-10 h-10 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center text-white font-bold flex-shrink-0">
-                        {{ substr($review->user->name, 0, 1) }}
-                    </div>
+                    <x-avatar :user="$review->user" sizeClasses="w-12 h-12" iconClasses="w-6 h-6" />
                     <div class="flex-1">
                         <div class="flex justify-between items-start">
                             <div>

@@ -14,6 +14,7 @@ class Enrollment extends Model
         'user_id',
         'course_id',
         'payment_status',
+        'enrollment_status', // [E1] pending_approval, approved, rejected
     ];
 
     /**
@@ -46,6 +47,31 @@ class Enrollment extends Model
     public function isPaid(): bool
     {
         return $this->payment_status === 'paid';
+    }
+
+    /**
+     * [E1] Check if enrollment is approved by tutor/admin
+     */
+    public function isApproved(): bool
+    {
+        return $this->enrollment_status === 'approved';
+    }
+
+    /**
+     * [E1] Check if student can fully access the course
+     * Requires both: payment completed AND enrollment approved
+     */
+    public function canAccess(): bool
+    {
+        return $this->isPaid() && $this->isApproved();
+    }
+
+    /**
+     * [E1] Check if enrollment is pending approval
+     */
+    public function isPendingApproval(): bool
+    {
+        return $this->enrollment_status === 'pending_approval';
     }
 
     /**

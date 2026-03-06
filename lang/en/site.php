@@ -102,6 +102,7 @@ return [
     'reject_certificate' => 'Reject Request',
     'certificate_code' => 'Certificate Code',
     'issued_at' => 'Issued At',
+    'issue_date' => 'Issue Date',
     'pending_certificates' => 'Pending Certificate Requests',
     'issued_certificates' => 'Issued Certificates',
     'certificate_verified' => 'Verified Certificate',
@@ -132,8 +133,10 @@ return [
     'admin' => 'Admin',
     'role_tutor' => 'Tutor',
     'role_student' => 'Student',
-    'name' => 'Name',
-    'email' => 'Email',
+    'full_name' => 'Full Name',
+    'email' => 'Email Address',
+    'avatar_upload_hint' => 'Recommended square image (JPG, PNG). Max 2MB.',
+    'phone' => 'Phone Number',
     'password' => 'Password',
     'confirm_password' => 'Confirm Password',
     'current_password' => 'Current Password',
@@ -217,6 +220,7 @@ return [
     'expiry_date' => 'Expiry Date',
     'cvv' => 'CVV',
     'total' => 'Total',
+    'must_enroll_first' => 'You must enroll in the course first',
 
     // ========================================
     // Dashboard
@@ -293,6 +297,9 @@ return [
     'profile_updated' => 'Profile updated successfully',
     'password_updated' => 'Password updated successfully',
     'delete_account_warning' => 'Once your account is deleted, all of its data will be permanently deleted.',
+    'delete_account_desc' => 'Once your account is deleted, all of its resources and data will be permanently deleted.',
+    'delete_confirm_title' => 'Are you sure you want to delete your account?',
+    'delete_confirm_desc' => 'Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm.',
 
     // ========================================
     // Footer
@@ -389,9 +396,7 @@ return [
     'register_now' => 'Register Now',
     'create_new_account' => 'Create New Account',
     'join_us_desc' => 'Join us and start your learning journey',
-    'full_name' => 'Full Name',
     'account_type' => 'Account Type',
-    // 'student' already defined in Users section
     'student_desc' => 'To learn and enroll in courses',
     // 'tutor' already defined in Users section
     'tutor_desc' => 'To create and publish courses',
@@ -639,7 +644,7 @@ return [
     // 'join_date' already defined in Admin Tutors section
     'about_tutor' => 'About the Tutor',
     // 'download_cv' already defined in Tutor section
-    'verify_tutor' => 'Verify & Approve',
+    // 'verify_tutor' => 'Verify & Approve',
     'revoke_verification' => 'Revoke Verification',
     'confirm_revoke_tutor' => 'Are you sure? This will also reject all their courses.',
     'approve_all_courses' => 'Approve All Courses',
@@ -664,12 +669,7 @@ return [
     'bio_placeholder' => 'Write a brief description about your experience and qualifications...',
     'specialization_placeholder' => 'E.g: Programming, Mathematics, English...',
     'cv_label' => 'CV (Resume)',
-    'cv_uploaded' => 'CV has been uploaded',
-    'download' => 'Download',
-    'cv_file_hint' => 'PDF, DOC, DOCX - Maximum 5MB',
-    'save_changes' => 'Save Changes',
     'profile_updated_success' => 'Profile updated successfully',
-    'no_cv_available' => 'No CV available',
 
     // ========================================
     // Pending Pages & Misc
@@ -703,17 +703,17 @@ return [
     'you' => 'You',
     // 'admin' already defined in Users section
     'search_people' => 'Search for a person...',
-    'pending_certificates' => 'Pending Certificates',
+    // 'pending_certificates' => 'Pending Certificates',
     'issued_count' => ':count issued',
     'manage_certificates' => 'Manage Certificates',
     'issue_review_certificates' => 'Issue and review certificates',
     'certificates_page_desc' => 'Review and manage certificate requests for your courses',
     'back_to_dashboard' => 'Back to Dashboard',
-    'issue_certificate' => 'Issue Certificate',
+    // 'issue_certificate' => 'Issue Certificate',
     'issued' => 'Issued',
     'no_certificate_requests' => 'No certificate requests for this course',
     'no_courses_for_certificates' => 'You have no courses yet',
-    'certificate_rejected' => 'Certificate request rejected',
+    // 'certificate_rejected' => 'Certificate request rejected',
     'certificate_issued_success' => 'Certificate issued successfully',
     // 'are_you_sure' already defined above
     'already_processed' => 'This request has already been processed',
@@ -735,4 +735,294 @@ return [
     'certificate_revoked_success' => 'Certificate revoked successfully',
     'certificates_will_appear_here' => 'Certificate requests from students will appear here',
     'session_expired' => 'Your session has expired. Please try again.',
+
+    // ========================================
+    // [A3] Admin Users Management Page
+    // ========================================
+    'manage_users' => 'Manage Users',
+    'manage_all_users_desc' => 'View and manage all user accounts',
+    'search_users' => 'Search users',
+    'all_roles' => 'All Roles',
+    'all_users' => 'All Users',
+    'admins' => 'Admins',
+    'role' => 'Role',
+    'no_users_found' => 'No users found',
+    'confirm_delete_user' => 'Are you sure you want to delete this user?',
+    'edit_user' => 'Edit User',
+    'edit_user_desc' => 'Edit user information and role',
+    'back_to_users' => 'Back to Users',
+    'user_updated_success' => 'User updated successfully',
+    'user_deleted_success' => 'User deleted successfully',
+    'cannot_delete_self' => 'You cannot delete your own account',
+    'cannot_delete_last_admin' => 'Cannot delete the last admin account',
+    'thumbnail' => 'Thumbnail',
+
+    // ========================================
+    // [A6] Admin Enrollments Management Page
+    // ========================================
+    'enrollments_management' => 'Enrollments Management',
+    'manage_enrollments_desc' => 'View and manage all enrollments and payments',
+    'total_revenue' => 'Total Revenue',
+    'mark_as_paid' => 'Mark as Paid',
+    'mark_as_pending' => 'Mark as Pending',
+    'enrollment_status_updated' => 'Enrollment status updated',
+    'no_enrollments_found' => 'No enrollments found',
+
+    // ========================================
+    // [A4] Admin Course Edit/Delete
+    // ========================================
+    'course_updated_success' => 'Course updated successfully',
+    'course_deleted_success' => 'Course deleted successfully',
+
+    // ========================================
+    // [A9] Admin Review Management
+    // ========================================
+    'review_deleted_success' => 'Review deleted successfully',
+    'delete_review' => 'Delete Review',
+    'confirm_delete_review' => 'Are you sure you want to delete this review?',
+
+    // ========================================
+    // [A5] Admin Categories Management
+    // ========================================
+    'categories' => 'Categories',
+    'category' => 'Category',
+    'manage_categories' => 'Manage Categories',
+    'manage_categories_desc' => 'Create and manage course categories',
+    'add_category' => 'Add Category',
+    'add_category_desc' => 'Create a new course category',
+    'edit_category' => 'Edit Category',
+    'all_categories' => 'All Categories',
+    'category_name' => 'Category Name',
+    'category_name_ar' => 'Arabic Name',
+    'category_active' => 'Active Category',
+    'order' => 'Order',
+    'icon' => 'Icon',
+    'english' => 'English',
+    'no_categories_found' => 'No categories found',
+    'add_first_category' => 'Add first category',
+    'back_to_categories' => 'Back to Categories',
+    'confirm_delete_category' => 'Are you sure you want to delete this category?',
+    'category_created_success' => 'Category created successfully',
+    'category_updated_success' => 'Category updated successfully',
+    'category_deleted_success' => 'Category deleted successfully',
+    'select_category' => 'Select Category',
+    'no_category' => 'No Category',
+    'tutor_not_verified_cannot_create' => 'You cannot create courses before your account is verified. Please complete your profile and wait for admin approval.',
+    'content_deleted_success' => 'Content deleted successfully',
+    'confirm_delete_content' => 'Are you sure you want to delete this content? This cannot be undone.',
+    'watch_video' => 'Watch Video',
+
+    // ========================================
+    // [E1] Enrollment Approval System
+    // ========================================
+    'enrollment_requests' => 'Enrollment Requests',
+    'manage_enrollment_requests_desc' => 'Manage student enrollment requests for your courses',
+    'enrollment_status_label' => 'Enrollment Status',
+    // 'pending_approval' => 'Pending Approval',
+    // 'approved' => 'Approved',
+    // 'rejected' => 'Rejected',
+    // 'approve' => 'Approve',
+    // 'reject' => 'Reject',
+    'already_approved' => 'Already Approved',
+    're_approve' => 'Re-approve',
+    'no_enrollment_requests' => 'No enrollment requests currently',
+    'confirm_reject_enrollment' => 'Are you sure you want to reject this student\'s request?',
+    'enrollment_approved_success' => 'Enrollment request approved successfully',
+    'enrollment_rejected_success' => 'Enrollment request rejected',
+    'enrollment_rejected' => 'Your enrollment request has been rejected by the tutor', 
+    'already_enrolled' => 'You are already enrolled in this course',
+    'enrollment_pending_approval' => 'Your enrollment request is under review by the tutor',
+    'enrolled_pending_tutor_approval' => 'Enrolled successfully! Your request is pending tutor approval.',
+    'payment_success_can_watch' => 'Payment successful! You can now watch the course.',
+    'payment_success_pending_approval' => 'Payment successful! Your request is pending tutor approval.',
+
+    // ========================================
+    // [A7] Admin Reports & Analytics
+    // ========================================
+    'reports_analytics' => 'Reports',
+    'reports_analytics_desc' => 'Detailed reports and revenue analytics',
+    'monthly_revenue' => 'Monthly Revenue',
+    'monthly_new_users' => 'Monthly New Users',
+    'users_distribution' => 'Users Distribution',
+    'courses_status_dist' => 'Courses Status Distribution',
+    'top_courses_revenue' => 'Top Courses by Revenue',
+    'courses_by_category' => 'Courses by Category',
+    'total_enrollments_label' => 'Total Enrollments',
+    'total_courses_label' => 'Total Courses',
+    'this_month' => 'this month',
+    'no_revenue_data' => 'No revenue data available',
+    'no_data_available' => 'No data available',
+    'course_name' => 'Course Name',
+    'course_unit' => 'course',
+    'enrollments' => 'Enrollments',
+
+    // ========================================
+    // PAY1 - Payment Methods
+    // ========================================
+    'payment_methods'              => 'Payment Methods',
+    'payment_methods_desc'         => 'Manage payment methods available for purchasing courses',
+    'add_payment_method'           => 'Add Payment Method',
+    'add_payment_method_hint'      => 'Add your first payment method to enable students to purchase courses',
+    'edit_payment_method'          => 'Edit Payment Method',
+    'no_payment_methods'           => 'No payment methods yet',
+    'payment_method_created'       => 'Payment method added successfully',
+    'payment_method_updated'       => 'Payment method updated successfully',
+    'payment_method_deleted'       => 'Payment method deleted',
+    'payment_method_status_updated'=> 'Payment method status updated',
+    'payment_type'                 => 'Payment Type',
+    'bank_transfer'                => 'Bank Transfer',
+    'crypto'                       => 'Cryptocurrency',
+    'wallet'                       => 'E-Wallet',
+    'cash'                         => 'Cash',
+    'icon_emoji'                   => 'Icon (Emoji)',
+    'account_number'               => 'Account / Wallet Number',
+    'account_name'                 => 'Account Holder Name',
+    'instructions_ar'              => 'Payment Instructions (Arabic)',
+    'instructions_en'              => 'Payment Instructions (English)',
+    'active_payment_method'        => 'Payment method is active and visible to students',
+    'name_ar'                      => 'Name in Arabic',
+    'name_en'                      => 'Name in English',
+    'sort_order'                   => 'Display Order',
+    'activate'                     => 'Activate',
+    'deactivate'                   => 'Deactivate',
+    'payment_instructions'         => 'Payment Instructions',
+    'select_payment_method'        => 'Select Payment Method',
+    'how_to_pay'                   => 'How to Pay',
+
+    // ========================================
+    // PAY2 - Payout Requests
+    // ========================================
+    'my_earnings'                => 'My Earnings',
+    'my_earnings_desc'           => 'Earnings summary and withdrawal requests',
+    'total_earnings'             => 'Total Earnings',
+    'total_paid_out'             => 'Paid Out',
+    'pending_payouts'            => 'Pending Payouts',
+    'available_balance'          => 'Available Balance',
+    'request_payout'             => 'Request Payout',
+    'amount'                     => 'Amount',
+    'notes'                      => 'Notes',
+    'payout_notes_placeholder'   => 'Optional note for admin...',
+    'submit_request'             => 'Submit Request',
+    'payout_history'             => 'Payout History',
+    'no_payout_requests'         => 'No payout requests yet',
+    'payout_request_submitted'   => 'Payout request submitted successfully',
+    'payout_insufficient_balance'=> 'Insufficient available balance',
+    'payout_management'          => 'Payout Management',
+    'payout_management_desc'     => 'Review and manage tutor payout requests',
+    'payout_already_processed'   => 'This request has already been processed',
+    'payout_approved'            => 'Payout request approved',
+    'payout_rejected'            => 'Payout request rejected',
+    'payout_must_be_approved_first' => 'Request must be approved first',
+    'payout_marked_paid'         => 'Payout marked as paid',
+    'confirm_mark_paid'          => 'Are you sure the transfer has been completed?',
+    'rejection_reason'           => 'Reason for rejection (optional)',
+    'admin_note'                 => 'Admin Note',
+    'approve'                    => 'Approve',
+    'reject'                     => 'Reject',
+    'date'                       => 'Date',
+    'tutor'                      => 'Tutor',
+
+    // ========================================
+    // MSG1 - Chat Restrictions
+    // ========================================
+    'chat_not_allowed'           => 'You cannot message this user. You can only chat with tutors and classmates of your enrolled courses.',
+    'chat_restricted_info'       => 'You can only message tutors and classmates of your enrolled courses',
+
+    // ========================================
+    // A8 - Admin Chat Oversight
+    // ========================================
+    'chat_oversight'             => 'Chat Oversight',
+    'chat_oversight_desc'        => 'Monitor all conversations between users',
+    'total_messages'             => 'Total Messages',
+    'total_conversations'        => 'Total Conversations',
+    'today_messages'             => 'Messages Today',
+    'active_chatters'            => 'Active Chatters Today',
+    'all_conversations'          => 'All Conversations',
+    'no_conversations'           => 'No conversations yet',
+    'conversation_between'       => 'Conversation between',
+    'message_deleted'            => 'Message deleted',
+    'no_messages_yet'            => 'No messages yet',
+    'confirm_delete'             => 'Are you sure you want to delete?',
+
+    // ========================================
+    // PP1 - Privacy & Terms pages
+    // ========================================
+    'privacy_policy'             => 'Privacy Policy',
+    'terms_of_service'           => 'Terms of Service',
+    'last_updated'               => 'Last Updated',
+    'pp_intro_title'             => 'Introduction',
+    'pp_intro_text'              => 'At ProSkill Academy, we are committed to protecting your privacy. This policy explains how we collect, use, and protect your information.',
+    'pp_data_collected_title'    => 'Data We Collect',
+    'pp_data_name_email'         => 'Name and email upon registration',
+    'pp_data_courses'            => 'Course data and academic progress',
+    'pp_data_messages'           => 'Messages sent via the chat system',
+    'pp_data_payment'            => 'Payment information and financial transactions',
+    'pp_usage_title'             => 'How We Use Your Data',
+    'pp_usage_service'           => 'Providing educational services and managing your account',
+    'pp_usage_improve'           => 'Improving user experience and the platform',
+    'pp_usage_communicate'       => 'Communicating with you about your account and courses',
+    'pp_sharing_title'           => 'Data Sharing',
+    'pp_sharing_text'            => 'We do not share your data with third parties except when legally required or with your explicit consent.',
+    'pp_security_title'          => 'Data Security',
+    'pp_security_text'           => 'We use advanced encryption technologies and strict security measures to protect your data.',
+    'pp_rights_title'            => 'Your Rights',
+    'pp_rights_access'           => 'Access your personal data',
+    'pp_rights_correct'          => 'Correct any inaccurate data',
+    'pp_rights_delete'           => 'Request deletion of your account and data',
+    'pp_contact_title'           => 'Contact Us',
+    'pp_contact_text'            => 'For privacy inquiries, contact us via the messages page.',
+    'tos_acceptance_title'       => 'Acceptance of Terms',
+    'tos_acceptance_text'        => 'By using ProSkill Academy, you agree to these terms and conditions.',
+    'tos_account_title'          => 'Account',
+    'tos_account_accurate'       => 'You must provide accurate and truthful information upon registration',
+    'tos_account_secure'         => 'You are responsible for maintaining the security of your account and password',
+    'tos_account_responsible'    => 'You are responsible for all activities conducted through your account',
+    'tos_tutor_title'            => 'Tutor Obligations',
+    'tos_tutor_original'         => 'Provide original content that does not infringe intellectual property rights',
+    'tos_tutor_quality'          => 'Maintain the quality of educational content',
+    'tos_tutor_respond'          => 'Respond to student inquiries in a timely manner',
+    'tos_student_title'          => 'Student Obligations',
+    'tos_student_personal'       => 'Use courses for personal learning purposes only',
+    'tos_student_no_share'       => 'Do not share course content with non-enrolled parties',
+    'tos_student_respect'        => 'Respect tutors and other students',
+    'tos_payment_title'          => 'Payments',
+    'tos_payment_text'           => 'All payments are final unless otherwise stated. Tutors may request payout of their earnings per the specified terms.',
+    'tos_prohibited_title'       => 'Prohibited Behavior',
+    'tos_prohibited_abuse'       => 'Misuse of the platform or harassment of users',
+    'tos_prohibited_spam'        => 'Sending spam or harmful content',
+    'tos_prohibited_hack'        => 'Attempting to hack the system or manipulate data',
+    'tos_termination_title'      => 'Account Termination',
+    'tos_termination_text'       => 'We reserve the right to suspend or terminate your account if you violate these terms.',
+    'tos_contact_title'          => 'Contact Us',
+    'tos_contact_text'           => 'For questions about terms and conditions, contact the management team.',
+
+    // ========================================
+    // [T1] Tutor Reports & Analytics
+    // ========================================
+    'tutor_reports'              => 'Reports',
+    'tutor_reports_desc'         => 'Statistics and analytics for your courses',
+    'avg_rating'                 => 'Average Rating',
+    'monthly_enrollments'        => 'Monthly Enrollments',
+    'courses_status'             => 'Courses Status',
+    'top_courses_students'       => 'Top Courses by Students',
+    'revenue_summary'            => 'Revenue Summary',
+    'available'                  => 'Available',
+    'no_courses_yet'             => 'You haven\'t created any courses yet',
+
+    // ========================================
+    // [REQ] Requirements & Qualifications
+    // ========================================
+    'qualifications'             => 'Qualifications & Certificates',
+    'university'                 => 'University',
+    'university_placeholder'     => 'e.g: King Saud University',
+    'graduation_year'            => 'Graduation Year',
+    'degree_certificate'         => 'Degree Certificate',
+    'degree_certificate_hint'    => 'PDF, JPG, PNG - Maximum 5MB',
+    'certificate_uploaded'       => 'Certificate uploaded',
+    'download_degree_certificate'=> 'Download Degree Certificate',
+    'skills_label'               => 'Technical Skills',
+    'skills_placeholder'         => 'e.g: PHP, Laravel, JavaScript, Python...',
+    'portfolio_url'              => 'Portfolio',
+    'agree_to'                   => 'I agree to the',
+    'must_agree_to_terms'        => 'You must agree to the terms and conditions',
 ];

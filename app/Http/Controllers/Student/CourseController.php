@@ -15,7 +15,7 @@ class CourseController extends Controller
     public function index(Request $request)
     {
         $query = Course::where('status', 'approved')
-            ->with('tutor')
+            ->with('tutor', 'category')
             ->withCount([
                 'enrollments' => function ($query) {
                     $query->where('payment_status', 'paid');
@@ -31,6 +31,11 @@ class CourseController extends Controller
                 $q->where('title', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
             });
+        }
+
+        // Category Filter
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
         }
 
         // Sort
@@ -50,8 +55,9 @@ class CourseController extends Controller
         }
 
         $courses = $query->paginate(12);
+        $categories = \App\Models\Category::active()->orderBy('order')->get();
 
-        return view('student.courses.index', compact('courses'));
+        return view('student.courses.index', compact('courses', 'categories'));
     }
 
     /**
@@ -78,14 +84,19 @@ class CourseController extends Controller
     public function watch(Course $course, $content = null)
     {
         // 1. Check Enrollment
-        $isEnrolled = Auth::user()->enrollments()
+        $enrollment = Auth::user()->enrollments()
             ->where('course_id', $course->id)
             ->where('payment_status', 'paid')
-            ->exists();
+            ->first();
 
-        if (!$isEnrolled) {
+        if (!$enrollment) {
             return redirect()->route('student.courses.show', $course)
-                ->with('error', 'يجب الاشتراك في الكورس أولاً');
+                ->with('error', __('site.must_enroll_first'));
+        }
+
+        if ($enrollment->enrollment_status !== 'approved') {
+            return redirect()->route('student.courses.show', $course)
+                ->with('error', __('site.enrollment_pending_approval'));
         }
 
         // 2. Load Contents
@@ -146,10 +157,11 @@ class CourseController extends Controller
         $isEnrolled = $user->enrollments()
             ->where('course_id', $course->id)
             ->where('payment_status', 'paid')
+            ->where('enrollment_status', 'approved')
             ->exists();
 
         if (!$isEnrolled) {
-            abort(403, 'يجب التسجيل والدفع في الكورس أولاً');
+            abort(403, 'يجب التسجيل والدفع وموافقة المعلم في الكورس أولاً');
         }
 
         // Use updateOrCreate to handle existing records properly
@@ -176,12 +188,14 @@ class CourseController extends Controller
                     'enrollments' => fn($q) => $q->where('payment_status', 'paid')
                 ]);
 
-        $isEnrolled = Auth::check() && Auth::user()->enrollments()
+        $enrollment = Auth::check() ? Auth::user()->enrollments()
             ->where('course_id', $course->id)
             ->where('payment_status', 'paid')
-            ->exists();
+            ->first() : null;
 
-        return view('student.courses.show', compact('course', 'isEnrolled'));
+        $isEnrolled = $enrollment && $enrollment->enrollment_status === 'approved';
+
+        return view('student.courses.show', compact('course', 'isEnrolled', 'enrollment'));
     }
 
     /**

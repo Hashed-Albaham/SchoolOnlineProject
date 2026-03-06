@@ -34,9 +34,7 @@
                     <div class="flex flex-col md:flex-row gap-6">
                         <!-- Avatar -->
                         <div class="flex-shrink-0">
-                            <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center shadow-lg shadow-royal-500/20">
-                                <span class="text-white font-bold text-4xl">{{ substr($tutor->name, 0, 1) }}</span>
-                            </div>
+                                <x-avatar :user="$tutor" sizeClasses="w-32 h-32" iconClasses="w-16 h-16" />
                         </div>
 
                         <!-- Info -->
@@ -98,6 +96,50 @@
                             {{ __('site.download_cv') }}
                         </a>
                     </div>
+                @endif
+
+                <!-- [REQ] Qualifications Section -->
+                @if($tutor->tutorDetails)
+                    @php $td = $tutor->tutorDetails; @endphp
+                    @if($td->university || $td->graduation_year || $td->skills || $td->portfolio_url || $td->degree_certificate_path)
+                    <div class="px-8 pb-6">
+                        <h4 class="text-sm font-medium text-luxury-400 mb-3 flex items-center gap-2">🎓 {{ __('site.qualifications') }}</h4>
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            @if($td->university)
+                            <div class="p-4 rounded-xl bg-white/5">
+                                <p class="text-luxury-400 text-xs">{{ __('site.university') }}</p>
+                                <p class="text-white font-medium mt-1">{{ $td->university }}</p>
+                            </div>
+                            @endif
+                            @if($td->graduation_year)
+                            <div class="p-4 rounded-xl bg-white/5">
+                                <p class="text-luxury-400 text-xs">{{ __('site.graduation_year') }}</p>
+                                <p class="text-white font-medium mt-1">{{ $td->graduation_year }}</p>
+                            </div>
+                            @endif
+                        </div>
+                        @if($td->skills)
+                        <div class="mt-4 p-4 rounded-xl bg-white/5">
+                            <p class="text-luxury-400 text-xs mb-2">{{ __('site.skills_label') }}</p>
+                            <p class="text-luxury-300 text-sm leading-relaxed">{{ $td->skills }}</p>
+                        </div>
+                        @endif
+                        <div class="flex flex-wrap gap-3 mt-4">
+                            @if($td->portfolio_url)
+                            <a href="{{ $td->portfolio_url }}" target="_blank"
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition text-sm font-medium">
+                                🔗 {{ __('site.portfolio_url') }}
+                            </a>
+                            @endif
+                            @if($td->degree_certificate_path)
+                            <a href="{{ Storage::url($td->degree_certificate_path) }}" target="_blank"
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-green-500/20 text-green-400 hover:bg-green-500/30 transition text-sm font-medium">
+                                📄 {{ __('site.download_degree_certificate') }}
+                            </a>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
                 @endif
 
                 <!-- Message Tutor -->
