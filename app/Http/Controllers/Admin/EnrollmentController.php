@@ -57,6 +57,8 @@ class EnrollmentController extends Controller
      */
     public function updateStatus(Request $request, Enrollment $enrollment)
     {
+        $this->authorize('update', $enrollment);
+
         $request->validate([
             'payment_status' => ['required', 'string', 'in:paid,pending'],
             'enrollment_status' => ['required', 'string', 'in:pending_approval,approved,rejected'],

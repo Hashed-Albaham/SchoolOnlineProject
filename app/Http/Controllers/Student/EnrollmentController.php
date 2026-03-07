@@ -82,10 +82,7 @@ class EnrollmentController extends Controller
      */
     public function showPayment(Enrollment $enrollment)
     {
-        // SECURITY: Verify ownership (IDOR protection)
-        if ($enrollment->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('view', $enrollment);
 
         if ($enrollment->payment_status === 'paid') {
             return redirect()->route('student.courses.watch', $enrollment->course);
@@ -110,10 +107,7 @@ class EnrollmentController extends Controller
      */
     public function processPayment(Request $request, Enrollment $enrollment)
     {
-        // SECURITY: Verify ownership (IDOR protection)
-        if ($enrollment->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('view', $enrollment);
 
         // SECURITY FIX [C4]: Prevent re-processing of already paid enrollments
         if ($enrollment->payment_status === 'paid') {

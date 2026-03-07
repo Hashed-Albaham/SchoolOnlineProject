@@ -8,7 +8,7 @@
             </a>
             <div>
                 <h2 class="text-2xl font-bold text-white">{{ $course->title }}</h2>
-                <p class="text-luxury-400 text-sm mt-1">تفاصيل الكورس والمسجلين</p>
+                <p class="text-luxury-400 text-sm mt-1">{{ __('site.course_details_and_enrolled') }}</p>
             </div>
         </div>
     </x-slot>
@@ -40,7 +40,7 @@
                         </div>
                         <div>
                             <p class="text-2xl font-bold text-white">{{ $course->enrollments->count() }}</p>
-                            <p class="text-luxury-400 text-sm">إجمالي المسجلين</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.total_enrolled') }}</p>
                         </div>
                     </div>
                 </div>
@@ -55,7 +55,7 @@
                         </div>
                         <div>
                             <p class="text-2xl font-bold text-white">{{ $course->enrollments->where('payment_status', 'paid')->count() }}</p>
-                            <p class="text-luxury-400 text-sm">مسجلين مدفوعين</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.paid_enrolled') }}</p>
                         </div>
                     </div>
                 </div>
@@ -70,7 +70,7 @@
                         </div>
                         <div>
                             <p class="text-2xl font-bold text-white">{{ $certificateRequests->where('status', 'pending')->count() }}</p>
-                            <p class="text-luxury-400 text-sm">طلبات شهادات معلقة</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.pending_certificate_requests') }}</p>
                         </div>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
                         </div>
                         <div>
                             <p class="text-2xl font-bold text-white">{{ $course->contents->count() }}</p>
-                            <p class="text-luxury-400 text-sm">عدد الدروس</p>
+                            <p class="text-luxury-400 text-sm">{{ __('site.number_of_lessons') }}</p>
                         </div>
                     </div>
                 </div>
@@ -98,7 +98,7 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        طلبات الشهادات المعلقة
+                        {{ __('site.pending_cert_requests_title') }}
                     </h4>
                     <div class="space-y-3">
                         @foreach($certificateRequests->where('status', 'pending') as $request)
@@ -114,13 +114,13 @@
                                     <form action="{{ route('tutor.certificates.issue', $request) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="px-4 py-2 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition font-medium">
-                                            ✓ إصدار الشهادة
+                                            ✓ {{ __('site.issue_certificate') }}
                                         </button>
                                     </form>
-                                    <form action="{{ route('tutor.certificates.reject', $request) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من رفض هذا الطلب؟')">
+                                    <form action="{{ route('tutor.certificates.reject', $request) }}" method="POST" onsubmit="return confirm('{{ __('site.confirm_reject_request') }}')">
                                         @csrf
                                         <button type="submit" class="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition font-medium">
-                                            ✗ رفض
+                                            ✗ {{ __('site.reject') }}
                                         </button>
                                     </form>
                                 </div>
@@ -144,7 +144,7 @@
                                 <span class="text-gold-400 font-bold">${{ number_format($course->price, 2) }}</span>
                                 <a href="{{ route('tutor.courses.edit', $course) }}" 
                                     class="px-4 py-2 rounded-xl bg-royal-500/20 text-royal-400 text-sm font-medium hover:bg-royal-500/30 transition">
-                                    تعديل
+                                    {{ __('site.edit_course') }}
                                 </a>
                             </div>
                         </div>
@@ -152,7 +152,7 @@
 
                     <!-- Contents List -->
                     <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 mt-6">
-                        <h4 class="text-white font-bold mb-4">محتوى الكورس ({{ $course->contents->count() }})</h4>
+                        <h4 class="text-white font-bold mb-4">{{ __('site.course_content_count', ['count' => $course->contents->count()]) }}</h4>
                         @if($course->contents->count() > 0)
                             <div class="space-y-2">
                                 @foreach($course->contents as $content)
@@ -166,7 +166,7 @@
                                 @endforeach
                             </div>
                         @else
-                            <p class="text-luxury-400 text-sm text-center py-4">لا يوجد محتوى بعد</p>
+                            <p class="text-luxury-400 text-sm text-center py-4">{{ __('site.no_content_yet') }}</p>
                         @endif
                     </div>
                 </div>
@@ -174,18 +174,18 @@
                 <!-- Enrollments List with Progress -->
                 <div class="lg:col-span-2">
                     <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
-                        <h4 class="text-xl font-bold text-white mb-6">الطلاب المسجلين وتقدمهم</h4>
+                        <h4 class="text-xl font-bold text-white mb-6">{{ __('site.enrolled_students_progress') }}</h4>
                         
                         @if($enrollmentsWithProgress->count() > 0)
                             <div class="overflow-x-auto">
                                 <table class="w-full">
                                     <thead>
                                         <tr class="border-b border-white/10">
-                                            <th class="text-right text-luxury-400 text-sm font-medium pb-4">الطالب</th>
-                                            <th class="text-center text-luxury-400 text-sm font-medium pb-4">حالة الدفع</th>
-                                            <th class="text-center text-luxury-400 text-sm font-medium pb-4">التقدم</th>
-                                            <th class="text-center text-luxury-400 text-sm font-medium pb-4">الشهادة</th>
-                                            <th class="text-center text-luxury-400 text-sm font-medium pb-4">إجراءات</th>
+                                            <th class="text-right text-luxury-400 text-sm font-medium pb-4">{{ __('site.student') }}</th>
+                                            <th class="text-center text-luxury-400 text-sm font-medium pb-4">{{ __('site.payment_status') }}</th>
+                                            <th class="text-center text-luxury-400 text-sm font-medium pb-4">{{ __('site.progress') }}</th>
+                                            <th class="text-center text-luxury-400 text-sm font-medium pb-4">{{ __('site.certificate') }}</th>
+                                            <th class="text-center text-luxury-400 text-sm font-medium pb-4">{{ __('site.actions') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-white/5">
@@ -198,16 +198,16 @@
                                                     <div class="flex items-center gap-3">
                                                             <x-avatar :user="$enrollment->student" sizeClasses="w-10 h-10" iconClasses="w-5 h-5" />
                                                         <div>
-                                                            <span class="text-white font-medium">{{ $enrollment->student->name ?? 'غير معروف' }}</span>
+                                                            <span class="text-white font-medium">{{ $enrollment->student->name ?? __('site.unknown_student') }}</span>
                                                             <p class="text-luxury-500 text-xs">{{ $enrollment->student->email ?? '' }}</p>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td class="py-4 text-center">
                                                     @if($enrollment->payment_status === 'paid')
-                                                        <span class="px-3 py-1 rounded-full text-xs bg-green-500/20 text-green-400">مدفوع</span>
+                                                        <span class="px-3 py-1 rounded-full text-xs bg-green-500/20 text-green-400">{{ __('site.paid') }}</span>
                                                     @else
-                                                        <span class="px-3 py-1 rounded-full text-xs bg-yellow-500/20 text-yellow-400">قيد الانتظار</span>
+                                                        <span class="px-3 py-1 rounded-full text-xs bg-yellow-500/20 text-yellow-400">{{ __('site.pending') }}</span>
                                                     @endif
                                                 </td>
                                                 <td class="py-4">
@@ -224,11 +224,11 @@
                                                 <td class="py-4 text-center">
                                                     @if($studentCert)
                                                         @if($studentCert->isApproved())
-                                                            <span class="px-3 py-1 rounded-full text-xs bg-green-500/20 text-green-400">✓ صدرت</span>
+                                                            <span class="px-3 py-1 rounded-full text-xs bg-green-500/20 text-green-400">✓ {{ __('site.issued') }}</span>
                                                         @elseif($studentCert->isPending())
-                                                            <span class="px-3 py-1 rounded-full text-xs bg-yellow-500/20 text-yellow-400">⏳ معلق</span>
+                                                            <span class="px-3 py-1 rounded-full text-xs bg-yellow-500/20 text-yellow-400">⏳ {{ __('site.pending_time') }}</span>
                                                         @else
-                                                            <span class="px-3 py-1 rounded-full text-xs bg-red-500/20 text-red-400">✗ مرفوض</span>
+                                                            <span class="px-3 py-1 rounded-full text-xs bg-red-500/20 text-red-400">✗ {{ __('site.rejected') }}</span>
                                                         @endif
                                                     @else
                                                         <span class="text-luxury-500 text-xs">-</span>
@@ -240,7 +240,7 @@
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                                                         </svg>
-                                                        مراسلة
+                                                        {{ __('site.message_student') }}
                                                     </a>
                                                 </td>
                                             </tr>
@@ -253,8 +253,8 @@
                                 <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                 </svg>
-                                <p class="text-lg">لا يوجد طلاب مسجلين بعد</p>
-                                <p class="text-sm mt-2">سيظهر الطلاب هنا بمجرد تسجيلهم في الكورس</p>
+                                <p class="text-lg">{{ __('site.no_enrolled_students_yet') }}</p>
+                                <p class="text-sm mt-2">{{ __('site.students_will_appear_here') }}</p>
                             </div>
                         @endif
                     </div>
@@ -262,7 +262,7 @@
                     {{-- Issued Certificates --}}
                     @if($certificateRequests->where('status', 'approved')->count() > 0)
                         <div class="bg-luxury-800/50 backdrop-blur-xl border border-green-500/20 rounded-2xl p-6 mt-6">
-                            <h4 class="text-lg font-bold text-green-400 mb-4">الشهادات الصادرة</h4>
+                            <h4 class="text-lg font-bold text-green-400 mb-4">{{ __('site.issued_certificates') }}</h4>
                             <div class="space-y-2">
                                 @foreach($certificateRequests->where('status', 'approved') as $cert)
                                     <div class="flex items-center justify-between p-3 bg-green-500/10 rounded-xl">

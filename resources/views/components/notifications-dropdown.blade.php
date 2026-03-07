@@ -20,9 +20,9 @@
          style="display: none;">
         
         <div class="px-4 py-3 border-b border-white/5 bg-white/5 flex justify-between items-center">
-            <h3 class="text-sm font-semibold text-white">الإشعارات</h3>
+            <h3 class="text-sm font-semibold text-white">{{ __('site.notifications') }}</h3>
             @if(auth()->user()->unreadNotifications->count() > 0)
-                <a href="{{ route('notifications.markAsRead') }}" class="text-xs text-gold-400 hover:text-gold-300">تحديد الكل كمقروء</a>
+                <a href="{{ route('notifications.markAsRead') }}" class="text-xs text-gold-400 hover:text-gold-300">{{ __('site.mark_all_read') }}</a>
             @endif
         </div>
 
@@ -46,7 +46,7 @@
                             @endif
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-white">{{ $notification->data['title'] ?? 'إشعار جديد' }}</p>
+                            <p class="text-sm font-medium text-white">{{ $notification->data['title'] ?? __('site.new_notification') }}</p>
                             <p class="text-xs text-luxury-400 mt-1 line-clamp-2">{{ $notification->data['message'] ?? '' }}</p>
                             <p class="text-[10px] text-luxury-500 mt-2">{{ $notification->created_at->diffForHumans() }}</p>
                         </div>
@@ -54,7 +54,7 @@
                 </div>
             @empty
                 <div class="py-8 text-center text-luxury-500 text-sm">
-                    لا توجد إشعارات حالياً
+                    {{ __('site.no_notifications_yet') }}
                 </div>
             @endforelse
         </div>

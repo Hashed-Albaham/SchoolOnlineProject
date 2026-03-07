@@ -65,6 +65,7 @@ class QuizController extends Controller
     public function edit(Course $course, Quiz $quiz)
     {
         $this->authorize('update', $course);
+        $this->authorize('manage', $quiz);
         return view('tutor.quizzes.edit', compact('course', 'quiz'));
     }
 
@@ -74,6 +75,7 @@ class QuizController extends Controller
     public function update(Request $request, Course $course, Quiz $quiz)
     {
         $this->authorize('update', $course);
+        $this->authorize('manage', $quiz);
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -100,6 +102,7 @@ class QuizController extends Controller
     public function destroy(Course $course, Quiz $quiz)
     {
         $this->authorize('update', $course);
+        $this->authorize('manage', $quiz);
         $quiz->delete();
         return back()->with('success', 'تم حذف الاختبار بنجاح.');
     }
@@ -110,6 +113,7 @@ class QuizController extends Controller
     public function builder(Course $course, Quiz $quiz)
     {
         $this->authorize('update', $course);
+        $this->authorize('manage', $quiz);
         $quiz->load(['questions.options']);
         return view('tutor.quizzes.builder', compact('course', 'quiz'));
     }
@@ -120,6 +124,7 @@ class QuizController extends Controller
     public function storeQuestion(Request $request, Course $course, Quiz $quiz)
     {
         $this->authorize('update', $course);
+        $this->authorize('manage', $quiz);
 
         $request->validate([
             'question_text' => 'required|string',
@@ -150,6 +155,7 @@ class QuizController extends Controller
     public function destroyQuestion(Course $course, Quiz $quiz, Question $question)
     {
         $this->authorize('update', $course);
+        $this->authorize('manage', $quiz);
         if ($question->quiz_id !== $quiz->id)
             abort(403);
 
@@ -163,6 +169,7 @@ class QuizController extends Controller
     public function results(Course $course, Quiz $quiz)
     {
         $this->authorize('update', $course);
+        $this->authorize('manage', $quiz);
         
         // Get all attempts with user info
         $attempts = \App\Models\QuizAttempt::where('quiz_id', $quiz->id)
@@ -187,6 +194,7 @@ class QuizController extends Controller
     public function showAttempt(Course $course, Quiz $quiz, \App\Models\QuizAttempt $attempt)
     {
         $this->authorize('update', $course);
+        $this->authorize('manage', $quiz);
         
         // Load quiz with questions and options
         $quiz->load(['questions.options']);
@@ -200,6 +208,7 @@ class QuizController extends Controller
     public function clearAttempts(Course $course, Quiz $quiz)
     {
         $this->authorize('update', $course);
+        $this->authorize('manage', $quiz);
         
         \App\Models\QuizAttempt::where('quiz_id', $quiz->id)->delete();
         
@@ -212,6 +221,7 @@ class QuizController extends Controller
     public function deleteAttempt(Course $course, Quiz $quiz, \App\Models\QuizAttempt $attempt)
     {
         $this->authorize('update', $course);
+        $this->authorize('manage', $quiz);
         
         if ($attempt->quiz_id !== $quiz->id) {
             abort(403);

@@ -7,7 +7,7 @@
                 </svg>
             </a>
             <div>
-                <h2 class="text-2xl font-bold text-white">نتائج الطلاب</h2>
+                <h2 class="text-2xl font-bold text-white">{{ __('site.student_results') }}</h2>
                 <p class="text-luxury-400 text-sm mt-1">{{ $quiz->title }} - {{ $course->title }}</p>
             </div>
         </div>
@@ -20,33 +20,32 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-luxury-800/50 border border-white/5 rounded-xl p-6 text-center">
                     <span class="text-3xl font-bold text-white">{{ $stats['total_attempts'] }}</span>
-                    <p class="text-luxury-400 text-sm mt-1">إجمالي المحاولات</p>
+                    <p class="text-luxury-400 text-sm mt-1">{{ __('site.total_attempts') }}</p>
                 </div>
                 <div class="bg-luxury-800/50 border border-white/5 rounded-xl p-6 text-center">
                     <span class="text-3xl font-bold text-green-400">{{ $stats['passed'] }}</span>
-                    <p class="text-luxury-400 text-sm mt-1">ناجحون</p>
+                    <p class="text-luxury-400 text-sm mt-1">{{ __('site.passed_students') }}</p>
                 </div>
                 <div class="bg-luxury-800/50 border border-white/5 rounded-xl p-6 text-center">
                     <span class="text-3xl font-bold text-red-400">{{ $stats['failed'] }}</span>
-                    <p class="text-luxury-400 text-sm mt-1">راسبون</p>
+                    <p class="text-luxury-400 text-sm mt-1">{{ __('site.failed_students') }}</p>
                 </div>
                 <div class="bg-luxury-800/50 border border-white/5 rounded-xl p-6 text-center">
                     <span class="text-3xl font-bold text-gold-400">{{ number_format($stats['average_score'], 1) }}</span>
-                    <p class="text-luxury-400 text-sm mt-1">متوسط الدرجات</p>
+                    <p class="text-luxury-400 text-sm mt-1">{{ __('site.average_score') }}</p>
                 </div>
             </div>
 
             <!-- Results Table -->
             <div class="bg-luxury-800/50 border border-white/5 rounded-2xl overflow-hidden">
                 @if($attempts->count() > 0)
-                    <!-- Clear All Button -->
                     <div class="p-4 border-b border-white/5 flex justify-end">
                         <form action="{{ route('tutor.courses.quizzes.attempts.clear', [$course, $quiz]) }}" method="POST" 
-                              onsubmit="return confirm('هل أنت متأكد من حذف جميع النتائج؟ لا يمكن التراجع عن هذا الإجراء.')">
+                              onsubmit="return confirm('{{ __('site.delete_all_results_confirm') }}')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition text-sm font-medium">
-                                حذف جميع النتائج
+                                {{ __('site.delete_all_results') }}
                             </button>
                         </form>
                     </div>
@@ -55,11 +54,11 @@
                         <table class="w-full">
                             <thead class="bg-luxury-900/50">
                                 <tr>
-                                    <th class="px-6 py-4 text-right text-xs font-semibold text-luxury-400 uppercase tracking-wider">الطالب</th>
-                                    <th class="px-6 py-4 text-right text-xs font-semibold text-luxury-400 uppercase tracking-wider">الدرجة</th>
-                                    <th class="px-6 py-4 text-right text-xs font-semibold text-luxury-400 uppercase tracking-wider">النتيجة</th>
-                                    <th class="px-6 py-4 text-right text-xs font-semibold text-luxury-400 uppercase tracking-wider">التاريخ</th>
-                                    <th class="px-6 py-4 text-right text-xs font-semibold text-luxury-400 uppercase tracking-wider">الإجراءات</th>
+                                    <th class="px-6 py-4 text-right text-xs font-semibold text-luxury-400 uppercase tracking-wider">{{ __('site.the_student') }}</th>
+                                    <th class="px-6 py-4 text-right text-xs font-semibold text-luxury-400 uppercase tracking-wider">{{ __('site.the_grade') }}</th>
+                                    <th class="px-6 py-4 text-right text-xs font-semibold text-luxury-400 uppercase tracking-wider">{{ __('site.the_result') }}</th>
+                                    <th class="px-6 py-4 text-right text-xs font-semibold text-luxury-400 uppercase tracking-wider">{{ __('site.the_date') }}</th>
+                                    <th class="px-6 py-4 text-right text-xs font-semibold text-luxury-400 uppercase tracking-wider">{{ __('site.actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-white/5">
@@ -81,11 +80,11 @@
                                         <td class="px-6 py-4">
                                             @if($attempt->passed)
                                                 <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">
-                                                    ناجح ✓
+                                                    {{ __('site.passed_mark') }}
                                                 </span>
                                             @else
                                                 <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm font-medium">
-                                                    راسب ✗
+                                                    {{ __('site.failed_mark') }}
                                                 </span>
                                             @endif
                                         </td>
@@ -96,14 +95,14 @@
                                             <div class="flex items-center gap-2">
                                                 <a href="{{ route('tutor.courses.quizzes.attempts.show', [$course, $quiz, $attempt]) }}"
                                                    class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition text-sm">
-                                                    الإجابات
+                                                    {{ __('site.the_answers') }}
                                                 </a>
                                                 <form action="{{ route('tutor.courses.quizzes.attempts.delete', [$course, $quiz, $attempt]) }}" 
-                                                      method="POST" onsubmit="return confirm('هل تريد حذف هذه المحاولة؟')">
+                                                      method="POST" onsubmit="return confirm('{{ __('site.delete_attempt_confirm') }}')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition text-sm">
-                                                        حذف
+                                                        {{ __('site.delete') }}
                                                     </button>
                                                 </form>
                                             </div>
@@ -118,8 +117,8 @@
                         <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                         </svg>
-                        <p class="text-lg">لا توجد محاولات بعد</p>
-                        <p class="text-sm mt-2">لم يقم أي طالب بإجراء هذا الاختبار حتى الآن</p>
+                        <p class="text-lg">{{ __('site.no_attempts_yet') }}</p>
+                        <p class="text-sm mt-2">{{ __('site.no_student_took_quiz_yet') }}</p>
                     </div>
                 @endif
             </div>

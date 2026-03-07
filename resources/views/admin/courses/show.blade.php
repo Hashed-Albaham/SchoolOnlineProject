@@ -170,8 +170,8 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     </div>
                     <div>
-                        <h3 class="text-white font-bold text-lg mb-1">إدارة المحتوى والدروس</h3>
-                        <p class="text-luxury-400 text-xs text-balance">إضافة وتعديل دروس الدورة كما يفعل المعلم</p>
+                        <h3 class="text-white font-bold text-lg mb-1">{{ __('site.course_lessons_management') }}</h3>
+                        <p class="text-luxury-400 text-xs text-balance">{{ __('site.course_lessons_management_desc') }}</p>
                     </div>
                 </a>
                 
@@ -180,8 +180,8 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                     </div>
                     <div>
-                        <h3 class="text-white font-bold text-lg mb-1">إدارة الاختبارات (Quizzes)</h3>
-                        <p class="text-luxury-400 text-xs text-balance">إضافة وتعديل أسئلة الاختبارات ونتائجها</p>
+                        <h3 class="text-white font-bold text-lg mb-1">{{ __('site.course_quizzes_management') }}</h3>
+                        <p class="text-luxury-400 text-xs text-balance">{{ __('site.course_quizzes_management_desc') }}</p>
                     </div>
                 </a>
             </div>

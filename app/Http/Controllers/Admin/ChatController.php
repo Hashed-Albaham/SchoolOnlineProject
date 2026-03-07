@@ -73,6 +73,8 @@ class ChatController extends Controller
      */
     public function destroyMessage(Message $message)
     {
+        $this->authorize('delete', $message);
+
         $message->delete();
         return back()->with('success', __('site.message_deleted'));
     }

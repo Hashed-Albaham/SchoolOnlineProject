@@ -7,7 +7,7 @@
                 </svg>
             </a>
             <div>
-                <h2 class="text-2xl font-bold text-white">تعديل الكورس</h2>
+                <h2 class="text-2xl font-bold text-white">{{ __('site.edit_course') }}</h2>
                 <p class="text-luxury-400 text-sm mt-1">{{ $course->title }}</p>
             </div>
         </div>
@@ -34,19 +34,19 @@
                                 d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                 clip-rule="evenodd"></path>
                         </svg>
-                        <p class="text-green-400 font-medium">الكورس معتمد ومنشور</p>
+                        <p class="text-green-400 font-medium">{{ __('site.course_approved_published') }}</p>
                     @elseif($course->status === 'pending')
                         <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <p class="text-yellow-400 font-medium">الكورس بانتظار مراجعة المسؤول</p>
+                        <p class="text-yellow-400 font-medium">{{ __('site.course_pending_review') }}</p>
                     @else
                         <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <p class="text-red-400 font-medium">الكورس مرفوض - يرجى مراجعة المحتوى وإعادة التقديم</p>
+                        <p class="text-red-400 font-medium">{{ __('site.course_rejected_review') }}</p>
                     @endif
                 </div>
             </div>
@@ -59,7 +59,7 @@
 
                     <!-- Title -->
                     <div>
-                        <label for="title" class="block text-sm font-medium text-luxury-300 mb-2">عنوان الكورس <span
+                        <label for="title" class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.course_title') }} <span
                                 class="text-red-400">*</span></label>
                         <input type="text" id="title" name="title" value="{{ old('title', $course->title) }}" required
                             class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition">
@@ -70,7 +70,7 @@
 
                     <!-- Description -->
                     <div>
-                        <label for="description" class="block text-sm font-medium text-luxury-300 mb-2">الوصف <span
+                        <label for="description" class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.description') }} <span
                                 class="text-red-400">*</span></label>
                         <textarea id="description" name="description" rows="5" required
                             class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition resize-none">{{ old('description', $course->description) }}</textarea>
@@ -81,8 +81,7 @@
 
                     <!-- Price -->
                     <div>
-                        <label for="price" class="block text-sm font-medium text-luxury-300 mb-2">السعر
-                            (بالدولار)</label>
+                        <label for="price" class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.price_usd') }}</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                 <span class="text-luxury-500">$</span>
@@ -116,7 +115,7 @@
                     <!-- Current Thumbnail -->
                     @if($course->thumbnail)
                         <div>
-                            <label class="block text-sm font-medium text-luxury-300 mb-2">صورة الغلاف الحالية</label>
+                            <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.current_thumbnail') }}</label>
                             <div class="w-full max-w-md rounded-xl overflow-hidden border border-white/10">
                                 <img src="{{ Storage::url($course->thumbnail) }}" alt="{{ $course->title }}"
                                     class="w-full h-auto">
@@ -127,7 +126,7 @@
                     <!-- New Thumbnail -->
                     <div>
                         <label for="thumbnail" class="block text-sm font-medium text-luxury-300 mb-2">
-                            {{ $course->thumbnail ? 'تغيير صورة الغلاف' : 'صورة الغلاف' }}
+                            {{ $course->thumbnail ? __('site.change_thumbnail') : __('site.thumbnail') }}
                         </label>
                         <input type="file" id="thumbnail" name="thumbnail" accept="image/*"
                             class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gold-500/20 file:text-gold-400 file:font-medium file:cursor-pointer focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition">
@@ -139,7 +138,7 @@
                     <!-- Submit Button -->
                     <div class="pt-4">
                         <button type="submit" class="btn-premium w-full py-4 rounded-xl font-semibold text-lg">
-                            حفظ التغييرات
+                            {{ __('site.save_changes') }}
                         </button>
                     </div>
                 </form>
@@ -148,22 +147,22 @@
             <!-- Quiz Management Section -->
             <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-8 mt-8">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-bold text-white">إدارة الاختبارات</h3>
+                    <h3 class="text-xl font-bold text-white">{{ __('site.manage_quizzes') }}</h3>
                     <a href="{{ route('tutor.courses.quizzes.index', $course) }}" 
                        class="btn-premium px-4 py-2 rounded-lg flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                         </svg>
-                        إدارة الاختبارات
+                        {{ __('site.manage_quizzes') }}
                     </a>
                 </div>
-                <p class="text-luxury-400">أنشئ اختبارات للكورس وأضف أسئلة متعددة الخيارات. يمكنك بعدها ربط الاختبارات بمحتوى الكورس.</p>
+                <p class="text-luxury-400">{{ __('site.create_course_quizzes_desc') }}</p>
             </div>
 
             <!-- Content Management Section -->
             <div id="content-section"
                 class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-8 mt-8">
-                <h3 class="text-xl font-bold text-white mb-6">إدارة محتوى الكورس</h3>
+                <h3 class="text-xl font-bold text-white mb-6">{{ __('site.manage_course_content') }}</h3>
 
                 @if(session('error'))
                     <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400">
@@ -180,26 +179,26 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Content Title -->
                         <div>
-                            <label class="block text-sm font-medium text-luxury-300 mb-2">عنوان المحتوى <span
+                            <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.content_title') }} <span
                                     class="text-red-400">*</span></label>
                             <input type="text" name="title" required
                                 class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition"
-                                placeholder="مثال: الدرس الأول - المقدمة">
+                                placeholder="{{ __('site.content_title_placeholder') }}">
                             @error('title') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <!-- Content Type -->
                         <div>
-                            <label class="block text-sm font-medium text-luxury-300 mb-2">نوع المحتوى <span
+                            <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.content_type') }} <span
                                     class="text-red-400">*</span></label>
                             <select name="type" x-model="contentType"
                                 class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition [&>option]:bg-luxury-800 [&>option]:text-white">
-                                <option class="bg-luxury-800" value="video">🎬 فيديو YouTube</option>
-                                <option class="bg-luxury-800" value="file">📄 ملف (PDF, DOC, ...)</option>
-                                <option class="bg-luxury-800" value="image">🖼️ صورة</option>
-                                <option class="bg-luxury-800" value="text">📝 نص / ملاحظات</option>
-                                <option class="bg-luxury-800" value="link">🔗 رابط خارجي</option>
-                                <option class="bg-luxury-800" value="quiz">❓ اختبار</option>
+                                <option class="bg-luxury-800" value="video">{{ __('site.youtube_video') }}</option>
+                                <option class="bg-luxury-800" value="file">{{ __('site.file_pdf_doc') }}</option>
+                                <option class="bg-luxury-800" value="image">{{ __('site.image') }}</option>
+                                <option class="bg-luxury-800" value="text">{{ __('site.text_notes') }}</option>
+                                <option class="bg-luxury-800" value="link">{{ __('site.external_link') }}</option>
+                                <option class="bg-luxury-800" value="quiz">{{ __('site.quiz') }}</option>
                             </select>
                         </div>
                     </div>
@@ -208,7 +207,7 @@
                     <div>
                         <!-- Video Field -->
                         <div x-show="contentType === 'video'" x-data="{ videoSource: 'youtube' }" x-cloak>
-                            <label class="block text-sm font-medium text-luxury-300 mb-2">مصدر الفيديو <span
+                            <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.video_source') }} <span
                                     class="text-red-400">*</span></label>
                             <div class="flex gap-4 mb-4">
                                 <label class="flex items-center gap-2 cursor-pointer">
@@ -219,18 +218,18 @@
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" name="video_source" value="local" x-model="videoSource"
                                         class="text-gold-500 focus:ring-gold-500 bg-white/10 border-white/20">
-                                    <span class="text-white text-sm">رفع من الجهاز</span>
+                                    <span class="text-white text-sm">{{ __('site.upload_from_device') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" name="video_source" value="external" x-model="videoSource"
                                         class="text-gold-500 focus:ring-gold-500 bg-white/10 border-white/20">
-                                    <span class="text-white text-sm">رابط خارجي</span>
+                                    <span class="text-white text-sm">{{ __('site.external_link') }}</span>
                                 </label>
                             </div>
 
                             <!-- YouTube -->
                             <div x-show="videoSource === 'youtube'">
-                                <label class="block text-sm font-medium text-luxury-300 mb-2">رابط YouTube</label>
+                                <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.youtube_link') }}</label>
                                 <input type="text" name="youtube_url"
                                     class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 transition"
                                     placeholder="https://www.youtube.com/watch?v=...">
@@ -238,16 +237,15 @@
 
                             <!-- Local Upload -->
                             <div x-show="videoSource === 'local'">
-                                <label class="block text-sm font-medium text-luxury-300 mb-2">اختر ملف الفيديو</label>
+                                <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.choose_video_file') }}</label>
                                 <input type="file" name="video_file" accept="video/mp4,video/mpeg,video/quicktime"
                                     class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gold-500/20 file:text-gold-400 transition">
-                                <p class="text-luxury-500 text-xs mt-1">MP4, MPEG, MOV (الحد الأقصى 500 ميجابايت)</p>
+                                <p class="text-luxury-500 text-xs mt-1">{{ __('site.video_file_limits') }}</p>
                             </div>
 
                             <!-- External Link -->
                             <div x-show="videoSource === 'external'">
-                                <label class="block text-sm font-medium text-luxury-300 mb-2">رابط الفيديو
-                                    المباشر</label>
+                                <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.direct_video_link') }}</label>
                                 <input type="url" name="video_url"
                                     class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 transition"
                                     placeholder="https://example.com/video.mp4">
@@ -260,17 +258,17 @@
 
                         <!-- File Field -->
                         <div x-show="contentType === 'file'" x-cloak>
-                            <label class="block text-sm font-medium text-luxury-300 mb-2">رفع ملف <span
+                            <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.upload_file') }} <span
                                     class="text-red-400">*</span></label>
                             <input type="file" name="content_file"
                                 class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gold-500/20 file:text-gold-400 transition">
-                            <p class="text-luxury-500 text-xs mt-1">الحد الأقصى: 50 ميجابايت</p>
+                            <p class="text-luxury-500 text-xs mt-1">{{ __('site.file_limits') }}</p>
                             @error('content_file') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <!-- Image Field -->
                         <div x-show="contentType === 'image'" x-cloak>
-                            <label class="block text-sm font-medium text-luxury-300 mb-2">رفع صورة <span
+                            <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.upload_image') }} <span
                                     class="text-red-400">*</span></label>
                             <input type="file" name="content_image" accept="image/*"
                                 class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gold-500/20 file:text-gold-400 transition">
@@ -279,17 +277,17 @@
 
                         <!-- Text Field -->
                         <div x-show="contentType === 'text'" x-cloak>
-                            <label class="block text-sm font-medium text-luxury-300 mb-2">المحتوى النصي <span
+                            <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.text_content') }} <span
                                     class="text-red-400">*</span></label>
                             <textarea name="text_content" rows="5"
                                 class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 transition resize-none"
-                                placeholder="أضف ملاحظات، شرح نصي، أو أي محتوى مكتوب..."></textarea>
+                                placeholder="{{ __('site.text_content_placeholder') }}"></textarea>
                             @error('text_content') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <!-- Link Field -->
                         <div x-show="contentType === 'link'" x-cloak>
-                            <label class="block text-sm font-medium text-luxury-300 mb-2">رابط خارجي <span
+                            <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.external_link') }} <span
                                     class="text-red-400">*</span></label>
                             <input type="url" name="link_url"
                                 class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 transition"
@@ -299,35 +297,35 @@
 
                         <!-- Quiz Field -->
                         <div x-show="contentType === 'quiz'" x-cloak>
-                            <label class="block text-sm font-medium text-luxury-300 mb-2">اختر اختبار</label>
+                            <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.choose_quiz') }}</label>
                             <select name="quiz_id"
                                 class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-gold-500/50 transition [&>option]:bg-luxury-800 [&>option]:text-white">
-                                <option value="">-- اختر اختبار --</option>
+                                <option value="">{{ __('site.select_quiz') }}</option>
                                 @foreach(\App\Models\Quiz::where('course_id', $course->id)->get() as $quiz)
                                     <option value="{{ $quiz->id }}">{{ $quiz->title }}</option>
                                 @endforeach
                             </select>
-                            <p class="text-luxury-500 text-xs mt-1">أنشئ اختبارات من قسم الاختبارات أولاً</p>
+                            <p class="text-luxury-500 text-xs mt-1">{{ __('site.create_quizzes_first') }}</p>
                             @error('quiz_id') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
                     <!-- Description -->
                     <div>
-                        <label class="block text-sm font-medium text-luxury-300 mb-2">وصف (اختياري)</label>
+                        <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.description_optional') }}</label>
                         <textarea name="description" rows="2"
                             class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 transition resize-none"
-                            placeholder="وصف مختصر للمحتوى..."></textarea>
+                            placeholder="{{ __('site.content_description_placeholder') }}"></textarea>
                     </div>
 
                     <button type="submit"
                         class="w-full py-3 rounded-xl bg-gold-gradient text-luxury-900 font-semibold hover:shadow-glow transition">
-                        + إضافة محتوى
+                        {{ __('site.add_content') }}
                     </button>
                 </form>
 
                 <!-- Existing Contents List -->
-                <h4 class="text-white font-semibold mb-4">المحتويات الحالية ({{ $course->contents->count() }})</h4>
+                <h4 class="text-white font-semibold mb-4">{{ __('site.current_contents') }} ({{ $course->contents->count() }})</h4>
 
                 @if($course->contents->count() > 0)
                     <div class="space-y-3">
@@ -351,7 +349,7 @@
                                         </svg>
                                     </a>
                                     <form action="{{ route('tutor.courses.content.delete', [$course, $content]) }}"
-                                        method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا المحتوى؟')">
+                                        method="POST" onsubmit="return confirm('{{ __('site.confirm_delete_content') }}')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -375,7 +373,7 @@
                                 d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
                             </path>
                         </svg>
-                        <p>لا يوجد محتوى بعد. أضف أول درس!</p>
+                        <p>{{ __('site.no_content_yet_add_first') }}</p>
                     </div>
                 @endif
             </div>

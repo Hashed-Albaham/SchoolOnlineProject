@@ -29,7 +29,7 @@
                             <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.category_name_ar') }}</label>
                             <input type="text" name="name_ar" value="{{ old('name_ar') }}"
                                 class="w-full px-4 py-3 rounded-xl bg-luxury-700/50 border border-white/10 text-white focus:outline-none focus:border-gold-500/50"
-                                placeholder="مثال: البرمجة" dir="rtl">
+                                placeholder="{{ __('site.category_name_ar_placeholder') }}" dir="rtl">
                             @error('name_ar') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
 

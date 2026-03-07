@@ -234,6 +234,11 @@
                                 {{ request()->routeIs('student.courses.my') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                             {{ __('site.my_courses') }}
                         </a>
+                        <a href="{{ route('student.certificates') }}"
+                            class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
+                                {{ request()->routeIs('student.certificates') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                            {{ __('site.my_certificates') }}
+                        </a>
                     @elseif(auth()->user()->role === 'tutor')
                         <a href="{{ route('tutor.courses.index') }}"
                             class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
@@ -249,6 +254,11 @@
                             class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
                                 {{ request()->routeIs('tutor.profile.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                             {{ __('site.profile') }}
+                        </a>
+                        <a href="{{ route('tutor.payouts.index') }}"
+                            class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
+                                {{ request()->routeIs('tutor.payouts.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                            💰 {{ __('site.my_earnings') }}
                         </a>
                         <a href="{{ route('tutor.reports.index') }}"
                             class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
@@ -280,6 +290,21 @@
                             class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
                                 {{ request()->routeIs('admin.reports.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                             {{ __('site.reports_analytics') }}
+                        </a>
+                        <a href="{{ route('admin.payment_methods.index') }}"
+                            class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
+                                {{ request()->routeIs('admin.payment_methods.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                            💳 {{ __('site.payment_methods') }}
+                        </a>
+                        <a href="{{ route('admin.payouts.index') }}"
+                            class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
+                                {{ request()->routeIs('admin.payouts.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                            💰 {{ __('site.payout_management') }}
+                        </a>
+                        <a href="{{ route('admin.chat.index') }}"
+                            class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
+                                {{ request()->routeIs('admin.chat.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                            👁 {{ __('site.chat_oversight') }}
                         </a>
                     @endif
                 @endauth

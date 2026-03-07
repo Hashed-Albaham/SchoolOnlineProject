@@ -7,7 +7,7 @@
                 </svg>
             </a>
             <div>
-                <h2 class="text-2xl font-bold text-white">إجابات الطالب</h2>
+                <h2 class="text-2xl font-bold text-white">{{ __('site.student_answers') }}</h2>
                 <p class="text-luxury-400 text-sm mt-1">{{ $attempt->user->name }} - {{ $quiz->title }}</p>
             </div>
         </div>
@@ -32,7 +32,7 @@
                             {{ $attempt->score }} / {{ $quiz->questions->sum('points') }}
                         </div>
                         <span class="px-3 py-1 rounded-full text-sm {{ $attempt->passed ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400' }}">
-                            {{ $attempt->passed ? 'ناجح' : 'راسب' }}
+                            {{ $attempt->passed ? __('site.passed') : __('site.failed') }}
                         </span>
                     </div>
                 </div>
@@ -56,12 +56,12 @@
                             <span class="text-gold-400 text-xl font-bold">{{ $index + 1 }}.</span>
                             <div class="flex-1">
                                 <h4 class="text-white font-medium">{{ $question->question_text }}</h4>
-                                <span class="text-luxury-500 text-sm">({{ $question->points }} نقطة)</span>
+                                <span class="text-luxury-500 text-sm">({{ $question->points }} {{ __('site.points') }})</span>
                             </div>
                             @if($isCorrect)
-                                <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">صحيح ✓</span>
+                                <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">{{ __('site.correct_status') }}</span>
                             @else
-                                <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm">خطأ ✗</span>
+                                <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm">{{ __('site.wrong_status') }}</span>
                             @endif
                         </div>
                         
@@ -95,7 +95,7 @@
                                     @endif
                                     <span class="{{ $textClass }}">{{ $option->option_text }}</span>
                                     @if($isCorrectOption)
-                                        <span class="text-green-400 text-xs">(الإجابة الصحيحة)</span>
+                                        <span class="text-green-400 text-xs">({{ __('site.the_correct_answer') }})</span>
                                     @endif
                                 </div>
                             @endforeach

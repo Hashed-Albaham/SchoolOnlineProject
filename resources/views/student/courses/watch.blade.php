@@ -8,7 +8,7 @@
             </a>
             <div class="flex-1 min-w-0">
                 <h2 class="text-xl font-bold text-white truncate">{{ $course->title }}</h2>
-                <p class="text-luxury-400 text-sm">{{ $course->tutor->name ?? 'المعلم' }}</p>
+                <p class="text-luxury-400 text-sm">{{ $course->tutor->name ?? __('site.tutor') }}</p>
             </div>
         </div>
     </x-slot>
@@ -19,8 +19,8 @@
             {{-- Progress Bar --}}
             <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-4 mb-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-white font-medium">تقدمك في الكورس</span>
-                    <span class="text-gold-400 font-bold">{{ $completedContents }}/{{ $totalContents }} درس ({{ $progressPercent }}%)</span>
+                    <span class="text-white font-medium">{{ __('site.course_progress') }}</span>
+                    <span class="text-gold-400 font-bold">{{ $completedContents }}/{{ $totalContents }} {{ __('site.lesson') }} ({{ $progressPercent }}%)</span>
                 </div>
                 <div class="h-3 bg-luxury-700 rounded-full overflow-hidden">
                     <div class="h-full bg-gradient-to-r from-gold-500 to-gold-400 rounded-full transition-all duration-500" style="width: {{ $progressPercent }}%"></div>
@@ -36,8 +36,8 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
                                     </svg>
                                     <div>
-                                        <p class="text-green-400 font-bold">🎉 تم إصدار الشهادة!</p>
-                                        <p class="text-green-300 text-sm">رقم الشهادة: {{ $certificateRequest->certificate_code }}</p>
+                                        <p class="text-green-400 font-bold">{{ __('site.certificate_issued') }}</p>
+                                        <p class="text-green-300 text-sm">{{ __('site.certificate_number') }} {{ $certificateRequest->certificate_code }}</p>
                                     </div>
                                 </div>
                             @elseif($certificateRequest->isPending())
@@ -46,18 +46,18 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                     </svg>
                                     <div>
-                                        <p class="text-yellow-400 font-medium">طلب الشهادة قيد المراجعة</p>
-                                        <p class="text-yellow-300 text-sm">سيتم إشعارك عند الموافقة</p>
+                                        <p class="text-yellow-400 font-medium">{{ __('site.certificate_request_pending') }}</p>
+                                        <p class="text-yellow-300 text-sm">{{ __('site.certificate_request_pending_sub') }}</p>
                                     </div>
                                 </div>
                             @else
-                                <div class="text-red-400 text-sm">تم رفض طلب الشهادة: {{ $certificateRequest->rejection_reason }}</div>
+                                <div class="text-red-400 text-sm">{{ __('site.certificate_request_rejected') }} {{ $certificateRequest->rejection_reason }}</div>
                             @endif
                         @else
                             <form action="{{ route('student.courses.certificate.request', $course) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold hover:shadow-lg hover:shadow-green-500/30 transition">
-                                    🏆 طلب الشهادة - لقد أكملت جميع الدروس!
+                                    {{ __('site.request_certificate_btn') }}
                                 </button>
                             </form>
                         @endif
@@ -88,7 +88,7 @@
                                     @elseif($currentContent->file_path)
                                         <video controls class="w-full h-full" controlsList="nodownload">
                                             <source src="{{ Storage::url($currentContent->file_path) }}" type="video/mp4">
-                                            متصفحك لا يدعم تشغيل الفيديو.
+                                            {{ __('site.browser_not_support_video') }}
                                         </video>
                                     @elseif($currentContent->link_url)
                                         @php
@@ -104,7 +104,7 @@
                                         @else
                                             <video controls class="w-full h-full" controlsList="nodownload">
                                                 <source src="{{ $videoUrl }}" type="video/mp4">
-                                                متصفحك لا يدعم تشغيل الفيديو.
+                                                {{ __('site.browser_not_support_video') }}
                                             </video>
                                         @endif
                                     @endif
@@ -115,9 +115,9 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                             </svg>
                                             <h3 class="text-xl font-bold text-white mb-2">{{ $currentContent->title }}</h3>
-                                            <p class="text-luxury-400 mb-6">اختبار لتقييم فهمك للدرس</p>
+                                            <p class="text-luxury-400 mb-6">{{ __('site.quiz_assessment') }}</p>
                                             <a href="{{ route('student.quizzes.show', $currentContent->quiz_id) }}" class="px-8 py-3 bg-gold-gradient text-luxury-900 rounded-xl font-bold hover:shadow-glow transition transform hover:scale-105">
-                                                📝 بدء الاختبار
+                                                {{ __('site.start_quiz') }}
                                             </a>
                                         </div>
                                     </div>
@@ -126,7 +126,7 @@
                                 @elseif($currentContent->isFile())
                                     <div class="w-full h-full flex items-center justify-center">
                                         <a href="{{ Storage::url($currentContent->file_path) }}" target="_blank" class="px-6 py-3 bg-gold-500 text-luxury-900 rounded-xl font-bold hover:bg-gold-400 transition">
-                                            📄 تحميل الملف
+                                            {{ __('site.download_file') }}
                                         </a>
                                     </div>
                                 @elseif($currentContent->isText())
@@ -136,7 +136,7 @@
                                 @elseif($currentContent->isLink())
                                     <div class="w-full h-full flex items-center justify-center">
                                         <a href="{{ $currentContent->link_url }}" target="_blank" class="px-6 py-3 bg-royal-500 text-white rounded-xl font-bold hover:bg-royal-400 transition">
-                                            🔗 فتح الرابط الخارجي
+                                            {{ __('site.open_external_link') }}
                                         </a>
                                     </div>
                                 @else
@@ -145,7 +145,7 @@
                                             <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                             </svg>
-                                            <p>محتوى الدرس</p>
+                                            <p>{{ __('site.lesson_content') }}</p>
                                         </div>
                                     </div>
                                 @endif
@@ -157,7 +157,7 @@
                                     <h3 class="text-xl font-bold text-white">{{ $currentContent->title }}</h3>
                                     @if($isCurrentCompleted)
                                         <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">
-                                            ✓ مكتمل
+                                            {{ __('site.completed') }}
                                         </span>
                                     @endif
                                 </div>
@@ -171,7 +171,7 @@
                                     <form action="{{ route('student.courses.content.complete', [$course, $currentContent]) }}" method="POST" class="mb-4">
                                         @csrf
                                         <button type="submit" class="w-full py-3 rounded-xl bg-gold-gradient text-luxury-900 font-bold hover:shadow-glow transition">
-                                            ✓ أنهيت هذا الدرس
+                                            {{ __('site.finished_lesson') }}
                                         </button>
                                     </form>
                                 @endif
@@ -193,7 +193,7 @@
                                             <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                             </svg>
-                                            <span>الدرس السابق</span>
+                                            <span>{{ __('site.prev_lesson') }}</span>
                                         </a>
                                     @else
                                         <div></div>
@@ -202,14 +202,14 @@
                                     @if($nextContent)
                                         <a href="{{ route('student.courses.watch', [$course, $nextContent]) }}"
                                             class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 transition">
-                                            <span>الدرس التالي</span>
+                                            <span>{{ __('site.next_lesson') }}</span>
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                             </svg>
                                         </a>
                                     @else
                                         <span class="px-4 py-2 rounded-xl bg-green-500/20 text-green-400 text-sm font-medium">
-                                            🎉 أنت في الدرس الأخير!
+                                            {{ __('site.last_lesson_reached') }}
                                         </span>
                                     @endif
                                 </div>
@@ -220,7 +220,7 @@
                                     <svg class="w-20 h-20 mx-auto mb-4 text-luxury-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0V2m0 2h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2m-10 0V4"></path>
                                     </svg>
-                                    <p class="text-luxury-400">لا يوجد محتوى في هذا الكورس بعد</p>
+                                    <p class="text-luxury-400">{{ __('site.no_content_in_course_yet') }}</p>
                                 </div>
                             </div>
                         @endif
@@ -231,8 +231,8 @@
                 <div class="lg:col-span-1">
                     <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden sticky top-24">
                         <div class="p-4 border-b border-white/5">
-                            <h3 class="font-semibold text-white">محتوى الكورس</h3>
-                            <p class="text-sm text-luxury-400 mt-1">{{ $completedContents }}/{{ $totalContents }} درس مكتمل</p>
+                            <h3 class="font-semibold text-white">{{ __('site.course_content') }}</h3>
+                            <p class="text-sm text-luxury-400 mt-1">{{ $completedContents }}/{{ $totalContents }} {{ __('site.completed_lessons') }}</p>
                         </div>
 
                         <div class="max-h-[60vh] overflow-y-auto">

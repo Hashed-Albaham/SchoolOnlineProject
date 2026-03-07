@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>شهادة إتمام - {{ $course->title }}</title>
+    <title>{{ __('site.certificate_of_completion') }} - {{ $course->title }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body {
@@ -137,31 +137,31 @@
         <div class="border-pattern">
             <div class="logo">Pro<span>Skill</span></div>
 
-            <h1>شهادة إتمام</h1>
-            <div class="subtitle">تُمنح هذه الشهادة تقديراً لإتمام</div>
+            <h1>{{ __('site.certificate_of_completion') }}</h1>
+            <div class="subtitle">{{ __('site.certificate_granted_to') }}</div>
 
             <div class="presented-to">{{ $user->name }}</div>
 
-            <div class="subtitle">لاجتيازه بنجاح اختبار الكورس التدريبي</div>
+            <div class="subtitle">{{ __('site.for_passing_exam') }}</div>
 
             <div class="course-name">{{ $course->title }}</div>
 
-            <div class="date">تاريخ المنح: {{ $attempt->completed_at->format('Y/m/d') }}</div>
+            <div class="date">{{ __('site.grant_date') }} {{ $attempt->completed_at->format('Y/m/d') }}</div>
 
             <div class="signatures">
                 <div class="signature-line">
-                    {{ $course->tutor->name ?? 'المعلم' }}<br>
-                    <span style="font-weight: normal; font-size: 12px; color: #666;">المعلم</span>
+                    {{ $course->tutor->name ?? __('site.tutor') }}<br>
+                    <span style="font-weight: normal; font-size: 12px; color: #666;">{{ __('site.tutor') }}</span>
                 </div>
                 <div class="signature-line">
                     ProSkill Platform<br>
-                    <span style="font-weight: normal; font-size: 12px; color: #666;">إدارة المنصة</span>
+                    <span style="font-weight: normal; font-size: 12px; color: #666;">{{ __('site.platform_management') }}</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <button class="print-btn" onclick="window.print()">طباعة الشهادة</button>
+    <button class="print-btn" onclick="window.print()">{{ __('site.print_certificate') }}</button>
 
 </body>
 

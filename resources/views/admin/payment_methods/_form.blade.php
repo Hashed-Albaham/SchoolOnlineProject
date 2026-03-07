@@ -6,7 +6,7 @@
             <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.name_ar') }} <span class="text-red-400">*</span></label>
             <input type="text" name="name" value="{{ old('name', $paymentMethod->name ?? '') }}" required
                 class="w-full px-4 py-3 rounded-xl bg-luxury-700/50 border border-white/10 text-white placeholder-luxury-500 focus:outline-none focus:border-gold-500/50"
-                placeholder="تحويل بنكي">
+                placeholder="{{ __('site.name_ar') }}">
             @error('name') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
 
@@ -77,7 +77,7 @@
         <label class="block text-sm font-medium text-luxury-300 mb-2">{{ __('site.instructions_ar') }} <span class="text-red-400">*</span></label>
         <textarea name="instructions_ar" rows="4" required
             class="w-full px-4 py-3 rounded-xl bg-luxury-700/50 border border-white/10 text-white placeholder-luxury-500 focus:outline-none focus:border-gold-500/50"
-            placeholder="قم بتحويل المبلغ إلى الحساب أدناه ثم أرسل إيصال الدفع...">{{ old('instructions_ar', $paymentMethod->instructions_ar ?? '') }}</textarea>
+            placeholder="{{ __('site.instructions_ar') }}...">{{ old('instructions_ar', $paymentMethod->instructions_ar ?? '') }}</textarea>
         @error('instructions_ar') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 

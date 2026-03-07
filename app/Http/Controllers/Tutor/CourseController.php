@@ -606,11 +606,7 @@ class CourseController extends Controller
      */
     public function approveEnrollment(\App\Models\Enrollment $enrollment)
     {
-        // SECURITY: Verify tutor owns this course
-        $course = $enrollment->course;
-        if (!$course || $course->tutor_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('update', $enrollment);
 
         $enrollment->update(['enrollment_status' => 'approved']);
 
@@ -627,11 +623,7 @@ class CourseController extends Controller
      */
     public function rejectEnrollment(\App\Models\Enrollment $enrollment)
     {
-        // SECURITY: Verify tutor owns this course
-        $course = $enrollment->course;
-        if (!$course || $course->tutor_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('update', $enrollment);
 
         $enrollment->update(['enrollment_status' => 'rejected']);
 
