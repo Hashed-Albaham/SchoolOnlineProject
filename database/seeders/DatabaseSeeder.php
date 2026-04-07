@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Admin
+        // Create Admin (Super Admin)
         $admin = User::create([
             'name' => 'المسؤول',
             'email' => 'admin@proskill.com',
@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
         $admin->agreed_to_terms_at = now();
+        $admin->is_super_admin = true; // [v8.0] Genesis
         $admin->save();
 
         // Create Tutors
@@ -48,6 +49,10 @@ class DatabaseSeeder extends Seeder
             'skills' => 'PHP, Laravel, JavaScript, Vue.js, MySQL, REST APIs, Docker, Git',
             'portfolio_url' => 'https://github.com/ahmed-dev',
             'agreed_to_terms' => true,
+            // [v8.0] Eligibility
+            'gpa' => 3.85,
+            'gpa_scale' => 4.0,
+            'step_score' => 78,
         ]);
 
         $tutor2 = User::create([
@@ -70,6 +75,10 @@ class DatabaseSeeder extends Seeder
             'skills' => 'Python, TensorFlow, Pandas, NumPy, Machine Learning, Data Visualization, SQL',
             'portfolio_url' => 'https://github.com/sara-data',
             'agreed_to_terms' => true,
+            // [v8.0] Eligibility
+            'gpa' => 4.50,
+            'gpa_scale' => 5.0,
+            'step_score' => 82,
         ]);
 
         // Create unverified tutor (pending verification - [REQ] stays pending until verified)
@@ -190,8 +199,11 @@ class DatabaseSeeder extends Seeder
         $this->command->info('✅ تم إنشاء البيانات التجريبية بنجاح!');
         $this->command->info('');
         $this->command->info('📧 بيانات الدخول:');
-        $this->command->info('   المسؤول: admin@proskill.com / password');
+        $this->command->info('   المسؤول: admin@proskill.com / password (سوبر أدمن)');
         $this->command->info('   المعلم: tutor@proskill.com / password');
         $this->command->info('   الطالب: student@proskill.com / password');
+
+        // [v8.0] Seed default settings
+        $this->call(SettingsSeeder::class);
     }
 }

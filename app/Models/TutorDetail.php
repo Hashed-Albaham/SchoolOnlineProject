@@ -23,12 +23,25 @@ class TutorDetail extends Model
         'skills',
         'portfolio_url',
         'agreed_to_terms',
+        // [v8.0] Eligibility fields
+        'gpa',
+        'gpa_scale',
+        'step_score',
+        // [v8.0] Historical fairness - requirements at time of registration
+        'req_gpa_at_registration',
+        'req_step_at_registration',
     ];
 
     protected $casts = [
         'is_verified' => 'boolean',
         'agreed_to_terms' => 'boolean',
         'graduation_year' => 'integer',
+        // [v8.0]
+        'gpa' => 'decimal:2',
+        'gpa_scale' => 'decimal:1',
+        'step_score' => 'integer',
+        'req_gpa_at_registration' => 'decimal:2',
+        'req_step_at_registration' => 'integer',
     ];
 
     /**

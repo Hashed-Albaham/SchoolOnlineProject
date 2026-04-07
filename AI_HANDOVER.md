@@ -1,6 +1,6 @@
 # 📋 AI_HANDOVER.md - بروتوكول تسليم ProSkill Academy
-## آخر تحديث: 2026-03-07T02:41:52+03:00
-## النموذج المنفذ: LARA-PROSKILL-ARCHITECT-v5.0 (الجلسات 1-6)
+## آخر تحديث: 2026-04-07T03:25:00+03:00
+## النموذج المنفذ: LARA-PROSKILL-ARCHITECT-v8.0 (الجلسات 1-7)
 
 ---
 
@@ -35,11 +35,11 @@
 
 ## 🏗️ هيكل المشروع الحالي
 
-### النماذج (Models) - 16 ملف
+### النماذج (Models) - 18 ملف
 
 | النموذج | الوصف | حالة `$fillable` |
 |---|---|---|
-| `User` | المستخدم - `role` (admin/tutor/student) + **`agreed_to_terms_at`** | `role` **محمي** ✅ |
+| `User` | المستخدم - `role` + `is_super_admin` + **`agreed_to_terms_at`** | `role` + `is_super_admin` **محمي** ✅ |
 | `Course` | الدورة - `status` + `category_id` | `status` **محمي** ✅ |
 | `Category` | تصنيف الدورات - auto-slug + localized name | عادي ✅ |
 | `CourseContent` | محتوى الدورة - 6 أنواع | عادي |
@@ -52,6 +52,8 @@
 | `TutorDetail` | تفاصيل المعلم (bio, cv, is_verified) | عادي |
 | `PaymentMethod` | **[PAY1] طرق الدفع** - localized name/instructions + active scope | عادي ✅ |
 | `PayoutRequest` | **[PAY2] طلبات سحب الأرباح** - status constants + tutor/paymentMethod/reviewer relations | عادي ✅ |
+| `Setting` | **[v8.0] الإعدادات الديناميكية** - Cache::remember مع TTL ساعة | عادي ✅ |
+| `SettingsHistory` | **[v8.0] سجل تدقيق الإعدادات** - changedBy relation | عادي ✅ |
 
 ### المتحكمات (Controllers) - ملخص شامل
 
@@ -631,12 +633,36 @@ php artisan migrate        # تشغيل الميجريشن
 - ✅ **إعادة بناء**: student/courses views (index, my-courses, show, watch)
 - ✅ **إصلاحات إضافية**: strftime → DATE_FORMAT, LazyLoadingViolation
 - ✅ **الجلسة التاسعة (ترجمة الاختبارات - Quiz Localization)**: استبدال جميع النصوص الثابتة في واجهات المعلم والطالب بمفاتيح ترجمة (ar/en).
-- ✅ **الجلسة العاشرة (التوطين الشامل - Full Localization)**: استكمال ترجمة الـ 10 ملفات المتبقية (3 غير مترجمة بالكامل و 7 مترجمة جزئياً) وتوثيق النظام كـ "مترجم بنسبة 100%". بالإضافة لتنظيف ملفات الترجمة `site.php` من المفاتيح المكررة.
+- ✅ **الجلسة الحادية عشر (v8.0 - الأهلية والإعدادات والحماية الهرمية)**:
+  - **Super Admin**: حقل `is_super_admin` + أمر `php artisan make:super-admin` + middleware `super_admin`
+  - **إعدادات ديناميكية**: نموذج `Setting` مع `Cache::remember` + سجل تدقيق `SettingsHistory`
+  - **فحص الأهلية**: `EligibilityController` + صفحة `/eligibility-check` + جلسات محدودة بساعة
+  - **حماية هرمية**: فقط السوبر أدمن يدير المدراء + حماية من الحذف الذاتي ومن حذف آخر مدير
+  - **حماية التسجيل**: رفض تسجيل معلم بدون أهلية + تنظيف آني للجلسات `session()->forget()`
+  - **عدالة تاريخية**: حفظ شروط وقت التسجيل (`req_gpa_at_registration`, `req_step_at_registration`)
+  - **واجهات جديدة**: لوحة إعدادات + إنشاء مستخدم + فحص أهلية + قسم بيانات الأهلية في صفحة المعلم
+  - **Rate Limiting**: throttle على الإعدادات (10/دقيقة) والأهلية (10/دقيقة)
+  - **ترجمة**: ~40 مفتاح جديد (ar/en) لكل المكونات الجديدة
 
 ### حالة النظام الحالية:
 - **المرحلة 1 مكتملة**: 6/6 إصلاحات حرجة ✅
 - **المرحلة 2 جزئية**: 6/6 (MSG1 ✅, A8 ✅, PP1 ✅, PAY ✅, T1 ✅, PL ✅) | **متبقي**: TD1
 - **المرحلة 3**: 2/4 (CLEAN ✅, SD ✅) | **متبقي**: FR, PG
 - **REQ مكتمل**: نظام الشروط والمؤهلات ✅
-- **إصلاحات الطلاب**: مسألة الترجمة ותجاوب صفحة الشهادات والوصول للمحتوى ✅
-- **إجمالي الوظائف المستقرة**: 33+ وظيفة تعمل بنسبة 100%
+- **v8.0 مكتمل**: الأهلية + الإعدادات + الحماية الهرمية + العدالة التاريخية ✅
+- **إجمالي الوظائف المستقرة**: 40+ وظيفة تعمل بنسبة 100%
+
+### [v8.0] مسارات جديدة:
+
+| المسار | المتحكم | الوصف | الحماية |
+|---|---|---|---|
+| `GET eligibility-check` | `EligibilityController@show` | صفحة فحص الأهلية | عام |
+| `POST eligibility-check` | `EligibilityController@check` | معالجة فحص الأهلية | عام + throttle:10/min |
+| `GET admin/settings` | `Admin\SettingController@index` | لوحة الإعدادات | role:admin + super_admin + throttle |
+| `POST admin/settings` | `Admin\SettingController@update` | تحديث الإعدادات | role:admin + super_admin + throttle |
+| `GET admin/users/create` | `Admin\UserController@create` | نموذج إنشاء مستخدم | role:admin |
+| `POST admin/users` | `Admin\UserController@store` | حفظ مستخدم جديد | role:admin |
+
+### [v8.0] أمر Artisan:
+- `php artisan make:super-admin` — أمر تفاعلي لترقية admin موجود إلى سوبر أدمن
+

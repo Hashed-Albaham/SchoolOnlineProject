@@ -1262,4 +1262,69 @@ return [
     'correct_status'             => 'Correct',
     'wrong_status'               => 'Wrong',
     'the_correct_answer'         => 'Correct Answer',
+
+    // ========================================
+    // [v8.0] Super Admin & Hierarchical Authorization
+    // ========================================
+    'super_admin'                => 'Super Admin',
+    'super_admin_only'           => 'This action is restricted to Super Admins only',
+    'super_admin_required'       => 'Super Admin required',
+    'only_super_admin_can_create_admin' => 'Only Super Admin can create admin accounts',
+    'only_super_admin_can_edit_admin'   => 'Only Super Admin can edit other admin accounts',
+    'only_super_admin_can_delete_admin' => 'Only Super Admin can delete admin accounts',
+    'create_user'                => 'Create User',
+    'create_user_desc'           => 'Create a new user account in the system',
+    'create_user_btn'            => 'Create User',
+    'user_info'                  => 'User Information',
+    'user_created_success'       => 'User created successfully',
+    'admin_role_super_only'      => 'Admin role is available only for Super Admins',
+
+    // ========================================
+    // [v8.0] Dynamic Settings
+    // ========================================
+    'system_settings'            => 'System Settings',
+    'system_settings_desc'       => 'Manage platform settings and requirements',
+    'eligibility_requirements'   => 'Tutor Eligibility Requirements',
+    'eligibility_requirements_desc' => 'Set minimum requirements for tutor registration',
+    'min_gpa'                    => 'Minimum GPA',
+    'gpa_scale'                  => 'GPA Scale',
+    'min_step_score'             => 'Minimum STEP Score',
+    'save_settings'              => 'Save Settings',
+    'settings_updated_success'   => 'Settings updated successfully',
+    'leave_empty_no_requirement' => 'Leave empty to remove this requirement',
+    'eg'                         => 'e.g.',
+    'settings_audit_log'         => 'Change Log',
+    'settings_audit_log_desc'    => 'Last 20 changes to system settings',
+    'setting_key'                => 'Setting',
+    'old_value'                  => 'Old Value',
+    'new_value'                  => 'New Value',
+    'changed_by'                 => 'Changed By',
+    'no_audit_logs'              => 'No changes recorded yet',
+
+    // ========================================
+    // [v8.0] Eligibility Check
+    // ========================================
+    'eligibility_check_title'    => 'Tutor Eligibility Check',
+    'eligibility_check_desc'     => 'Verify that you meet the requirements before registering as a tutor',
+    'gpa_label'                  => 'GPA (Grade Point Average)',
+    'step_score_label'           => 'STEP Score',
+    'out_of'                     => 'out of',
+    'check_eligibility_btn'      => 'Check Eligibility',
+    'elig_info_note'             => 'Your data will be temporarily saved to auto-fill the registration form. Session is valid for one hour.',
+    'elig_gpa_fail'              => 'GPA is below the minimum required (:min out of :scale)',
+    'elig_step_fail'             => 'STEP score is below the minimum required (:min)',
+    'elig_not_met'               => 'Requirements not met',
+    'elig_not_met_desc'          => 'Some required conditions were not met. Please review the results above.',
+    'elig_required_for_tutor'    => 'You must pass the eligibility check first to register as a tutor',
+    'elig_warning_title'         => 'Eligibility check required',
+    'elig_warning_desc'          => 'To register as a tutor, you must pass the eligibility check first.',
+    'want_to_register_as_student'=> 'Want to register as a student?',
+    'register_now'               => 'Register Now',
+
+    // ========================================
+    // [v8.0] Historical Fairness (Admin Review)
+    // ========================================
+    'eligibility_data'           => 'Eligibility Data',
+    'req_at_registration'        => 'Requirement at registration',
+    'current_req'                => 'Current requirement',
 ];
