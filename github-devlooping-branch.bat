@@ -23,9 +23,9 @@ if exist ".git" (
     git init
 )
 
-echo [2/5] Preparing branch "fordevloping"...
+echo [2/5] Preparing branch "apdatePyments"...
 :: Switch to or create the new branch
-git checkout -b fordevloping 2>nul || git checkout fordevloping
+git checkout -b apdatePyments 2>nul || git checkout apdatePyments
 
 echo [3/5] Adding files (this might take a moment)...
 :: 🛡️ SECURITY: Untrack sensitive files if they were accidentally added before
@@ -50,18 +50,18 @@ echo ---------------------------------
 echo READY TO FORCE PUSH!
 echo.
 echo Repository: https://github.com/Hashed-Albaham/SchoolOnlineProject
-echo Branch: fordevloping
+echo Branch: apdatePyments
 echo [WARNING] This will forcefully push your local code, overwriting the remote branch if it exists.
 echo.
 echo Press any key to start uploading...
 pause
 
 echo [5/5] Force Pushing to GitHub...
-git push -u origin fordevloping --force
+git push -u origin apdatePyments --force
 
 echo.
 echo ---------------------------------
-echo DONE! Your code has been forcefully uploaded to the "fordevloping" branch.
+echo DONE! Your code has been forcefully uploaded to the "apdatePyments" branch.
 echo All previous versions on this branch (if any) have been overwritten.
 echo.
 echo To view history: git log --oneline
