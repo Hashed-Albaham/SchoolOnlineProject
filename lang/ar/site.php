@@ -1268,4 +1268,70 @@ return [
     'correct_status'             => 'صحيح',
     'wrong_status'               => 'خطأ',
     'the_correct_answer'         => 'الإجابة الصحيحة',
+
+    // ========================================
+    // [v8.0] Super Admin & Hierarchical Authorization
+    // ========================================
+    'super_admin'                => 'مدير أعلى',
+    'super_admin_only'           => 'هذه الصلاحية متاحة للمدير الأعلى فقط',
+    'super_admin_required'       => 'يتطلب صلاحية المدير الأعلى',
+    'only_super_admin_can_create_admin' => 'فقط المدير الأعلى يمكنه إنشاء حسابات مدراء',
+    'only_super_admin_can_edit_admin'   => 'فقط المدير الأعلى يمكنه تعديل حسابات المدراء الآخرين',
+    'only_super_admin_can_delete_admin' => 'فقط المدير الأعلى يمكنه حذف حسابات المدراء',
+    'create_user'                => 'إنشاء مستخدم',
+    'create_user_desc'           => 'إنشاء حساب مستخدم جديد في النظام',
+    'create_user_btn'            => 'إنشاء المستخدم',
+    'user_info'                  => 'بيانات المستخدم',
+    'user_created_success'       => 'تم إنشاء المستخدم بنجاح',
+    'admin_role_super_only'      => 'خيار "مدير" متاح فقط للمدير الأعلى',
+
+    // ========================================
+    // [v8.0] Dynamic Settings
+    // ========================================
+    'system_settings'            => 'إعدادات النظام',
+    'system_settings_desc'       => 'إدارة إعدادات وشروط المنصة',
+    'eligibility_requirements'   => 'شروط الأهلية للمعلمين',
+    'eligibility_requirements_desc' => 'تحديد الحد الأدنى من الشروط المطلوبة لتسجيل المعلمين',
+    'min_gpa'                    => 'الحد الأدنى للمعدل التراكمي (GPA)',
+    'gpa_scale'                  => 'مقياس المعدل',
+    'min_step_score'             => 'الحد الأدنى لدرجة STEP',
+    'save_settings'              => 'حفظ الإعدادات',
+    'settings_updated_success'   => 'تم تحديث الإعدادات بنجاح',
+    'leave_empty_no_requirement' => 'اتركه فارغاً لإزالة هذا الشرط',
+    'eg'                         => 'مثال:',
+    'settings_audit_log'         => 'سجل التعديلات',
+    'settings_audit_log_desc'    => 'آخر 20 تعديل على إعدادات النظام',
+    'setting_key'                => 'الإعداد',
+    'old_value'                  => 'القيمة القديمة',
+    'new_value'                  => 'القيمة الجديدة',
+    'changed_by'                 => 'بواسطة',
+    'no_audit_logs'              => 'لا توجد تعديلات مسجلة بعد',
+
+    // ========================================
+    // [v8.0] Eligibility Check
+    // ========================================
+    'eligibility_check_title'    => 'فحص أهلية المعلم',
+    'eligibility_check_desc'     => 'تحقق من استيفائك للشروط المطلوبة قبل التسجيل كمعلم',
+    'gpa_label'                  => 'المعدل التراكمي (GPA)',
+    'step_score_label'           => 'درجة STEP',
+    'out_of'                     => 'من',
+    'check_eligibility_btn'      => 'فحص الأهلية',
+    'elig_info_note'             => 'سيتم حفظ بياناتك مؤقتاً لملء نموذج التسجيل تلقائياً. الجلسة صالحة لمدة ساعة واحدة.',
+    'elig_gpa_fail'              => 'المعدل التراكمي أقل من الحد الأدنى المطلوب (:min من :scale)',
+    'elig_step_fail'             => 'درجة STEP أقل من الحد الأدنى المطلوب (:min)',
+    'elig_not_met'               => 'لم يتم استيفاء الشروط',
+    'elig_not_met_desc'          => 'بعض الشروط المطلوبة لم تتحقق. يرجى مراجعة النتائج أعلاه.',
+    'elig_required_for_tutor'    => 'يجب اجتياز فحص الأهلية أولاً للتسجيل كمعلم',
+    'elig_warning_title'         => 'فحص الأهلية مطلوب',
+    'elig_warning_desc'          => 'لتسجيل حساب معلم، يجب عليك اجتياز فحص الأهلية أولاً.',
+    'want_to_register_as_student'=> 'تريد التسجيل كطالب؟',
+    'register_now'               => 'سجل الآن',
+
+    // ========================================
+    // [v8.0] Historical Fairness (Admin Review)
+    // ========================================
+    'eligibility_data'           => 'بيانات الأهلية',
+    'req_at_registration'        => 'الشرط وقت التسجيل',
+    'current_req'                => 'الشرط الحالي',
 ];
+

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\EligibilityController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
@@ -41,6 +42,16 @@ RateLimiter::for('messaging', function (Request $request) {
     return \Illuminate\Cache\RateLimiting\Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
 });
 
+// [v8.0] Rate limiter for settings updates
+RateLimiter::for('settings', function (Request $request) {
+    return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
+});
+
+// [v8.0] Rate limiter for eligibility checks
+RateLimiter::for('eligibility', function (Request $request) {
+    return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($request->ip());
+});
+
 /*
 |--------------------------------------------------------------------------
 | Localized Routes (with /ar and /en prefix)
@@ -67,6 +78,12 @@ Route::group([
     // [PP1] Public Pages
     Route::get('/privacy', [\App\Http\Controllers\PageController::class, 'privacy'])->name('pages.privacy');
     Route::get('/terms', [\App\Http\Controllers\PageController::class, 'terms'])->name('pages.terms');
+
+    // [v8.0] Eligibility Check (accessible to everyone)
+    Route::get('/eligibility-check', [EligibilityController::class, 'show'])->name('eligibility.show');
+    Route::middleware('throttle:eligibility')->group(function () {
+        Route::post('/eligibility-check', [EligibilityController::class, 'check'])->name('eligibility.check');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -101,8 +118,10 @@ Route::group([
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-        // [A3] User Management
+        // [A3] User Management + [v8.0] Create user
         Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [\App\Http\Controllers\Admin\UserController::class, 'create'])->name('users.create');
+        Route::post('/users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
         Route::get('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
         Route::get('/users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
@@ -167,6 +186,12 @@ Route::group([
         Route::get('/chat', [\App\Http\Controllers\Admin\ChatController::class, 'index'])->name('chat.index');
         Route::get('/chat/{user1}/{user2}', [\App\Http\Controllers\Admin\ChatController::class, 'show'])->name('chat.show');
         Route::delete('/chat/messages/{message}', [\App\Http\Controllers\Admin\ChatController::class, 'destroyMessage'])->name('chat.destroyMessage');
+
+        // [v8.0] Super Admin Settings (protected by super_admin middleware + throttle)
+        Route::middleware(['super_admin', 'throttle:settings'])->group(function () {
+            Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
+            Route::post('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
+        });
     });
 
     /*
