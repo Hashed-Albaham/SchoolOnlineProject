@@ -78,6 +78,8 @@
                                                 <p class="text-sm text-luxury-400 mt-0.5">{{ Str::limit($content->description, 60) }}</p>
                                             @endif
                                         </div>
+                                        
+                                        
                                         @if(!$isEnrolled)
                                             <svg class="w-5 h-5 text-luxury-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
@@ -89,6 +91,7 @@
                                             </svg>
                                         @endif
                                     </div>
+                                    
                                 @endforeach
                             </div>
                         @else
@@ -141,7 +144,7 @@
                             @endif
                         </div>
                         
-                        <!-- Action Button -->
+                        <!-- Action Button ->
                         @if($isEnrolled)
                             <a href="{{ route('student.courses.watch', $course) }}" 
                                 class="btn-premium w-full py-4 rounded-xl font-semibold text-center block mb-4">
@@ -196,8 +199,88 @@
                                 <p class="text-center text-luxury-500 text-xs mt-3">{{ __('site.refund_guarantee') }}</p>
                             @endif
                         @endif
-                        
+                        -->
+                        <div class="mb-4">
+    @auth
+        @if($isEnrolled)
+            {{-- الحالة 1: مشترك ومقبول (دخول الدورة) --}}
+            <a href="{{ route('student.courses.watch', $course) }}" 
+                class="btn-premium w-full py-4 rounded-xl font-semibold text-center block mb-2">
+                <span class="flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                    </svg>
+                    {{ __('site.continue_learning_btn') }}
+                </span>
+            </a>
+            <p class="text-center text-green-400 text-sm">
+                {{ __('site.enrolled_in_course') }}
+            </p>
+
+        @elseif(isset($enrollment) && $enrollment->payment_status === 'pending')
+            {{-- الحالة 2: ضغط اشترك ولكن لم يدفع بعد (زر إكمال الدفع) --}}
+            <a href="{{ route('student.enrollment.payment', $enrollment->id) }}" 
+                class="bg-yellow-500 hover:bg-yellow-600 text-luxury-900 w-full py-4 rounded-xl font-bold text-center block transition shadow-lg shadow-yellow-500/20">
+                {{ __('site.complete_payment') }}
+            </a>
+
+        @elseif(isset($enrollment) && $enrollment->enrollment_status === 'pending_approval')
+            {{-- الحالة 3: دفع وبانتظار تفعيل المعلم --}}
+            <div class="bg-yellow-500/10 text-yellow-500 w-full py-4 rounded-xl font-semibold text-center border border-yellow-500/20">
+                <span class="flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {{ __('site.enrollment_pending_approval') }}
+                </span>
+            </div>
+
+        @elseif(isset($enrollment) && $enrollment->enrollment_status === 'rejected')
+            {{-- الحالة 4: تم الرفض (زر إعادة المحاولة) --}}
+            <div class="bg-red-500/10 text-red-400 p-3 rounded-xl text-center mb-4 border border-red-500/20 text-sm">
+                {{ __('site.enrollment_rejected') }}
+            </div>
+            <form action="{{ route('student.enroll', $course) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn-premium w-full py-4 rounded-xl font-bold">
+                    {{ __('site.try_again') }}
+                </button>
+            </form>
+
+        @else
+            {{-- الحالة 5: طالب جديد تماماً (هذا هو الزر الذي كان مختفياً) --}}
+            <form action="{{ route('student.enroll', $course) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn-premium w-full py-4 rounded-xl font-bold hover:shadow-glow transition transform hover:scale-[1.02]">
+                    <span class="flex items-center justify-center gap-2">
+                        @if($course->price > 0)
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            {{ __('site.subscribe_now') }} ({{ $course->price }} SAR)
+                        @else
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            {{ __('site.register_free') }}
+                        @endif
+                    </span>
+                </button>
+            </form>
+            @if($course->price > 0)
+                <p class="text-center text-luxury-500 text-xs mt-3 italic">{{ __('site.refund_guarantee') }}</p>
+            @endif
+        @endif
+    @else
+        {{-- الحالة 6: زائر غير مسجل دخول --}}
+        <a href="{{ route('login') }}" class="btn-premium w-full py-4 rounded-xl font-bold text-center block">
+            {{ __('site.login_to_enroll') }}
+        </a>
+    @endauth
+</div>
+
                         <!-- Features -->
+                        
                         <div class="border-t border-white/5 mt-6 pt-6 space-y-3">
                             <div class="flex items-center gap-3 text-luxury-300">
                                 <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

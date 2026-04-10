@@ -8,4 +8,14 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        watch: {
+            // تجاهل المجلدات التي لا تحتاج لمراقبة تغييرات حية
+            ignored: ['**/vendor/**', '**/node_modules/**', '**/storage/**'],
+            // تفعيل الاستطلاع لتجنب استهلاك الـ inotify watchers
+            usePolling: true,
+            interval: 100,
+        },
+    },
 });
+
