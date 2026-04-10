@@ -11,6 +11,7 @@ class PaymentMethod extends Model
 
     protected $fillable = [
         'name',
+        'name_ar',
         'name_en',
         'type',
         'icon',
@@ -30,6 +31,17 @@ class PaymentMethod extends Model
     /**
      * Courses that use this payment method
      */
+    protected static function boot()
+{
+    parent::boot();
+
+    static::saving(function ($model) {
+        // تحديث name_ar ليكون مطابقاً لـ name تلقائياً
+        $model->name_ar = $model->name;
+    });
+}
+
+
     public function courses()
     {
         return $this->belongsToMany(Course::class, 'course_payment_methods');

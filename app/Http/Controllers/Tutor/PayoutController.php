@@ -20,7 +20,7 @@ class PayoutController extends Controller
     {
         $tutor = Auth::user();
 
-        $tutorDetail = $tutor->tutorDetail;
+        $tutorDetail = $tutor->tutorDetails;
 
         // Calculate total earnings from tutor details
         $totalEarnings = $tutorDetail ? $tutorDetail->total_earned : 0;

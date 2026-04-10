@@ -57,7 +57,7 @@ class EnrollmentController extends Controller
 
     /**
      * Update enrollment statuses manually.
-     */
+     *
     public function updateStatus(Request $request, Enrollment $enrollment): RedirectResponse
     {
         $this->authorize('update', $enrollment);
@@ -94,6 +94,57 @@ class EnrollmentController extends Controller
     /**
      * Refund an enrollment
      */
+    /**
+     * Update enrollment statuses manually.
+     */
+    public function updateStatus(Request $request, Enrollment $enrollment): RedirectResponse
+    {
+        $this->authorize('update', $enrollment);
+
+        $request->validate([
+            'payment_status' => ['required', 'string', 'in:paid,pending,completed,failed,refunded'],
+            'enrollment_status' => ['required', 'string', 'in:pending_approval,approved,rejected,enrolled'],
+        ]);
+
+        $oldStatus = $enrollment->payment_status;
+        $newStatus = $request->payment_status;
+        $enrollmentStatus = $request->enrollment_status;
+        $financial = app(FinancialService::class);
+
+        DB::transaction(function () use ($enrollment, $oldStatus, $newStatus, $enrollmentStatus, $financial) {
+            // 1. تحديث حالة الاشتراك في جدول enrollments
+            $enrollment->update([
+                'payment_status' => $newStatus,
+                'enrollment_status' => $enrollmentStatus,
+            ]);
+
+            // 2. الربط المالي: إذا تحولت الحالة إلى "مدفوع" ولم تكن كذلك من قبل
+            if ($newStatus === 'paid' && $oldStatus !== 'paid') {
+                
+                // [تأكد من وجود سجل مالي] - إذا لم تكن هناك معاملة مسجلة لهذا الاشتراك، أنشئها الآن
+                $exists = \App\Models\Transaction::where('enrollment_id', $enrollment->id)
+                    ->where('type', 'enrollment')
+                    ->exists();
+
+                if (!$exists) {
+                    $financial->recordEnrollmentPayment($enrollment);
+                }
+
+                // [توزيع الأرباح] - تأكيد الدفع ونقل المبلغ لمحفظة المعلم وحساب عمولة المنصة
+                $financial->confirmEnrollmentPayment($enrollment, auth()->id());
+                
+                // [تفعيل الوصول] - تأكيد حالة القبول ليتمكن الطالب من مشاهدة الكورس
+                $enrollment->update(['enrollment_status' => 'approved']);
+
+            } elseif ($newStatus === 'failed' && $oldStatus === 'pending') {
+                // في حالة الفشل، قم بإلغاء أي رصيد معلق
+                $financial->failEnrollmentPayment($enrollment);
+            }
+        });
+
+        return back()->with('success', __('site.fin_payment_status_updated'));
+    }
+
     public function refund(Request $request, Enrollment $enrollment): RedirectResponse
     {
         $request->validate(['notes' => 'nullable|string|max:500']);
