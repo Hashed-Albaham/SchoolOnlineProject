@@ -24,6 +24,7 @@ class RegistrationTest extends TestCase
             'password' => 'password',
             'password_confirmation' => 'password',
             'role' => 'student', // FIXED: Role is now required
+            'agreed_to_terms' => true,
         ]);
 
         $this->assertAuthenticated();

@@ -59,7 +59,8 @@ class CourseController extends Controller
      */
     public function approve(Course $course)
     {
-        $course->update(['status' => 'approved']);
+        $course->status = 'approved';
+        $course->save();
 
         if ($course->tutor) {
             $course->tutor->notify(new \App\Notifications\CourseStatusUpdated($course, 'approved'));
@@ -73,7 +74,8 @@ class CourseController extends Controller
      */
     public function reject(Course $course)
     {
-        $course->update(['status' => 'rejected']);
+        $course->status = 'rejected';
+        $course->save();
 
         if ($course->tutor) {
             $course->tutor->notify(new \App\Notifications\CourseStatusUpdated($course, 'rejected'));
@@ -87,7 +89,8 @@ class CourseController extends Controller
      */
     public function unapprove(Course $course)
     {
-        $course->update(['status' => 'pending']);
+        $course->status = 'pending';
+        $course->save();
 
         return back()->with('success', __('site.course_unapproved_success'));
     }

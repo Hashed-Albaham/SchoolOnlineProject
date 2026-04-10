@@ -1,7 +1,6 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="container mx-auto px-4 py-8">
+<x-app-layout>
+<div class="py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-6 flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold text-white">{{ __('site.fin_transaction_details') }}</h1>
@@ -168,4 +167,5 @@
         </div>
     </div>
 </div>
-@endsection
+</div>
+</x-app-layout>

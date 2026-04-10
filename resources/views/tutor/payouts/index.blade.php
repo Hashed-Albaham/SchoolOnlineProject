@@ -16,7 +16,7 @@
 
             <!-- Stats Cards -->
             @php
-                $wallet = auth()->user()->tutorDetails;
+                $wallet = auth()->user()->tutorDetail;
             @endphp
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center border border-green-200 dark:border-green-700">

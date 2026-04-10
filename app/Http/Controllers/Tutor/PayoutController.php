@@ -20,24 +20,13 @@ class PayoutController extends Controller
     {
         $tutor = Auth::user();
 
-        // Calculate total earnings from paid enrollments
-        $totalEarnings = Enrollment::whereHas('course', fn($q) => $q->where('tutor_id', $tutor->id))
-            ->where('payment_status', 'paid')
-            ->join('courses', 'enrollments.course_id', '=', 'courses.id')
-            ->sum('courses.price');
+        $tutorDetail = $tutor->tutorDetail;
 
-        // Total paid out
-        $totalPaidOut = PayoutRequest::where('tutor_id', $tutor->id)
-            ->where('status', PayoutRequest::STATUS_PAID)
-            ->sum('amount');
-
-        // Pending requests amount
-        $pendingAmount = PayoutRequest::where('tutor_id', $tutor->id)
-            ->where('status', PayoutRequest::STATUS_PENDING)
-            ->sum('amount');
-
-        // Available balance
-        $availableBalance = $totalEarnings - $totalPaidOut - $pendingAmount;
+        // Calculate total earnings from tutor details
+        $totalEarnings = $tutorDetail ? $tutorDetail->total_earned : 0;
+        $totalPaidOut = $tutorDetail ? $tutorDetail->total_withdrawn : 0;
+        $pendingAmount = $tutorDetail ? $tutorDetail->pending_balance : 0;
+        $availableBalance = $tutorDetail ? $tutorDetail->available_balance : 0;
 
         // Payout history
         $payoutRequests = PayoutRequest::where('tutor_id', $tutor->id)

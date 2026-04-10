@@ -1,7 +1,6 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="container mx-auto px-4 py-8">
+<x-app-layout>
+<div class="py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-white">{{ __('site.fin_payment_history') }}</h1>
         <p class="text-luxury-400 text-sm mt-1">سجل مدفوعاتك الخاصة بالاشتراكات</p>
@@ -106,4 +105,5 @@
         @endif
     </div>
 </div>
-@endsection
+</div>
+</x-app-layout>

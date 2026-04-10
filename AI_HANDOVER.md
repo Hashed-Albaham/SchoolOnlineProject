@@ -665,3 +665,17 @@ php artisan migrate        # تشغيل الميجريشن
 
 ### [v8.0] أمر Artisan:
 - `php artisan make:super-admin` — أمر تفاعلي لترقية admin موجود إلى سوبر أدمن
+
+### الجلسة الثانية عشر (FIN - النظام المالي الشامل):
+- **Transaction Model**: إنشاء نموذج وجدول `transactions` لتتبع المدفوعات والاستردادات والسحوبات وعمولات المنصة.
+- **محفظة المعلم**: إضافة حقول (`available_balance`, `pending_balance`, `total_earned`, `total_withdrawn`) لجدول `tutor_details`.
+- **FinancialService**: مركزية المنطق المالي وحساب العمولات، وتسجيل العمليات في قاعدة البيانات عبر Transactions.
+- **تحديث المدفوعات**: ربط `Student\EnrollmentController` لتسجيل المعاملات عند الدفع (pending).
+- **تحديث إشراف الأدمن**: `Admin\EnrollmentController` الآن يحدث المحفظة عند الاعتماد (completed) أو الرفض (failed)، وتمت إضافة وظيفة الاسترداد (Refund).
+- **تحديث السحوبات**: `Tutor\PayoutController` يعتمد على رصيد المحفظة (`available_balance`) لإنشاء الطلبات، و `Admin\PayoutController` يعالج المعاملات ويخصم الرصيد عند الدفع.
+- **مسارات جديدة**:
+  - `GET admin/transactions`: قائمة المعاملات والتحليلات للأدمن.
+  - `GET admin/transactions/{tx}`: فاتورة/تفاصيل المعاملة.
+  - `POST admin/enrollments/{enrollment}/refund`: استرداد الدفع.
+  - `GET student/transactions`: سجل مدفوعات الطالب وفواتيره.
+- **إصلاحات أخرى**: تم حل `MassAssignmentException` في `Admin\CourseController` بتحديث الحالة بشكل صريح، وإصلاح مشكلة `$slot` في واجهات المعاملات الجديدة (استخدام `<x-app-layout>`).
