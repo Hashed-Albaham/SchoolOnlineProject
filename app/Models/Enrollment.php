@@ -83,4 +83,12 @@ class Enrollment extends Model
         $this->payment_status = 'paid';
         return $this->save();
     }
+
+    /**
+     * Get the financial transactions associated with this enrollment
+     */
+    public function transactions()
+    {
+        return $this->hasMany(\App\Models\Transaction::class);
+    }
 }

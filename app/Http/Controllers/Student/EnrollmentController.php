@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Services\FinancialService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -125,6 +126,9 @@ class EnrollmentController extends Controller
             // Simulate payment processing
             // TODO: In production, integrate with payment gateway (Stripe/Paddle/etc.)
             $enrollment->update(['payment_status' => 'paid']);
+
+            // [FIN] تسجيل المعاملة المالية
+            app(FinancialService::class)->recordEnrollmentPayment($enrollment);
 
             // Notify Tutor about paid enrollment (needs approval)
             if ($enrollment->course && $enrollment->course->tutor) {

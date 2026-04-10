@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PayoutRequest;
+use App\Services\FinancialService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,6 +52,9 @@ class PayoutController extends Controller
             'reviewed_by' => Auth::id(),
         ]);
 
+        // [FIN] تسجيل معاملة السحب
+        app(FinancialService::class)->recordPayoutTransaction($payoutRequest, auth()->id());
+
         return back()->with('success', __('site.payout_approved'));
     }
 
@@ -90,6 +94,9 @@ class PayoutController extends Controller
             'status'  => PayoutRequest::STATUS_PAID,
             'paid_at' => now(),
         ]);
+
+        // [FIN] إكمال عملية السحب وخصم الرصيد
+        app(FinancialService::class)->completePayout($payoutRequest, auth()->id());
 
         return back()->with('success', __('site.payout_marked_paid'));
     }

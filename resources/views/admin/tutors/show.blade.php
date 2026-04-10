@@ -142,6 +142,57 @@
                     @endif
                 @endif
 
+                {{-- [v8.0] Eligibility & Historical Fairness Section --}}
+                @if($tutor->tutorDetails && ($tutor->tutorDetails->gpa || $tutor->tutorDetails->step_score))
+                    @php
+                        $td = $tutor->tutorDetails;
+                        $currentMinGpa = \App\Models\Setting::get('min_gpa', 0);
+                        $currentMinStep = \App\Models\Setting::get('min_step_score', 0);
+                    @endphp
+                    <div class="px-8 pb-6">
+                        <h4 class="text-sm font-medium text-luxury-400 mb-3 flex items-center gap-2">
+                            📊 {{ __('site.eligibility_data') }}
+                        </h4>
+                        <div class="grid sm:grid-cols-3 gap-4">
+                            @if($td->gpa)
+                            <div class="p-4 rounded-xl bg-white/5">
+                                <p class="text-luxury-400 text-xs">{{ __('site.gpa_label') }}</p>
+                                @php
+                                    $gpaColor = ($td->req_gpa_at_registration && $td->gpa >= $td->req_gpa_at_registration) ? 'text-green-400' : 'text-white';
+                                @endphp
+                                <p class="{{ $gpaColor }} font-bold text-lg mt-1">{{ $td->gpa }} / {{ $td->gpa_scale ?? '4.0' }}</p>
+                                @if($td->req_gpa_at_registration)
+                                    <p class="text-luxury-500 text-xs mt-2">
+                                        {{ __('site.req_at_registration') }}: {{ $td->req_gpa_at_registration }}
+                                        @if($currentMinGpa && $currentMinGpa != $td->req_gpa_at_registration)
+                                            | {{ __('site.current_req') }}: {{ $currentMinGpa }}
+                                        @endif
+                                    </p>
+                                @endif
+                            </div>
+                            @endif
+
+                            @if($td->step_score)
+                            <div class="p-4 rounded-xl bg-white/5">
+                                <p class="text-luxury-400 text-xs">{{ __('site.step_score_label') }}</p>
+                                @php
+                                    $stepColor = ($td->req_step_at_registration && $td->step_score >= $td->req_step_at_registration) ? 'text-green-400' : 'text-white';
+                                @endphp
+                                <p class="{{ $stepColor }} font-bold text-lg mt-1">{{ $td->step_score }}</p>
+                                @if($td->req_step_at_registration)
+                                    <p class="text-luxury-500 text-xs mt-2">
+                                        {{ __('site.req_at_registration') }}: {{ $td->req_step_at_registration }}
+                                        @if($currentMinStep && $currentMinStep != $td->req_step_at_registration)
+                                            | {{ __('site.current_req') }}: {{ $currentMinStep }}
+                                        @endif
+                                    </p>
+                                @endif
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Message Tutor -->
                 <div class="px-8 pb-6">
                     <a href="{{ route('messages.show', $tutor->id) }}"

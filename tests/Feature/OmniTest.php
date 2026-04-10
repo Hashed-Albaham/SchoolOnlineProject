@@ -47,6 +47,7 @@ class OmniTest extends TestCase
     {
         $admin = User::factory()->create([
             'role' => 'admin',
+            'is_super_admin' => false,
         ]);
 
         $response = $this->actingAs($admin)->get('/admin/dashboard');

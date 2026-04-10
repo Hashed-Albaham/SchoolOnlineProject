@@ -17,7 +17,20 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Stats Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                {{-- [FIN] إيرادات اليوم والعمولة --}}
+                <div class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
+                    <p class="text-luxury-400 text-sm font-medium">{{ __('site.fin_today_revenue') }}</p>
+                    <p class="text-2xl font-bold text-green-600 mt-2">
+                        {{ number_format(\App\Models\Transaction::completed()->enrollments()->whereDate('created_at', today())->sum('gross_amount'), 2) }}
+                        {{ \App\Models\Setting::get('currency_symbol', 'SAR') }}
+                    </p>
+                    <p class="text-xs text-luxury-500 mt-1">
+                        {{ __('site.fin_platform_fees') }}:
+                        {{ number_format(\App\Models\Transaction::completed()->enrollments()->whereDate('created_at', today())->sum('platform_fee_amount'), 2) }}
+                    </p>
+                </div>
+
                 <!-- Total Users -->
                 <div class="card-luxury bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
@@ -227,9 +240,9 @@
             </div>
 
             <!-- Quick Actions -->
-            <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
+            <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 mt-8">
                 <h3 class="font-semibold text-white mb-6">{{ __('site.quick_actions_title') }}</h3>
-                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <a href="{{ route('admin.users.index') }}"
                         class="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-transparent hover:border-gold-500/20 transition group">
                         <div
@@ -291,6 +304,18 @@
                         <div>
                             <p class="font-medium text-white">{{ __('site.enrollments_management') }}</p>
                             <p class="text-sm text-luxury-400">{{ __('site.manage_enrollments_desc') }}</p>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('admin.transactions.index') }}"
+                        class="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-transparent hover:border-green-500/20 transition group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span class="text-2xl">💳</span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-white">{{ __('site.fin_transactions') }}</p>
+                            <p class="text-sm text-luxury-400">{{ __('site.fin_transactions') }}</p>
                         </div>
                     </a>
                 </div>

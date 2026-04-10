@@ -50,6 +50,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'agreed_to_terms_at' => 'datetime', // [REQ]
+            'is_super_admin' => 'boolean', // [v8.0] NOT in $fillable - set explicitly only
         ];
     }
 
@@ -59,6 +60,14 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * [v8.0] Check if user is super admin
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'admin' && $this->is_super_admin === true;
     }
 
     /**
@@ -164,5 +173,21 @@ class User extends Authenticatable
             ->whereHas('courseContent', fn($q) => $q->where('course_id', $courseId))
             ->where('completed', true)
             ->count();
+    }
+
+    /**
+     * Get transactions as a student
+     */
+    public function studentTransactions()
+    {
+        return $this->hasMany(\App\Models\Transaction::class, 'student_id');
+    }
+
+    /**
+     * Get transactions as a tutor
+     */
+    public function tutorTransactions()
+    {
+        return $this->hasMany(\App\Models\Transaction::class, 'tutor_id');
     }
 }

@@ -19,6 +19,14 @@
     <div class="py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
+            <!-- Quick Actions -->
+            <div class="mb-8 flex flex-wrap gap-4">
+                <a href="{{ route('student.transactions.index') }}" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-3 rounded-xl border border-gray-700 transition flex items-center gap-2">
+                    <span class="text-xl">💳</span>
+                    <span class="font-medium">{{ __('site.fin_payment_history') }}</span>
+                </a>
+            </div>
+
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                 <!-- Enrolled Courses -->

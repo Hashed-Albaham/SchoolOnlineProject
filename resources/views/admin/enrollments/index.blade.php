@@ -70,6 +70,7 @@
                                     <th class="px-6 py-4 text-start text-xs font-medium text-luxury-400 uppercase">{{ __('site.price') }}</th>
                                     <th class="px-6 py-4 text-start text-xs font-medium text-luxury-400 uppercase">{{ __('site.payment_status') }}</th>
                                     <th class="px-6 py-4 text-start text-xs font-medium text-luxury-400 uppercase">{{ __('site.enrollment_status_label') }}</th>
+                                    <th class="px-6 py-4 text-start text-xs font-medium text-luxury-400 uppercase">{{ __('site.fin_transaction_details') }}</th>
                                     <th class="px-6 py-4 text-start text-xs font-medium text-luxury-400 uppercase">{{ __('site.date') }}</th>
                                     <th class="px-6 py-4 text-start text-xs font-medium text-luxury-400 uppercase">{{ __('site.actions') }}</th>
                                 </tr>
@@ -96,8 +97,18 @@
                                                 <span class="px-2.5 py-1 text-xs rounded-lg bg-red-500/20 text-red-400">{{ __('site.rejected') }}</span>
                                             @endif
                                         </td>
+                                        <td class="px-6 py-4 text-luxury-400 text-sm">
+                                            @php $tx = $enrollment->transactions()->where('type', 'enrollment')->first(); @endphp
+                                            @if($tx)
+                                                <a href="{{ route('admin.transactions.show', $tx) }}" class="text-blue-400 hover:text-blue-300">
+                                                    {{ $tx->reference_number }}
+                                                </a>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td class="px-6 py-4 text-luxury-400 text-sm">{{ $enrollment->created_at->format('Y/m/d') }}</td>
-                                        <td class="px-6 py-4">
+                                        <td class="px-6 py-4 flex flex-col gap-2">
                                             <form method="POST" action="{{ route('admin.enrollments.updateStatus', $enrollment) }}" class="flex items-center gap-2">
                                                 @csrf @method('PATCH')
                                                 
@@ -116,6 +127,17 @@
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                                 </button>
                                             </form>
+
+                                            @if($enrollment->payment_status === 'paid')
+                                            <form action="{{ route('admin.enrollments.refund', $enrollment) }}" method="POST"
+                                                  onsubmit="return confirm('{{ __('site.fin_confirm_refund') }}')">
+                                                @csrf
+                                                <button type="submit" class="w-full mt-1 p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition text-xs flex justify-center items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                                                    {{ __('site.fin_refund') }}
+                                                </button>
+                                            </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

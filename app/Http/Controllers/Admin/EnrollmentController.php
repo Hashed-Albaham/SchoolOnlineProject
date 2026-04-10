@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Enrollment;
+use App\Services\FinancialService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\RedirectResponse;
 
 /**
  * [A6] Admin Enrollment Management Controller
@@ -55,19 +58,68 @@ class EnrollmentController extends Controller
     /**
      * Update enrollment statuses manually.
      */
-    public function updateStatus(Request $request, Enrollment $enrollment)
+    public function updateStatus(Request $request, Enrollment $enrollment): RedirectResponse
     {
         $this->authorize('update', $enrollment);
 
         $request->validate([
-            'payment_status' => ['required', 'string', 'in:paid,pending'],
-            'enrollment_status' => ['required', 'string', 'in:pending_approval,approved,rejected'],
+            'payment_status' => ['required', 'string', 'in:paid,pending,completed,failed,refunded'],
+            'enrollment_status' => ['required', 'string', 'in:pending_approval,approved,rejected,enrolled'],
         ]);
 
-        $enrollment->payment_status = $request->payment_status;
-        $enrollment->enrollment_status = $request->enrollment_status;
-        $enrollment->save();
+        $oldStatus = $enrollment->payment_status;
+        $newStatus = $request->payment_status;
+        $enrollmentStatus = $request->enrollment_status;
+        $financial = app(FinancialService::class);
 
-        return back()->with('success', __('site.enrollment_status_updated'));
+        DB::transaction(function () use ($enrollment, $oldStatus, $newStatus, $enrollmentStatus, $financial) {
+            $enrollment->update([
+                'payment_status' => $newStatus,
+                'enrollment_status' => $enrollmentStatus,
+            ]);
+
+            // [FIN] تحديث المعاملات المالية حسب الحالة الجديدة
+            if ($newStatus === 'paid' && $oldStatus !== 'paid') {
+                $financial->confirmEnrollmentPayment($enrollment, auth()->id());
+                // تأكد أن enrollment_status = approved إذا تم تأكيد الدفع وكانت مطلوبة
+                $enrollment->update(['enrollment_status' => 'approved']);
+            } elseif ($newStatus === 'failed' && $oldStatus === 'pending') {
+                $financial->failEnrollmentPayment($enrollment);
+            }
+        });
+
+        return back()->with('success', __('site.fin_payment_status_updated'));
+    }
+
+    /**
+     * Refund an enrollment
+     */
+    public function refund(Request $request, Enrollment $enrollment): RedirectResponse
+    {
+        $request->validate(['notes' => 'nullable|string|max:500']);
+
+        // التحقق: يجب أن يكون الاشتراك مكتملاً
+        if ($enrollment->payment_status !== 'paid') {
+            return back()->withErrors(['error' => __('site.fin_refund_only_completed')]);
+        }
+
+        try {
+            app(FinancialService::class)->processRefund(
+                $enrollment,
+                auth()->id(),
+                $request->notes ?? ''
+            );
+
+            DB::transaction(function () use ($enrollment) {
+                $enrollment->update([
+                    'payment_status'    => 'refunded',
+                    'enrollment_status' => 'rejected',
+                ]);
+            });
+
+            return back()->with('success', __('site.fin_refund_success'));
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => __('site.fin_refund_failed')]);
+        }
     }
 }

@@ -15,36 +15,52 @@
             @endif
 
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
-                    <p class="text-luxury-400 text-sm">{{ __('site.total_earnings') }}</p>
-                    <p class="text-2xl font-bold text-gold-400 mt-1">${{ number_format($totalEarnings, 2) }}</p>
+            @php
+                $wallet = auth()->user()->tutorDetails;
+            @endphp
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center border border-green-200 dark:border-green-700">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('site.fin_available_balance') }}</p>
+                    <p class="text-2xl font-bold text-green-600 dark:text-green-400">
+                        {{ number_format($wallet->available_balance ?? 0, 2) }}
+                    </p>
+                    <p class="text-xs text-gray-400">{{ \App\Models\Setting::get('currency_symbol', 'SAR') }}</p>
                 </div>
-                <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
-                    <p class="text-luxury-400 text-sm">{{ __('site.total_paid_out') }}</p>
-                    <p class="text-2xl font-bold text-green-400 mt-1">${{ number_format($totalPaidOut, 2) }}</p>
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4 text-center border border-yellow-200 dark:border-yellow-700">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('site.fin_pending_balance') }}</p>
+                    <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                        {{ number_format($wallet->pending_balance ?? 0, 2) }}
+                    </p>
                 </div>
-                <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
-                    <p class="text-luxury-400 text-sm">{{ __('site.pending_payouts') }}</p>
-                    <p class="text-2xl font-bold text-yellow-400 mt-1">${{ number_format($pendingAmount, 2) }}</p>
+                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center border border-blue-200 dark:border-blue-700">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('site.fin_total_earned') }}</p>
+                    <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {{ number_format($wallet->total_earned ?? 0, 2) }}
+                    </p>
                 </div>
-                <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
-                    <p class="text-luxury-400 text-sm">{{ __('site.available_balance') }}</p>
-                    <p class="text-2xl font-bold text-white mt-1">${{ number_format($availableBalance, 2) }}</p>
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-center border border-gray-200 dark:border-gray-700">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('site.fin_total_withdrawn') }}</p>
+                    <p class="text-2xl font-bold text-gray-600 dark:text-gray-400">
+                        {{ number_format($wallet->total_withdrawn ?? 0, 2) }}
+                    </p>
                 </div>
             </div>
 
             <!-- Request Payout Form -->
-            @if($availableBalance > 0 && $paymentMethods->count() > 0)
+            @if(($wallet->available_balance ?? 0) > 0 && $paymentMethods->count() > 0)
             <div class="bg-luxury-800/50 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-6 mb-8">
                 <h3 class="text-lg font-bold text-gold-400 mb-4">{{ __('site.request_payout') }}</h3>
                 <form action="{{ route('tutor.payouts.store') }}" method="POST" class="flex flex-wrap gap-4 items-end">
                     @csrf
                     <div class="flex-1 min-w-[150px]">
-                        <label class="block text-sm text-luxury-300 mb-1">{{ __('site.amount') }} ($)</label>
-                        <input type="number" name="amount" min="1" max="{{ $availableBalance }}" step="0.01" required
+                        <label class="block text-sm text-luxury-300 mb-1">{{ __('site.amount') }} ({{ \App\Models\Setting::get('currency_symbol', 'SAR') }})</label>
+                        <input type="number" name="amount" min="1" max="{{ $wallet->available_balance }}" step="0.01" required
                             class="w-full px-4 py-3 rounded-xl bg-luxury-700/50 border border-white/10 text-white focus:outline-none focus:border-gold-500/50"
-                            placeholder="{{ number_format($availableBalance, 2) }}">
+                            placeholder="{{ number_format($wallet->available_balance, 2) }}">
+                        <p class="text-xs text-gray-400 mt-1">
+                            {{ __('site.fin_available_for_withdrawal') }}:
+                            <strong>{{ number_format($wallet->available_balance ?? 0, 2) }} {{ \App\Models\Setting::get('currency_symbol', 'SAR') }}</strong>
+                        </p>
                     </div>
                     <div class="flex-1 min-w-[180px]">
                         <label class="block text-sm text-luxury-300 mb-1">{{ __('site.select_payment_method') }}</label>

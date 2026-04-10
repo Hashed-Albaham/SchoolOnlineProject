@@ -85,4 +85,12 @@ class PayoutRequest extends Model
     {
         return $query->where('status', self::STATUS_PENDING);
     }
+
+    /**
+     * Get the financial transactions associated with this payout request
+     */
+    public function transactions()
+    {
+        return $this->hasMany(\App\Models\Transaction::class, 'payout_request_id');
+    }
 }

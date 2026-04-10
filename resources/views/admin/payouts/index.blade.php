@@ -65,6 +65,7 @@
                                     <th class="text-center text-luxury-400 text-sm font-medium p-4">{{ __('site.amount') }}</th>
                                     <th class="text-center text-luxury-400 text-sm font-medium p-4">{{ __('site.payment_type') }}</th>
                                     <th class="text-center text-luxury-400 text-sm font-medium p-4">{{ __('site.status') }}</th>
+                                    <th class="text-center text-luxury-400 text-sm font-medium p-4">{{ __('site.fin_transaction_details') }}</th>
                                     <th class="text-center text-luxury-400 text-sm font-medium p-4">{{ __('site.date') }}</th>
                                     <th class="text-center text-luxury-400 text-sm font-medium p-4">{{ __('site.actions') }}</th>
                                 </tr>
@@ -103,6 +104,16 @@
                                                     @case('paid') {{ __('site.paid') }} @break
                                                 @endswitch
                                             </span>
+                                        </td>
+                                        <td class="p-4 text-center text-luxury-400 text-sm">
+                                            @php $tx = $payout->transactions()->where('type', 'payout')->first(); @endphp
+                                            @if($tx)
+                                                <a href="{{ route('admin.transactions.show', $tx) }}" class="text-blue-400 hover:text-blue-300">
+                                                    {{ $tx->reference_number }}
+                                                </a>
+                                            @else
+                                                -
+                                            @endif
                                         </td>
                                         <td class="p-4 text-center text-luxury-400 text-sm">
                                             {{ $payout->created_at->format('Y/m/d') }}

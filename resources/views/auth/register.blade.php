@@ -212,4 +212,51 @@
             </p>
         </div>
     </div>
+
+    {{-- [v8.0] Eligibility UX hint - THIS IS COSMETIC ONLY, real security is in Backend --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleRadios = document.querySelectorAll('input[name="role"]');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const eligPassed = {{ session('elig_passed') ? 'true' : 'false' }};
+
+            // Create warning element
+            const warning = document.createElement('div');
+            warning.id = 'elig-warning';
+            warning.className = 'p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm hidden';
+            warning.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    <div>
+                        <p class="font-medium">{{ __('site.elig_warning_title') }}</p>
+                        <p class="mt-1">{{ __('site.elig_warning_desc') }}</p>
+                        <a href="{{ route('eligibility.show') }}" class="inline-flex items-center gap-1 mt-2 text-gold-400 hover:text-gold-300 font-medium transition">
+                            {{ __('site.check_eligibility_btn') }} →
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            // Insert warning before submit button
+            const termsSection = document.querySelector('input[name="agreed_to_terms"]').closest('div').parentElement;
+            termsSection.parentElement.insertBefore(warning, termsSection.nextSibling);
+
+            function handleRoleChange(role) {
+                if (role === 'tutor' && !eligPassed) {
+                    warning.classList.remove('hidden');
+                } else {
+                    warning.classList.add('hidden');
+                }
+            }
+
+            roleRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    handleRoleChange(this.value);
+                });
+                if (radio.checked) handleRoleChange(radio.value);
+            });
+        });
+    </script>
 </x-guest-layout>
