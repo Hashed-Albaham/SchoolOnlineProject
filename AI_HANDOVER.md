@@ -679,3 +679,434 @@ php artisan migrate        # تشغيل الميجريشن
   - `POST admin/enrollments/{enrollment}/refund`: استرداد الدفع.
   - `GET student/transactions`: سجل مدفوعات الطالب وفواتيره.
 - **إصلاحات أخرى**: تم حل `MassAssignmentException` في `Admin\CourseController` بتحديث الحالة بشكل صريح، وإصلاح مشكلة `$slot` في واجهات المعاملات الجديدة (استخدام `<x-app-layout>`).
+
+---
+---
+
+# 📋 LARA-SPEC-AUDIT (تدقيق شامل - 2026-04-13)
+## المُدقق: ULTRA-LARA-SPECKIT-AUDITOR-v6.0
+
+> تم إجراء هندسة عكسية كاملة للمشروع، سطرًا بسطر، بتاريخ **2026-04-13**.
+> تم فحص: **316 سطر routes** + **19 model** + **32 controller** + **34 migration** + **3 Livewire** + **4 Policy** + **2 Middleware** + **1 Service**
+
+---
+
+## 1. 🏗️ SYSTEM ARCHITECTURE & ROUTES MAP (مخطط النظام والمسارات)
+
+### 1.1 خريطة المسارات → المتحكمات (Route → Controller Traceability)
+
+| # | Route | Method | Middleware | Controller@Method | Model | View | الحالة |
+|---|---|---|---|---|---|---|---|
+| 1 | `/` | GET | locale | Closure | — | `welcome` | ✅ |
+| 2 | `/courses` | GET | locale | `Student\CourseController@index` | Course, Category | `student.courses.index` | ✅ |
+| 3 | `/courses/{course}` | GET | locale | `Student\CourseController@show` | Course, Enrollment | `student.courses.show` | ✅ |
+| 4 | `/privacy` | GET | locale | `PageController@privacy` | — | `pages.privacy` | ✅ |
+| 5 | `/terms` | GET | locale | `PageController@terms` | — | `pages.terms` | ✅ |
+| 6 | `/eligibility-check` | GET | locale | `EligibilityController@show` | — | `eligibility.check` | ✅ |
+| 7 | `/eligibility-check` | POST | locale+throttle:eligibility | `EligibilityController@check` | Setting | redirect | ✅ |
+| 8 | `/messages` | GET | auth+throttle:messaging | `MessageController@index` | Message, User | `messages.index` | ✅ |
+| 9 | `/messages/{user}` | GET | auth+throttle:messaging | `MessageController@show` | Message, User | `messages.index` | ✅ |
+| 10 | `/certificate/verify/{code}` | GET | auth | `CertificateController@verify` | CourseCertificate | `certificate.verify` | ✅ |
+| 11 | `/certificate/{certificate}` | GET | auth | `CertificateController@show` | CourseCertificate, QuizAttempt | `certificate.show` / `certificates.quiz-show` | ⚠️ |
+| 12 | `/my-certificates` | GET | auth | `CertificateController@myCertificates` | CourseCertificate | `student.certificates.index` | ✅ |
+| 13 | `/profile` | GET/PATCH/DELETE | auth | `ProfileController@edit/update/destroy` | User | `profile.edit` | ✅ |
+| 14 | `/notifications/mark-as-read` | GET | auth | `ProfileController@markAsRead` | Notification | redirect | ✅ |
+| **ADMIN** |
+| 15 | `/admin/dashboard` | GET | auth+role:admin | `Admin\DashboardController@index` | User, Course, Enrollment | `admin.dashboard` | ✅ |
+| 16 | `/admin/users` | GET/POST | auth+role:admin | `Admin\UserController@index/store` | User | `admin.users.index` | ✅ |
+| 17 | `/admin/users/create` | GET | auth+role:admin | `Admin\UserController@create` | — | `admin.users.create` | ✅ |
+| 18 | `/admin/users/{user}` | GET/PUT/DELETE | auth+role:admin | `Admin\UserController@show/update/destroy` | User | `admin.users.show/edit` | ✅ |
+| 19 | `/admin/tutors` | GET | auth+role:admin | `Admin\TutorController@index` | User, TutorDetail | `admin.tutors.index` | ✅ |
+| 20 | `/admin/tutors/pending` | GET | auth+role:admin | `Admin\TutorController@pending` | User, TutorDetail | `admin.tutors.pending` | ✅ |
+| 21 | `/admin/tutors/{tutor}` | GET | auth+role:admin | `Admin\TutorController@show` | User, TutorDetail, Course | `admin.tutors.show` | ✅ |
+| 22 | `/admin/tutors/{tutor}/verify` | POST | auth+role:admin | `Admin\TutorController@verify` | TutorDetail | redirect | ✅ |
+| 23 | `/admin/tutors/{tutor}/reject` | POST | auth+role:admin | `Admin\TutorController@reject` | TutorDetail, Course | redirect | ✅ |
+| 24 | `/admin/tutors/{tutor}/approve-all-courses` | POST | auth+role:admin | `Admin\TutorController@approveAllCourses` | Course | redirect | ✅ |
+| 25 | `/admin/courses` | GET | auth+role:admin | `Admin\CourseController@index` | Course | `admin.courses.index` | ✅ |
+| 26 | `/admin/courses/pending` | GET | auth+role:admin | `Admin\CourseController@pending` | Course | `admin.courses.pending` | ✅ |
+| 27 | `/admin/courses/{course}` | GET/PUT/DELETE | auth+role:admin | `Admin\CourseController@show/update/destroy` | Course, Review, CourseContent | `admin.courses.show/edit` | ✅ |
+| 28 | `/admin/courses/{course}/approve` | POST | auth+role:admin | `Admin\CourseController@approve` | Course | redirect | ✅ |
+| 29 | `/admin/courses/{course}/reject` | POST | auth+role:admin | `Admin\CourseController@reject` | Course | redirect | ✅ |
+| 30 | `/admin/courses/{course}/unapprove` | POST | auth+role:admin | `Admin\CourseController@unapprove` | Course | redirect | ✅ |
+| 31 | `/admin/courses/{course}/reviews/{review}` | DELETE | auth+role:admin | `Admin\CourseController@deleteReview` | Review | redirect | ✅ |
+| 32 | `/admin/courses/{course}/content/{content}` | DELETE | auth+role:admin | `Admin\CourseController@deleteContent` | CourseContent | redirect | ✅ |
+| 33 | `/admin/enrollments` | GET | auth+role:admin | `Admin\EnrollmentController@index` | Enrollment | `admin.enrollments.index` | ✅ |
+| 34 | `/admin/enrollments/{enrollment}/status` | PATCH | auth+role:admin | `Admin\EnrollmentController@updateStatus` | Enrollment, Transaction | redirect | 🔴 خطأ حرج |
+| 35 | `/admin/enrollments/{enrollment}/refund` | POST | auth+role:admin | `Admin\EnrollmentController@refund` | Enrollment, Transaction | redirect | 🔴 خطأ حرج |
+| 36 | `/admin/categories` | CRUD | auth+role:admin | `Admin\CategoryController@*` | Category | `admin.categories.*` | ✅ |
+| 37 | `/admin/reports` | GET | auth+role:admin | `Admin\ReportController@index` | — | `admin.reports.index` | ✅ |
+| 38 | `/admin/payment-methods` | CRUD+toggle | auth+role:admin | `Admin\PaymentMethodController@*` | PaymentMethod | `admin.payment_methods.*` | ✅ |
+| 39 | `/admin/payouts` | GET | auth+role:admin | `Admin\PayoutController@index` | PayoutRequest | `admin.payouts.index` | ✅ |
+| 40 | `/admin/payouts/{id}/approve` | POST | auth+role:admin | `Admin\PayoutController@approve` | PayoutRequest, Transaction | redirect | ✅ |
+| 41 | `/admin/payouts/{id}/reject` | POST | auth+role:admin | `Admin\PayoutController@reject` | PayoutRequest | redirect | ✅ |
+| 42 | `/admin/payouts/{id}/mark-paid` | POST | auth+role:admin | `Admin\PayoutController@markPaid` | PayoutRequest, TutorDetail | redirect | ✅ |
+| 43 | `/admin/chat` | GET | auth+role:admin | `Admin\ChatController@index` | Message, User | `admin.chat.index` | ✅ |
+| 44 | `/admin/chat/{user1}/{user2}` | GET | auth+role:admin | `Admin\ChatController@show` | Message, User | `admin.chat.show` | ✅ |
+| 45 | `/admin/chat/messages/{message}` | DELETE | auth+role:admin | `Admin\ChatController@destroyMessage` | Message | redirect | ✅ |
+| 46 | `/admin/transactions` | GET | auth+role:admin | `Admin\TransactionController@index` | Transaction | `admin.transactions.index` | ✅ |
+| 47 | `/admin/transactions/{transaction}` | GET | auth+role:admin | `Admin\TransactionController@show` | Transaction | `admin.transactions.show` | ✅ |
+| 48 | `/admin/settings` | GET/POST | auth+role:admin+super_admin+throttle | `Admin\SettingController@index/update` | Setting, SettingsHistory | `admin.settings.index` | ✅ |
+| **TUTOR** |
+| 49 | `/tutor/dashboard` | GET | auth+role:tutor,admin | `Tutor\DashboardController@index` | — | `tutor.dashboard` | ✅ |
+| 50 | `/tutor/profile` | GET/PUT | auth+role:tutor,admin | `Tutor\ProfileController@edit/update` | TutorDetail | `tutor.profile.edit` | ✅ |
+| 51 | `/tutor/profile/cv` | GET | auth+role:tutor,admin | `Tutor\ProfileController@downloadCv` | TutorDetail | download | ✅ |
+| 52 | `/tutor/courses` | CRUD (resource) | auth+role:tutor,admin | `Tutor\CourseController@*` | Course, CourseContent | `tutor.courses.*` | ✅ |
+| 53 | `/tutor/courses/{course}/content` | POST/PUT/DELETE | auth+role:tutor,admin | `Tutor\CourseController@add/update/deleteContent` | CourseContent | redirect | ✅ |
+| 54 | `/tutor/courses/{course}/content/reorder` | POST | auth+role:tutor,admin | `Tutor\CourseController@reorderContents` | CourseContent | JSON | ✅ |
+| 55 | `/tutor/courses.quizzes` | resource+builder+results+attempts | auth+role:tutor,admin | `Tutor\QuizController@*` | Quiz, Question, Option, QuizAttempt | `tutor.quizzes.*` | ✅ |
+| 56 | `/tutor/certificates` | GET | auth+role:tutor,admin | `Tutor\CourseController@certificatesIndex` | CourseCertificate | `tutor.certificates.index` | ✅ |
+| 57 | `/tutor/certificates/{id}/issue` | POST | auth+role:tutor,admin | `Tutor\CourseController@issueCertificate` | CourseCertificate | redirect | ✅ |
+| 58 | `/tutor/certificates/{id}/reject` | POST | auth+role:tutor,admin | `Tutor\CourseController@rejectCertificate` | CourseCertificate | redirect | ✅ |
+| 59 | `/tutor/certificates/{id}/revoke` | POST | auth+role:tutor,admin | `Tutor\CourseController@revokeCertificate` | CourseCertificate | redirect | ✅ |
+| 60 | `/tutor/enrollments` | GET | auth+role:tutor,admin | `Tutor\CourseController@enrollmentsIndex` | Enrollment | `tutor.enrollments.index` | ✅ |
+| 61 | `/tutor/enrollments/{id}/approve` | POST | auth+role:tutor,admin | `Tutor\CourseController@approveEnrollment` | Enrollment | redirect | ✅ |
+| 62 | `/tutor/enrollments/{id}/reject` | POST | auth+role:tutor,admin | `Tutor\CourseController@rejectEnrollment` | Enrollment | redirect | ✅ |
+| 63 | `/tutor/reports` | GET | auth+role:tutor,admin | `Tutor\ReportController@index` | — | `tutor.reports.index` | ✅ |
+| 64 | `/tutor/payouts` | GET/POST | auth+role:tutor,admin | `Tutor\PayoutController@index/store` | PayoutRequest, TutorDetail | `tutor.payouts.index` | ✅ |
+| **STUDENT** |
+| 65 | `/student/dashboard` | GET | auth+role:student | `Student\DashboardController@index` | — | `student.dashboard` | ✅ |
+| 66 | `/student/courses` | GET | auth+role:student | `Student\CourseController@index` | Course, Category | `student.courses.index` | ✅ |
+| 67 | `/student/courses/{course}` | GET | auth+role:student | `Student\CourseController@show` | Course, Enrollment | `student.courses.show` | ✅ |
+| 68 | `/student/my-courses` | GET | auth+role:student | `Student\CourseController@myCourses` | Enrollment, Course | `student.courses.my-courses` | ✅ |
+| 69 | `/student/courses/{course}/watch/{content?}` | GET | auth+role:student | `Student\CourseController@watch` | Course, Enrollment, ContentProgress | `student.courses.watch` | ✅ |
+| 70 | `/student/courses/{course}/enroll` | POST | auth+role:student+throttle:enroll | `Student\EnrollmentController@enroll` | Course, Enrollment | redirect | ✅ |
+| 71 | `/student/enrollment/{enrollment}/payment` | GET/POST | auth+role:student+throttle:payment | `Student\EnrollmentController@showPayment/processPayment` | Enrollment, Transaction | `student.enrollment.payment` | ✅ |
+| 72 | `/student/my-enrollments` | GET | auth+role:student | `Student\EnrollmentController@myEnrollments` | Enrollment | `student.enrollment.my-enrollments` | ✅ |
+| 73 | `/student/transactions` | GET | auth+role:student | `Student\TransactionController@index` | Transaction | `student.transactions.index` | ✅ |
+| 74 | `/student/transactions/{transaction}` | GET | auth+role:student | `Student\TransactionController@show` | Transaction | `student.transactions.show` | ✅ |
+| 75 | `/student/quizzes/{quiz}` | GET/POST | auth+role:student | `QuizController@show/submit` | Quiz, QuizAttempt | `student.quizzes.show` | ✅ |
+| 76 | `/student/quizzes/{quiz}/result` | GET | auth+role:student | `QuizController@result` | QuizAttempt | `student.quizzes.result` | ✅ |
+| 77 | `/student/courses/{course}/content/{content}/complete` | POST | auth+role:student | `Student\CourseController@markComplete` | ContentProgress | redirect | ✅ |
+| 78 | `/student/courses/{course}/request-certificate` | POST | auth+role:student | `Student\CourseController@requestCertificate` | CourseCertificate | redirect | ✅ |
+
+### 1.2 ملخص التغطية
+- **إجمالي المسارات**: ~78 مسار (بدون auth.php)
+- **مسارات auth.php**: 10 مسارات إضافية (register, login, logout, password reset, email verification)
+- **مسارات محمية بـ Rate Limiting**: 5 (enroll, payment, messaging, settings, eligibility)
+- **مسارات محمية بـ super_admin**: 2 (settings index/update)
+
+---
+
+## 2. 🚨 CRITICAL ERRORS & MISSING ASSETS (سجل الأخطاء الحرجة والمفقودات)
+
+### 🔴 أخطاء حرجة (CRITICAL - يجب إصلاحها فوراً)
+
+#### خطأ C-01: تكرار دالة `updateStatus` في `Admin\EnrollmentController.php`
+- **الملف**: `app/Http/Controllers/Admin/EnrollmentController.php`
+- **السطور**: 57-92 (نسخة داخل تعليق مفتوح غير مغلق) + 100-146 (النسخة الفعلية)
+- **التفاصيل**: يوجد كود معلق بطريقة غير صحيحة. التعليق `/**` في السطر 57 لا يُغلق بشكل صحيح قبل بداية الدالة. هذا يخلق ارتباكاً ويوجد كود ميت بين السطور 60-92.
+- **التأثير**: كود ميت مربك + هيكل تعليقات غير سليم
+- **خطة الإصلاح**: حذف السطور 57-93 بالكامل (النسخة القديمة المعلقة) وترك فقط النسخة الحديثة (السطور 97-146)
+
+#### خطأ C-02: عدم تطابق `payment_status` Enum مع قاعدة البيانات
+- **الملف**: `database/migrations/2026_02_01_200004_create_enrollments_table.php`
+- **التفاصيل**: الـ enum المعرف في Migration هو `['pending', 'paid', 'failed']` فقط
+- **لكن** `Admin\EnrollmentController@updateStatus` يقبل: `['paid', 'pending', 'completed', 'failed', 'refunded']`
+- **و** `Admin\EnrollmentController@refund` يحاول تعيين `payment_status = 'refunded'`
+- **التأثير**: **خطأ قاعدة بيانات فوري** عند محاولة الاسترداد (Refund) أو تعيين حالة `completed`/`refunded`
+- **خطة الإصلاح**: إنشاء migration جديد لتعديل enum العمود:
+  ```php
+  // migration: modify_payment_status_enum_in_enrollments
+  DB::statement("ALTER TABLE enrollments MODIFY COLUMN payment_status ENUM('pending','paid','failed','completed','refunded') DEFAULT 'pending'");
+  ```
+
+#### خطأ C-03: عمود `name_ar` مفقود في جدول `payment_methods`
+- **الملف**: `database/migrations/2026_03_04_100000_create_payment_methods_table.php`
+- **التفاصيل**: الـ Migration يُنشئ `name` و `name_en` لكن **لا يُنشئ `name_ar`**
+- **لكن** `PaymentMethod` Model يحتوي على `name_ar` في `$fillable` ودالة `boot()` تُعيّن `$model->name_ar = $model->name`
+- **التأثير**: خطأ `Column not found: name_ar` عند حفظ أي PaymentMethod
+- **خطة الإصلاح**: إنشاء migration لإضافة العمود:
+  ```php
+  Schema::table('payment_methods', function (Blueprint $table) {
+      $table->string('name_ar')->nullable()->after('name');
+  });
+  ```
+
+#### خطأ C-04: حقول غير موجودة في جدول `enrollments` مُستخدمة في `FinancialService`
+- **الملف**: `app/Services/FinancialService.php` (سطر 51, 56)
+- **التفاصيل**: الكود يصل لـ `$enrollment->payment_method_id` و `$enrollment->payment_proof` لكن هذه الأعمدة **غير موجودة** في جدول `enrollments`
+- **التأثير**: القيم دائماً `null` — لن يتم ربط Transaction بأي PaymentMethod عند تسجيل الدفع
+- **خطة الإصلاح**: إنشاء migration لإضافة هذه الأعمدة:
+  ```php
+  Schema::table('enrollments', function (Blueprint $table) {
+      $table->foreignId('payment_method_id')->nullable()->after('enrollment_status')
+            ->constrained('payment_methods')->nullOnDelete();
+      $table->string('payment_proof')->nullable()->after('payment_method_id');
+  });
+  ```
+  + تحديث `Enrollment::$fillable` لإضافة `payment_method_id` و `payment_proof`
+  + تحديث صفحة الدفع لتتيح اختيار طريقة الدفع ورفع الإيصال
+
+### 🟠 أخطاء متوسطة (MEDIUM - يجب إصلاحها قريباً)
+
+#### خطأ M-01: `payment_status` في `Enrollment::$fillable` — ثغرة Mass Assignment
+- **الملف**: `app/Models/Enrollment.php` (سطر 17)
+- **التفاصيل**: `payment_status` موجود في `$fillable` رغم أنه حقل حساس (مثل `Course::status` الذي أُزيل عمداً)
+- **التأثير**: أي إدخال يمكن أن يُغيّر حالة الدفع عبر Mass Assignment
+- **خطة الإصلاح**: إزالة `payment_status` من `$fillable` واستخدام التعيين الصريح:
+  ```php
+  // بدلاً من $enrollment->update(['payment_status' => 'paid'])
+  $enrollment->payment_status = 'paid';
+  $enrollment->save();
+  ```
+
+#### خطأ M-02: `enrollment_status` Enum عدم تطابق في Validation
+- **الملف**: `app/Http/Controllers/Admin/EnrollmentController.php` (سطر 106)
+- **التفاصيل**: الـ Validation يقبل `'enrolled'` لكن الـ enum في DB هو `['pending_approval', 'approved', 'rejected']`
+- **خطة الإصلاح**: تغيير القاعدة:
+  ```php
+  'enrollment_status' => ['required', 'string', 'in:pending_approval,approved,rejected'],
+  ```
+
+#### خطأ M-03: `CourseReviews` Livewire لا يتحقق من `enrollment_status`
+- **الملف**: `app/Livewire/CourseReviews.php` (سطر 42)
+- **التفاصيل**: يتحقق فقط من وجود enrollment ولا يتحقق من `enrollment_status === 'approved'`
+- **التأثير**: طالب في حالة `pending_approval` أو `rejected` يمكنه كتابة تقييم
+- **خطة الإصلاح**:
+  ```php
+  $isEnrolled = $course->enrollments()
+      ->where('user_id', $user->id)
+      ->where('payment_status', 'paid')
+      ->where('enrollment_status', 'approved')
+      ->exists();
+  ```
+
+#### خطأ M-04: `SettingsHistory` يستخدم `$timestamps = false` لكن يعتمد على `created_at`
+- **الملف**: `app/Models/SettingsHistory.php` (سطر 13)
+- **التفاصيل**: `$timestamps = false` يعني Laravel لن يُعيّن `created_at` تلقائياً، لكن الـ Migration يستخدم `->useCurrent()` على العمود — لذا قاعدة البيانات تتولى ذلك. **هذا يعمل** لكن الكاست `'created_at' => 'datetime'` بدون `$timestamps` قد يُربك.
+- **خطة الإصلاح**: إضافة تعليق توضيحي أو استخدام `const CREATED_AT = 'created_at'; const UPDATED_AT = null;`
+
+#### خطأ M-05: `Admin\EnrollmentController@updateStatus` يستخدم `$this->authorize('update', $enrollment)` مع EnrollmentPolicy
+- **الملف**: `app/Http/Controllers/Admin/EnrollmentController.php` (سطر 102)
+- **التفاصيل**: الدالة تستدعي `$this->authorize('update', $enrollment)` لكن الأدمن يمر دائماً (Policy ترجع `true` للأدمن). المشكلة أن الـ Admin route يحمي بالفعل بـ `role:admin` middleware — فالـ authorize زائد لكن ليس ضاراً.
+- **خطة الإصلاح**: لا ضرر، لكن يُفضل التوحيد — إما Policy فقط أو Middleware فقط.
+
+#### خطأ M-06: View `certificates.quiz-show` قد تكون مفقودة
+- **الملف**: `app/Http/Controllers/CertificateController.php` (سطر 91)
+- **التفاصيل**: عند عدم وجود `CourseCertificate`، يبحث عن `QuizAttempt` ويعرض `certificates.quiz-show`. يجب التأكد من وجود هذا الملف في `resources/views/certificates/quiz-show.blade.php`
+- **خطة الإصلاح**: التحقق من وجود الملف وإنشاؤه إذا كان مفقوداً
+
+### 🟡 أخطاء طفيفة (LOW)
+
+#### خطأ L-01: كود ميت في `Student\CourseController`
+- **الملف**: `app/Http/Controllers/Student/CourseController.php` (سطور 207-228)
+- **التفاصيل**: نسخة قديمة معلقة من دالة `show()` داخل `/* ... */`
+- **خطة الإصلاح**: حذف السطور 207-228
+
+#### خطأ L-02: `clear_attempts.php` في جذر المشروع
+- **الملف**: `clear_attempts.php` (في جذر المشروع)
+- **التفاصيل**: ملف PHP مستقل في جذر المشروع — محتمل أنه سكربت تنظيف مؤقت
+- **خطة الإصلاح**: حذفه أو نقله لـ command artisan
+
+#### خطأ L-03: عدد النماذج في التوثيق القديم غير دقيق
+- **التفاصيل**: التوثيق يذكر **16 model** لكن يوجد **19 model** فعلياً:
+  - مذكورة: User, Course, Category, CourseContent, Enrollment, CourseCertificate, ContentProgress, Quiz, Question, Option, QuizAttempt, Review, Message, TutorDetail, PaymentMethod, PayoutRequest
+  - **مفقودة من التوثيق**: `Setting`, `SettingsHistory`, `Transaction`
+- **خطة الإصلاح**: تحديث جدول النماذج ليشمل الـ 19
+
+#### خطأ L-04: عدد الـ Policies في التوثيق القديم غير دقيق
+- **التفاصيل**: التوثيق يذكر **1 Policy** (CoursePolicy فقط) لكن يوجد **4 Policies**:
+  - `CoursePolicy.php` ✅ مذكور
+  - `EnrollmentPolicy.php` ❌ غير مذكور
+  - `MessagePolicy.php` ❌ غير مذكور
+  - `QuizPolicy.php` ❌ غير مذكور
+- **خطة الإصلاح**: تحديث قسم Policies
+
+#### خطأ L-05: `course_payment_methods` Pivot Table غير مستخدم
+- **التفاصيل**: جدول `course_payment_methods` أُنشئ في migration لربط الدورات بطرق الدفع، و`PaymentMethod::courses()` علاقة معرفة — لكن **لا يوجد أي كود يستخدم هذه العلاقة أو الجدول**
+- **خطة الإصلاح**: إما تفعيل الميزة في المستقبل أو حذف الجدول والعلاقة
+
+#### خطأ L-06: `Student\DashboardController` و `Tutor\DashboardController` لم تُقرأ بالتفصيل
+- **خطة الإصلاح**: مراجعة سريعة للتأكد من عدم وجود N+1 queries
+
+---
+
+## 3. 🧠 SPEC-KIT ANALYSIS (/speckit.analyze)
+
+### 3.1 Drift Detection (الانزياح — تناقضات بين الطبقات)
+
+| # | المكان | الوصف | الخطورة |
+|---|---|---|---|
+| D-01 | Enrollment enum ↔ Controller validation | DB enum: `['pending','paid','failed']` vs Controller: يقبل `completed`+`refunded` | 🔴 حرج |
+| D-02 | PaymentMethod model ↔ Migration | Model يستخدم `name_ar` لكن العمود غير موجود في DB | 🔴 حرج |
+| D-03 | FinancialService ↔ Enrollment table | يصل لـ `payment_method_id`+`payment_proof` غير موجودين | 🔴 حرج |
+| D-04 | CourseReviews Livewire ↔ Enrollment status | لا يتحقق من `enrollment_status` | 🟠 متوسط |
+| D-05 | Policies count ↔ Documentation | 4 policies فعلياً vs 1 مذكور | 🟡 طفيف |
+| D-06 | Models count ↔ Documentation | 19 models فعلياً vs 16 مذكور | 🟡 طفيف |
+
+### 3.2 Dead Code (أكواد ميتة)
+
+| # | الملف | السطور | الوصف |
+|---|---|---|---|
+| DC-01 | `Admin\EnrollmentController.php` | 57-93 | نسخة قديمة معلقة من `updateStatus` |
+| DC-02 | `Student\CourseController.php` | 207-228 | نسخة قديمة معلقة من `show()` |
+| DC-03 | `clear_attempts.php` | كامل | سكربت مستقل في جذر المشروع |
+| DC-04 | `PaymentMethod::courses()` | علاقة | `belongsToMany` معرفة لكن غير مستخدمة أبداً |
+| DC-05 | `course_payment_methods` table | جدول | جدول pivot موجود لكن غير مستخدم |
+| DC-06 | `repomix-output.xml` | 633KB | ملف ضخم في الجذر، غير مرتبط بالتطبيق |
+| DC-07 | `core-backend.xml` | 101KB | ملف ضخم في الجذر |
+
+### 3.3 Security & Auth (أمان النظام)
+
+| # | الموضوع | الحالة | التفاصيل |
+|---|---|---|---|
+| S-01 | Mass Assignment - Course.status | ✅ محمي | محذوف من `$fillable` — يُعيّن صراحةً |
+| S-02 | Mass Assignment - User.role | ✅ محمي | محذوف من `$fillable` — يُعيّن صراحةً |
+| S-03 | Mass Assignment - `is_super_admin` | ✅ محمي | غير في `$fillable` + محمي بـ cast فقط |
+| S-04 | Mass Assignment - Enrollment.payment_status | ⚠️ **غير محمي** | لا يزال في `$fillable` |
+| S-05 | IDOR - CertificateController | ✅ مُصلح | فحص الملكية + الدور |
+| S-06 | Rate Limiting | ✅ مُطبق | 5 rate limiters (enroll/payment/messaging/settings/eligibility) |
+| S-07 | CSRF Protection | ✅ مُطبق | عبر middleware مع استثناء logout فقط |
+| S-08 | SQL Injection - Search | ✅ مُصلح | `addcslashes` في كل عمليات البحث |
+| S-09 | Hierarchical Auth | ✅ مُطبق | Super Admin → Admin → Tutor/Student |
+| S-10 | Self-Deletion Prevention | ✅ مُطبق | `UserController@destroy` |
+| S-11 | DB Transactions | ✅ مُطبق | في كل العمليات المالية |
+| S-12 | ChatBox Rate Limiting | ✅ مُطبق | 10 رسائل/دقيقة عبر RateLimiter |
+| S-13 | Chat Contact Restriction | ✅ مُطبق | MSG1 — حسب العلاقة فقط |
+| S-14 | Tutor Verification Check | ✅ مُطبق | V1 — لا إنشاء دورات بدون تحقق |
+| S-15 | Eligibility Enforcement | ✅ مُطبق | v8.0 — جلسة محدودة بساعة |
+
+### 3.4 Model ↔ Migration Consistency (تطابق النماذج مع الترحيلات)
+
+| Model | $fillable Count | DB Columns (from all migrations) | الحالة |
+|---|---|---|---|
+| User | 4 (name,email,password,avatar) | name,email,password,role,is_super_admin,avatar,agreed_to_terms_at,+soft_deletes | ✅ |
+| Course | 5 (tutor_id, category_id,title,description,price,thumbnail) | +status,+soft_deletes | ✅ (`status` محمي) |
+| Enrollment | 4 (user_id,course_id,payment_status,enrollment_status) | ← مطابق +soft_deletes | ⚠️ `payment_status` يجب حمايته |
+| CourseContent | 9 fields | ← مطابق (بعد migrations إضافية) | ✅ |
+| Quiz | 6 fields | ← مطابق (بعد migrations إضافية) | ✅ |
+| Question | 3 (quiz_id,question_text,points) | ← مطابق | ✅ |
+| Option | 3 (question_id,option_text,is_correct) | ← مطابق | ✅ |
+| QuizAttempt | 8 fields | ← مطابق (بعد migrations إضافية) | ✅ |
+| Review | 4 (user_id,course_id,rating,comment) | ← مطابق | ✅ |
+| Message | 5 (sender_id,receiver_id,course_id,content,is_read) | ← مطابق | ✅ |
+| Category | 7 fields | ← مطابق | ✅ |
+| TutorDetail | 17 fields | ← مطابق (بعد 3 migrations) | ✅ |
+| CourseCertificate | 7 fields | ← مطابق | ✅ |
+| ContentProgress | 4 fields | ← مطابق | ✅ |
+| PaymentMethod | 11 fields | ← **`name_ar` مفقود من DB** 🔴 | 🔴 |
+| PayoutRequest | 9 fields | ← مطابق | ✅ |
+| Setting | 2 (key,value) | ← مطابق | ✅ |
+| SettingsHistory | 4 fields | ← مطابق | ✅ |
+| Transaction | 16 fields | ← مطابق | ✅ |
+
+---
+
+## 4. ❓ CLARIFICATIONS REQUIRED (/speckit.clarify)
+
+> أسئلة موجهة للمبرمج السابق أو مالك المشروع:
+
+### أسئلة حرجة:
+
+1. **هل تم تنفيذ عملية Refund بنجاح من قبل؟** — لأن الـ enum في قاعدة البيانات لا يدعم `refunded` كقيمة لـ `payment_status`. هذا يعني أن أي محاولة استرداد ستفشل بخطأ DB.
+
+2. **هل تم إنشاء أي PaymentMethod بنجاح؟** — لأن العمود `name_ar` غير موجود في الـ migration لكن الـ Model يحاول كتابته عبر `boot()`. إذا كانت قاعدة البيانات قد أُنشئت بدون هذا العمود فسيحدث خطأ.
+
+3. **ما الغرض من جدول `course_payment_methods`؟** — هل كان مخططاً لربط طرق دفع خاصة بكل كورس (بدلاً من طرق الدفع العامة)؟ الجدول موجود لكن غير مستخدم في أي مكان.
+
+4. **ما الغرض من ملف `clear_attempts.php` في الجذر؟** — هل هو سكربت صيانة؟ وجوده في الجذر يُشكل خطراً أمنياً محتملاً إذا كان الوصول للجذر مباشراً.
+
+### أسئلة منطقية:
+
+5. **لماذا لا يتم اختيار طريقة الدفع عند التسجيل؟** — صفحة الدفع تستخدم "محاكاة دفع" بدون اختيار فعلي لطريقة الدفع. الحقول `payment_method_id` و `payment_proof` غير موجودة في جدول `enrollments` رغم أن `FinancialService` يحاول قراءتها.
+
+6. **هل `enrollment_status` يجب أن يكون `pending_approval` دائماً عند التسجيل الجديد؟** — حتى لو كان الكورس مجانياً والدفع تم، يظل بحالة `pending_approval`. هل هذا مقصود؟ هذا يعني أن كل كورس بحاجة لموافقة المعلم حتى لو كان مجانياً.
+
+7. **لماذا يُسمح للأدمن بتعديل الـ `enrollment_status` إلى `enrolled`؟** — هذه القيمة غير موجودة في الـ enum ولم تُعرّف في أي مكان.
+
+8. **هل يوجد سبب لعدم وجود `SoftDeletes` على `CourseContent`؟** — معظم النماذج الأساسية (User, Course, Enrollment) تستخدم `SoftDeletes` لكن `CourseContent` لا يستخدمها. حذف المحتوى نهائي.
+
+---
+
+## 5. 🛠️ ACTIONABLE FIX TASKS (/speckit.tasks)
+
+> قائمة مهام مرقمة بالأولوية. يجب تنفيذها بالترتيب.
+
+### 🔴 المرحلة 1: إصلاحات حرجة (يجب تنفيذها فوراً)
+
+- [ ] **FIX-01**: إنشاء migration لتوسيع `payment_status` enum في جدول `enrollments`
+  ```
+  ملف: database/migrations/xxxx_expand_payment_status_enum.php
+  إضافة: 'completed', 'refunded' للـ enum
+  ```
+
+- [ ] **FIX-02**: إنشاء migration لإضافة عمود `name_ar` لجدول `payment_methods`
+  ```
+  ملف: database/migrations/xxxx_add_name_ar_to_payment_methods.php
+  إضافة: $table->string('name_ar')->nullable()->after('name')
+  ```
+
+- [ ] **FIX-03**: إنشاء migration لإضافة `payment_method_id` و `payment_proof` لجدول `enrollments`
+  ```
+  ملف: database/migrations/xxxx_add_payment_fields_to_enrollments.php
+  إضافة: payment_method_id (FK), payment_proof (string nullable)
+  تحديث: Enrollment::$fillable
+  ```
+
+- [ ] **FIX-04**: حذف الكود الميت في `Admin\EnrollmentController.php`
+  ```
+  ملف: app/Http/Controllers/Admin/EnrollmentController.php
+  حذف: السطور 57-93 (النسخة القديمة المعلقة)
+  ```
+
+- [ ] **FIX-05**: إصلاح `enrollment_status` validation في `Admin\EnrollmentController`
+  ```
+  ملف: app/Http/Controllers/Admin/EnrollmentController.php (سطر 106)
+  تغيير: 'in:pending_approval,approved,rejected,enrolled' → 'in:pending_approval,approved,rejected'
+  ```
+
+### 🟠 المرحلة 2: إصلاحات أمنية ومنطقية
+
+- [ ] **FIX-06**: إزالة `payment_status` من `Enrollment::$fillable`
+  ```
+  ملف: app/Models/Enrollment.php
+  تعديل: $fillable — إزالة 'payment_status'
+  تحديث: كل controller يستخدم update(['payment_status' => ...]) ← تغيير لتعيين صريح
+  ```
+
+- [ ] **FIX-07**: إصلاح `CourseReviews` Livewire للتحقق من `enrollment_status`
+  ```
+  ملف: app/Livewire/CourseReviews.php (سطر 42)
+  إضافة: ->where('payment_status', 'paid')->where('enrollment_status', 'approved')
+  ```
+
+- [ ] **FIX-08**: التحقق من وجود view `certificates/quiz-show.blade.php`
+  ```
+  فحص: resources/views/certificates/quiz-show.blade.php
+  إنشاء: إذا لم تكن موجودة
+  ```
+
+### 🟡 المرحلة 3: تنظيف وتوثيق
+
+- [ ] **FIX-09**: حذف الكود الميت في `Student\CourseController.php` (السطور 207-228)
+- [ ] **FIX-10**: حذف `clear_attempts.php` من جذر المشروع (أو تحويله لأمر Artisan)
+- [ ] **FIX-11**: حذف أو تقييد الوصول لـ `repomix-output.xml` و `core-backend.xml`
+- [ ] **FIX-12**: تحديث إحصائيات التوثيق (19 model بدلاً من 16، 4 policies بدلاً من 1)
+- [ ] **FIX-13**: تقييم استخدام `course_payment_methods` pivot table — تفعيل أو حذف
+
+### 🔵 المرحلة 4: تحسينات مستقبلية
+
+- [ ] **FIX-14**: ربط صفحة الدفع بطرق الدفع الفعلية (اختيار PaymentMethod + رفع إيصال)
+- [ ] **FIX-15**: إنشاء Form Requests لجميع Controllers (بدلاً من inline validation)
+- [ ] **FIX-16**: إضافة `SoftDeletes` لـ `CourseContent`
+- [ ] **FIX-17**: دمج بوابة دفع حقيقية (Stripe/Paddle)
+- [ ] **FIX-18**: مراجعة `Student\DashboardController` و `Tutor\DashboardController` لـ N+1 queries
+
+---
+
+## 📊 ملخص نتائج التدقيق
+
+| الفئة | العدد |
+|---|---|
+| 🔴 أخطاء حرجة | **4** (C-01 إلى C-04) |
+| 🟠 أخطاء متوسطة | **6** (M-01 إلى M-06) |
+| 🟡 أخطاء طفيفة | **6** (L-01 إلى L-06) |
+| أكواد ميتة (Dead Code) | **7** عناصر |
+| تناقضات (Drift) | **6** حالات |
+| أسئلة تحتاج توضيح | **8** أسئلة |
+| مهام إصلاح | **18** مهمة (5 حرجة + 3 أمنية + 5 تنظيف + 5 تحسين) |
+
+> **التقييم العام**: المشروع مبني بشكل جيد معمارياً مع حماية أمنية قوية (Rate Limiting, CSRF, Authorization Policies, DB Transactions). لكنه يعاني من **4 أخطاء حرجة في طبقة البيانات** (enum mismatch + missing columns) تمنع عمل النظام المالي بنسبة 100%. يجب إصلاح الأخطاء C-01 إلى C-04 قبل أي تطوير جديد.
+
+---
+*تم إنشاء هذا التدقيق بواسطة ULTRA-LARA-SPECKIT-AUDITOR-v6.0 بتاريخ 2026-04-13*
