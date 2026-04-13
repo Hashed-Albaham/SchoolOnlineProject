@@ -129,7 +129,7 @@
                                             <span class="text-sm text-luxury-400">{{ $course->tutor->name ?? __('site.tutor_label') }}</span>
                                         </div>
                                         <span class="text-gold-400 font-bold">
-                                            @if($course->price > 0) ${{ $course->price }} @else {{ __('site.free') }} @endif
+                                            @if($course->price > 0) {{ $course->price }} {{ \App\Models\Setting::get('currency_symbol', 'ر.س') }} @else {{ __('site.free') }} @endif
                                         </span>
                                     </div>
                                     

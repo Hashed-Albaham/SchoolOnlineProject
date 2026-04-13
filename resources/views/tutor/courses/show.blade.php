@@ -141,7 +141,7 @@
                             <h3 class="text-lg font-bold text-white mb-2">{{ $course->title }}</h3>
                             <p class="text-luxury-400 text-sm mb-4">{{ Str::limit($course->description, 150) }}</p>
                             <div class="flex items-center justify-between border-t border-white/10 pt-4">
-                                <span class="text-gold-400 font-bold">${{ number_format($course->price, 2) }}</span>
+                                <span class="text-gold-400 font-bold">{{ number_format($course->price, 2) }} {{ \App\Models\Setting::get('currency_symbol', 'ر.س') }}</span>
                                 <a href="{{ route('tutor.courses.edit', $course) }}" 
                                     class="px-4 py-2 rounded-xl bg-royal-500/20 text-royal-400 text-sm font-medium hover:bg-royal-500/30 transition">
                                     {{ __('site.edit_course') }}

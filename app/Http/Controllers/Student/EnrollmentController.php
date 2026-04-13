@@ -51,16 +51,19 @@ class EnrollmentController extends Controller
         // SECURITY FIX [C1]: DB Transaction for enrollment + payment
         return DB::transaction(function () use ($user, $course) {
             // [E1] Create new enrollment with pending_approval status
+            // [FIX-06] payment_status set explicitly (not mass-assignable)
             $enrollment = Enrollment::create([
                 'user_id' => $user->id,
                 'course_id' => $course->id,
-                'payment_status' => 'pending',
                 'enrollment_status' => 'pending_approval',
             ]);
+            $enrollment->payment_status = 'pending';
+            $enrollment->save();
 
             // If course is free, mark as paid but still need approval
             if ($course->price <= 0) {
-                $enrollment->update(['payment_status' => 'paid']);
+                $enrollment->payment_status = 'paid';
+                $enrollment->save();
 
                 // Notify Tutor about new enrollment request
                 if ($course->tutor) {
@@ -125,7 +128,9 @@ class EnrollmentController extends Controller
         return DB::transaction(function () use ($enrollment) {
             // Simulate payment processing
             // TODO: In production, integrate with payment gateway (Stripe/Paddle/etc.)
-            $enrollment->update(['payment_status' => 'paid']);
+            // [FIX-06] Explicit assignment — payment_status is not mass-assignable
+            $enrollment->payment_status = 'paid';
+            $enrollment->save();
 
             // [FIN] تسجيل المعاملة المالية
             app(FinancialService::class)->recordEnrollmentPayment($enrollment);

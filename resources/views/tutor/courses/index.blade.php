@@ -55,7 +55,7 @@
                                 
                                 <div class="flex items-center justify-between text-sm mb-4">
                                     <span class="text-gold-400 font-bold">
-                                        @if($course->price > 0) ${{ $course->price }} @else {{ __('site.free') }} @endif
+                                        @if($course->price > 0) {{ $course->price }} {{ \App\Models\Setting::get('currency_symbol', 'ر.س') }} @else {{ __('site.free') }} @endif
                                     </span>
                                     <span class="text-luxury-400">{{ $course->contents_count ?? 0 }} {{ __('site.lesson_unit') }}</span>
                                 </div>

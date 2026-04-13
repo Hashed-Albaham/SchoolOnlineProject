@@ -201,35 +201,9 @@ class CourseController extends Controller
     return view('student.courses.show', compact('course', 'isEnrolled', 'enrollment'));
 }
 
- 
- 
- 
- /*
-    public function show(Course $course)
-    {
-        $course->load([
-            'tutor.tutorDetails',
-            'contents' => fn($q) => $q->orderBy('order'),
-            'quizzes'
-        ])->loadCount([
-                    'enrollments' => fn($q) => $q->where('payment_status', 'paid')
-                ]);
 
-        $enrollment = Auth::check() ? Auth::user()->enrollments()
-            ->where('course_id', $course->id)
-            ->where('payment_status', 'paid')
-            ->first() : null;
 
-        $isEnrolled = $enrollment && $enrollment->enrollment_status === 'approved';
 
-        return view('student.courses.show', compact('course', 'isEnrolled', 'enrollment'));
-    }
-
-  */
-  
-  
-  
-  
     /**
      * Request course certificate
      */

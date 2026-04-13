@@ -212,8 +212,8 @@ class FinancialService
             // اخصم من رصيد المعلم
             $tutorDetail = TutorDetail::where('user_id', $payoutRequest->tutor_id)->first();
             if ($tutorDetail) {
-                $tutorDetail->decrement('available_balance', $payoutRequest->amount);
-                $tutorDetail->increment('total_withdrawn', $payoutRequest->amount);
+                $tutorDetail->decrement('available_balance', (float) $payoutRequest->amount);
+                $tutorDetail->increment('total_withdrawn', (float) $payoutRequest->amount);
             }
         });
     }
@@ -227,11 +227,18 @@ class FinancialService
         $tutorDetail = TutorDetail::where('user_id', $tutorUserId)->first();
         $available   = $tutorDetail ? $tutorDetail->available_balance : 0;
 
+        // [FIX] Subtract currently pending and approved (but not yet paid/deducted) payouts
+        $lockedFunds = PayoutRequest::where('tutor_id', $tutorUserId)
+            ->whereIn('status', [PayoutRequest::STATUS_PENDING, PayoutRequest::STATUS_APPROVED])
+            ->sum('amount');
+
+        $trulyAvailable = $available - $lockedFunds;
+
         if ($amount < $minAmount) {
             return ['can' => false, 'reason' => 'below_minimum', 'min' => $minAmount];
         }
-        if ($amount > $available) {
-            return ['can' => false, 'reason' => 'insufficient_balance', 'available' => $available];
+        if ($amount > $trulyAvailable) {
+            return ['can' => false, 'reason' => 'insufficient_balance', 'available' => $trulyAvailable];
         }
         return ['can' => true];
     }

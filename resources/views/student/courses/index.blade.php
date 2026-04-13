@@ -78,7 +78,7 @@
                                     <div class="absolute top-3 left-3 rtl:left-3 ltr:right-3">
                                         @if($course->price > 0)
                                             <span
-                                                class="px-3 py-1.5 text-sm rounded-lg bg-gold-500/90 text-luxury-900 font-bold">${{ $course->price }}</span>
+                                                class="px-3 py-1.5 text-sm rounded-lg bg-gold-500/90 text-luxury-900 font-bold">{{ $course->price }} {{ \App\Models\Setting::get('currency_symbol', 'ر.س') }}</span>
                                         @else
                                             <span
                                                 class="px-3 py-1.5 text-sm rounded-lg bg-green-500/90 text-white font-bold">{{ __('site.free') }}</span>

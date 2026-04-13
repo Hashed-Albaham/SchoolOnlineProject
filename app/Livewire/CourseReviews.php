@@ -38,8 +38,12 @@ class CourseReviews extends Component
         $user = Auth::user();
         $course = Course::find($this->courseId);
 
-        // Check availability: User is enrolled + User hasn't reviewed yet + User is student
-        $isEnrolled = $course->enrollments()->where('user_id', $user->id)->exists();
+        // [FIX-07] Check: User must be enrolled + paid + approved + hasn't reviewed + is student
+        $isEnrolled = $course->enrollments()
+            ->where('user_id', $user->id)
+            ->where('payment_status', 'paid')
+            ->where('enrollment_status', 'approved')
+            ->exists();
         $hasReviewed = $course->reviews()->where('user_id', $user->id)->exists();
 
         $this->canReview = $isEnrolled && !$hasReviewed && $user->role === 'student';

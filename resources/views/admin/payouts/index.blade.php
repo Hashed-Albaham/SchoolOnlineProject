@@ -33,7 +33,7 @@
                     <p class="text-luxury-400 text-xs mt-1">{{ __('site.paid') }}</p>
                 </div>
                 <div class="bg-luxury-800/50 border border-gold-500/20 rounded-2xl p-5 text-center">
-                    <p class="text-2xl font-bold text-gold-400">${{ number_format($stats['total_paid_amount'], 2) }}</p>
+                    <p class="text-2xl font-bold text-gold-400">{{ number_format($stats['total_paid_amount'], 2) }} {{ \App\Models\Setting::get('currency_symbol', 'ر.س') }}</p>
                     <p class="text-luxury-400 text-xs mt-1">{{ __('site.total_paid_out') }}</p>
                 </div>
             </div>
@@ -85,7 +85,7 @@
                                             </div>
                                         </td>
                                         <td class="p-4 text-center">
-                                            <span class="text-gold-400 font-bold">${{ number_format($payout->amount, 2) }}</span>
+                                            <span class="text-gold-400 font-bold">{{ number_format($payout->amount, 2) }} {{ \App\Models\Setting::get('currency_symbol', 'ر.س') }}</span>
                                         </td>
                                         <td class="p-4 text-center text-luxury-300 text-sm">
                                             @if($payout->paymentMethod)

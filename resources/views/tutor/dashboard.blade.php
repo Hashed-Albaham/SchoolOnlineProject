@@ -262,7 +262,7 @@
                                             <div>
                                                 <p class="font-medium text-white">{{ Str::limit($course->title, 25) }}</p>
                                                 <p class="text-sm text-luxury-400">
-                                                    @if($course->price > 0) ${{ $course->price }} @else {{ __('site.free') }} @endif
+                                                    @if($course->price > 0) {{ number_format($course->price, 2) }} {{ \App\Models\Setting::get('currency_symbol', 'ر.س') }} @else {{ __('site.free') }} @endif
                                                 </p>
                                             </div>
                                         </div>

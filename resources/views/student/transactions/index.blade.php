@@ -57,7 +57,7 @@
                                 @endif
                             </td>
                             <td class="p-4 text-sm text-white font-medium">
-                                {{ number_format($transaction->gross_amount, 2) }}
+                                {{ number_format($transaction->gross_amount, 2) }} {{ \App\Models\Setting::get('currency_symbol', 'ر.س') }}
                             </td>
                             <td class="p-4 text-sm">
                                 @if($transaction->status == 'completed')

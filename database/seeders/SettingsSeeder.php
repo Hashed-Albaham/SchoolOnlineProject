@@ -17,6 +17,10 @@ class SettingsSeeder extends Seeder
             'min_gpa' => null,
             'min_gpa_scale' => '4.0',
             'min_step_score' => null,
+            // Financial settings
+            'platform_commission_rate' => '20',     // 20% commission
+            'currency_symbol' => '$',            // Dollar symbol
+            'min_payout_amount' => '50',            // Minimum payout amount
         ];
 
         foreach ($defaults as $key => $value) {

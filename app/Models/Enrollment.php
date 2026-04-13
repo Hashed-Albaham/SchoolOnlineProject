@@ -11,11 +11,16 @@ class Enrollment extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * [FIX-06] 'payment_status' removed from $fillable — set explicitly to prevent Mass Assignment.
+     * [FIX-03] Added payment_method_id and payment_proof for financial tracking.
+     */
     protected $fillable = [
         'user_id',
         'course_id',
-        'payment_status',
-        'enrollment_status', // [E1] pending_approval, approved, rejected
+        'enrollment_status',      // [E1] pending_approval, approved, rejected
+        'payment_method_id',      // [FIX-03] FK to payment_methods
+        'payment_proof',          // [FIX-03] uploaded receipt/proof path
     ];
 
     /**

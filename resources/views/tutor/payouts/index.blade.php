@@ -105,7 +105,7 @@
                                 </div>
                                 <div class="flex-1">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-white font-bold">${{ number_format($payout->amount, 2) }}</span>
+                                        <span class="text-white font-bold">{{ number_format($payout->amount, 2) }} {{ \App\Models\Setting::get('currency_symbol', 'ر.س') }}</span>
                                         <span class="text-xs px-2 py-0.5 rounded-full
                                             {{ $payout->isPaid() ? 'bg-green-500/20 text-green-400' : ($payout->isPending() ? 'bg-yellow-500/20 text-yellow-400' : ($payout->isApproved() ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400')) }}">
                                             @switch($payout->status)

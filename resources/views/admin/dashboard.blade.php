@@ -27,7 +27,7 @@
                     </p>
                     <p class="text-xs text-luxury-500 mt-1">
                         {{ __('site.fin_platform_fees') }}:
-                        {{ number_format(\App\Models\Transaction::completed()->enrollments()->whereDate('created_at', today())->sum('platform_fee_amount'), 2) }}
+                        {{ number_format(\App\Models\Transaction::completed()->enrollments()->whereDate('created_at', today())->sum('platform_fee_amount'), 2) }} {{ \App\Models\Setting::get('currency_symbol', 'SAR') }}
                     </p>
                 </div>
 
