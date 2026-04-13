@@ -9,7 +9,7 @@ class Transaction extends Model
 {
     protected $fillable = [
         'reference_number', 'type', 'status',
-        'enrollment_id', 'payout_request_id',
+        'enrollment_id', 'payout_request_id', 'booking_id',
         'student_id', 'tutor_id', 'payment_method_id', 'processed_by',
         'gross_amount', 'platform_fee_rate', 'platform_fee_amount', 'tutor_amount',
         'payment_proof', 'notes', 'processed_at',
@@ -26,6 +26,7 @@ class Transaction extends Model
     // ─── Relations ───────────────────────────────────────────────
     public function enrollment()    { return $this->belongsTo(Enrollment::class); }
     public function payoutRequest() { return $this->belongsTo(PayoutRequest::class); }
+    public function booking()       { return $this->belongsTo(Booking::class); }
     public function student()       { return $this->belongsTo(User::class, 'student_id'); }
     public function tutor()         { return $this->belongsTo(User::class, 'tutor_id'); }
     public function paymentMethod() { return $this->belongsTo(PaymentMethod::class); }

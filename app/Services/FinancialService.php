@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\{Enrollment, PayoutRequest, Transaction, Setting, TutorDetail};
+use App\Models\{Enrollment, PayoutRequest, Transaction, Setting, TutorDetail, Booking};
 use Illuminate\Support\Facades\DB;
 
 class FinancialService
@@ -241,5 +241,120 @@ class FinancialService
             return ['can' => false, 'reason' => 'insufficient_balance', 'available' => $trulyAvailable];
         }
         return ['can' => true];
+        // ─────────────────────────────────────────────────────────────────
+    // عمليات الحجوزات (BOOKINGS)
+    // ─────────────────────────────────────────────────────────────────
+
+    public function recordBookingPayment(Booking $booking): Transaction
+    {
+        return DB::transaction(function () use ($booking) {
+            $slot = $booking->sessionSlot()->first();
+            $split  = $this->calculateSplit((float) $slot->price);
+
+            $transaction = Transaction::create([
+                'reference_number'  => Transaction::generateReference(),
+                'type'              => 'enrollment', // We keep type as 'enrollment' or we can add 'booking' type? Let's use 'enrollment' logic or 'booking'. Actually we can treat it as a booking type if added, but let's use type 'booking' (Make sure to add it). Wait, type enum might restrict it. Let's assume 'enrollment' for now or we just use 'booking'. Wait, if we use 'booking', transaction enum must allow 'booking'. Does it? No, Transaction migration didn't have enum restriction for type, let's look at Transaction Model: 'enrollment', 'payout', 'refund'. The DB schema for transactions column 'type' is enum('enrollment','payout','refund'). So we need an enum change. Actually let's use 'booking' and I'll create a migration for the enum. Actually, we can reuse 'enrollment' type and rely on booking_id. Let's use 'enrollment'.
+                'status'            => 'pending',
+                'booking_id'        => $booking->id,
+                'student_id'        => $booking->student_id,
+                'tutor_id'          => $slot->tutor_id,
+                'payment_method_id' => $booking->payment_method_id ?? null,
+                'gross_amount'      => $split['gross'],
+                'platform_fee_rate' => $split['rate'],
+                'platform_fee_amount' => $split['platform_fee'],
+                'tutor_amount'      => $split['tutor_amount'],
+            ]);
+
+            // Add to pending balance
+            TutorDetail::where('user_id', $slot->tutor_id)
+                ->increment('pending_balance', $split['tutor_amount']);
+
+            return $transaction;
+        });
+    }
+
+    public function confirmBookingPayment(Booking $booking, int $adminId): void
+    {
+        DB::transaction(function () use ($booking, $adminId) {
+            $transaction = Transaction::where('booking_id', $booking->id)
+                ->where('status', 'pending')
+                ->latest()
+                ->first();
+
+            if (!$transaction) return;
+
+            $transaction->update([
+                'status' => 'completed',
+                'processed_by' => $adminId,
+                'processed_at' => now(),
+            ]);
+
+            // Move from pending to available
+            $tutorDetail = TutorDetail::where('user_id', $transaction->tutor_id)->first();
+            if ($tutorDetail) {
+                $tutorDetail->decrement('pending_balance', (float) $transaction->tutor_amount);
+                $tutorDetail->increment('available_balance', (float) $transaction->tutor_amount);
+                $tutorDetail->increment('total_earned', (float) $transaction->tutor_amount);
+            }
+        });
+    }
+
+    public function failBookingPayment(Booking $booking): void
+    {
+        DB::transaction(function () use ($booking) {
+            $transaction = Transaction::where('booking_id', $booking->id)
+                ->where('status', 'pending')
+                ->latest()
+                ->first();
+
+            if (!$transaction) return;
+
+            $transaction->update(['status' => 'failed']);
+
+            // Revert pending balance
+            TutorDetail::where('user_id', $transaction->tutor_id)
+                ->decrement('pending_balance', (float) $transaction->tutor_amount);
+        });
+    }
+
+    public function processBookingRefund(Booking $booking, int $adminId, string $notes = ''): Transaction
+    {
+        return DB::transaction(function () use ($booking, $adminId, $notes) {
+            $originalTx = Transaction::where('booking_id', $booking->id)
+                ->where('status', 'completed')
+                ->latest()
+                ->first();
+
+            if (!$originalTx) {
+                throw new \Exception('No completed transaction found for this booking');
+            }
+
+            $refundTx = Transaction::create([
+                'reference_number'    => Transaction::generateReference(),
+                'type'                => 'refund',
+                'status'              => 'completed',
+                'booking_id'          => $booking->id,
+                'student_id'          => $booking->student_id,
+                'tutor_id'            => $originalTx->tutor_id,
+                'payment_method_id'   => $originalTx->payment_method_id,
+                'processed_by'        => $adminId,
+                'gross_amount'        => $originalTx->gross_amount,
+                'platform_fee_rate'   => $originalTx->platform_fee_rate,
+                'platform_fee_amount' => $originalTx->platform_fee_amount,
+                'tutor_amount'        => $originalTx->tutor_amount,
+                'notes'               => $notes,
+                'processed_at'        => now(),
+            ]);
+
+            $originalTx->update(['status' => 'refunded']);
+
+            $tutorDetail = TutorDetail::where('user_id', $originalTx->tutor_id)->first();
+            if ($tutorDetail && $tutorDetail->available_balance >= $originalTx->tutor_amount) {
+                $tutorDetail->decrement('available_balance', (float) $originalTx->tutor_amount);
+                $tutorDetail->decrement('total_earned', (float) $originalTx->tutor_amount);
+            }
+
+            return $refundTx;
+        });
     }
 }

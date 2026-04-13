@@ -94,13 +94,27 @@ class User extends Authenticatable
         return $this->hasOne(TutorDetail::class);
     }
 
-    /**
-     * Get courses created by this tutor
-     */
     public function courses(): HasMany
     {
         return $this->hasMany(Course::class, 'tutor_id');
     }
+
+    /**
+     * Get session slots created by this tutor
+     */
+    public function sessionSlots(): HasMany
+    {
+        return $this->hasMany(SessionSlot::class, 'tutor_id');
+    }
+
+    /**
+     * Get bookings made by this student
+     */
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class, 'student_id');
+    }
+
 
     /**
      * Get enrollments for this student

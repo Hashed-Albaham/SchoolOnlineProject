@@ -65,6 +65,14 @@ class Course extends Model
     }
 
     /**
+     * Get session slots exclusively associated with this course
+     */
+    public function sessionSlots(): HasMany
+    {
+        return $this->hasMany(SessionSlot::class);
+    }
+
+    /**
      * Check if course is approved
      */
     public function isApproved(): bool

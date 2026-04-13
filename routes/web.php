@@ -154,6 +154,12 @@ Route::group([
         Route::get('/enrollments', [\App\Http\Controllers\Admin\EnrollmentController::class, 'index'])->name('enrollments.index');
         Route::patch('/enrollments/{enrollment}/status', [\App\Http\Controllers\Admin\EnrollmentController::class, 'updateStatus'])->name('enrollments.updateStatus');
 
+        // [BOOKING] Session Booking Management
+        Route::get('/bookings', [\App\Http\Controllers\Admin\BookingController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/{booking}', [\App\Http\Controllers\Admin\BookingController::class, 'show'])->name('bookings.show');
+        Route::patch('/bookings/{booking}/status', [\App\Http\Controllers\Admin\BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+        Route::post('/bookings/{booking}/refund', [\App\Http\Controllers\Admin\BookingController::class, 'refund'])->name('bookings.refund');
+
         // [A5] Category Management
         Route::get('/categories', [\App\Http\Controllers\Admin\CategoryController::class, 'index'])->name('categories.index');
         Route::get('/categories/create', [\App\Http\Controllers\Admin\CategoryController::class, 'create'])->name('categories.create');
@@ -249,6 +255,11 @@ Route::group([
         // [PAY2] Tutor Payout Requests
         Route::get('/payouts', [\App\Http\Controllers\Tutor\PayoutController::class, 'index'])->name('payouts.index');
         Route::post('/payouts', [\App\Http\Controllers\Tutor\PayoutController::class, 'store'])->name('payouts.store');
+
+        // [BOOKING] Tutor Session Management
+        Route::get('/sessions', function () {
+            return view('tutor.sessions.index');
+        })->name('sessions.index');
     });
 
     /*
@@ -291,6 +302,16 @@ Route::group([
         Route::post('/courses/{course}/content/{content}/complete', [StudentCourseController::class, 'markComplete'])->name('courses.content.complete');
         Route::post('/courses/{course}/request-certificate', [StudentCourseController::class, 'requestCertificate'])->name('courses.certificate.request');
 
+        // [BOOKING] Student Session Finder
+        Route::get('/sessions', function () {
+            return view('student.sessions.index');
+        })->name('sessions.index');
+        
+        // Payment route for sessions
+        Route::get('/sessions/booking/{booking}/payment', [\App\Http\Controllers\Student\SessionPaymentController::class, 'show'])->name('sessions.payment');
+        Route::middleware('throttle:payment')->group(function () {
+            Route::post('/sessions/booking/{booking}/payment', [\App\Http\Controllers\Student\SessionPaymentController::class, 'process'])->name('sessions.payment.process');
+        });
     });
 
 
@@ -312,4 +333,3 @@ Route::group([
     require __DIR__ . '/auth.php';
 
 }); // End of localization group
-
