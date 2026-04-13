@@ -14,11 +14,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE enrollments MODIFY COLUMN payment_status ENUM('pending','paid','failed','completed','refunded') DEFAULT 'pending'");
+        // DB::statement("ALTER TABLE enrollments MODIFY COLUMN payment_status ENUM('pending','paid','failed','completed','refunded') DEFAULT 'pending'");
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE enrollments MODIFY COLUMN payment_status ENUM('pending','paid','failed') DEFAULT 'pending'");
+        // DB::statement("ALTER TABLE enrollments MODIFY COLUMN payment_status ENUM('pending','paid','failed') DEFAULT 'pending'");
     }
 };
