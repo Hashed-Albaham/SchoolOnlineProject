@@ -62,7 +62,7 @@ echo Press any key to start uploading...
 pause
 
 echo [5/5] Pushing to GitHub...
-git push -u origin main
+git push -u origin HEAD
 
 echo.
 echo ---------------------------------
