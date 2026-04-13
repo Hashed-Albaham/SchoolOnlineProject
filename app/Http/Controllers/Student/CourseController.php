@@ -178,6 +178,33 @@ class CourseController extends Controller
 
         return back()->with('success', 'تم إكمال الدرس بنجاح!');
     }
+
+
+ public function show(Course $course)
+{
+    $course->load([
+        'tutor.tutorDetails',
+        'contents' => fn($q) => $q->orderBy('order'),
+        'quizzes'
+    ])->loadCount([
+        'enrollments' => fn($q) => $q->where('payment_status', 'paid')
+    ]);
+
+    // نجلب الاشتراك مهما كانت حالته (مدفوع، معلق، مرفوض) لكي نعرف ماذا نظهر للطالب
+    $enrollment = Auth::check() ? Auth::user()->enrollments()
+        ->where('course_id', $course->id)
+        ->first() : null;
+
+    // الطالب يعتبر "مسجل ومقبول" فقط إذا كان الدفع مكتمل والحالة مقبولة
+    $isEnrolled = $enrollment && $enrollment->payment_status === 'paid' && $enrollment->enrollment_status === 'approved';
+
+    return view('student.courses.show', compact('course', 'isEnrolled', 'enrollment'));
+}
+
+
+
+
+ /*
     public function show(Course $course)
     {
         $course->load([
@@ -197,6 +224,11 @@ class CourseController extends Controller
 
         return view('student.courses.show', compact('course', 'isEnrolled', 'enrollment'));
     }
+
+  */
+
+
+
 
     /**
      * Request course certificate

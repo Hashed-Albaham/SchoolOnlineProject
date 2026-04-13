@@ -1,6 +1,6 @@
 # 📋 AI_HANDOVER.md - بروتوكول تسليم ProSkill Academy
-## آخر تحديث: 2026-04-07T03:25:00+03:00
-## النموذج المنفذ: LARA-PROSKILL-ARCHITECT-v8.0 (الجلسات 1-7)
+## آخر تحديث: 2026-04-10T03:25:00+03:00
+## النموذج المنفذ: LARA-PROSKILL-ARCHITECT-v8.0 (الجلسات 1-12)
 
 ---
 
@@ -54,13 +54,15 @@
 | `PayoutRequest` | **[PAY2] طلبات سحب الأرباح** - status constants + tutor/paymentMethod/reviewer relations | عادي ✅ |
 | `Setting` | **[v8.0] الإعدادات الديناميكية** - Cache::remember مع TTL ساعة | عادي ✅ |
 | `SettingsHistory` | **[v8.0] سجل تدقيق الإعدادات** - changedBy relation | عادي ✅ |
+| `Transaction` | **[FIN] المعاملات المالية** - تتبع المدفوعات، السحوبات، والعمولات | عادي ✅ |
 
 ### المتحكمات (Controllers) - ملخص شامل
 
-#### Admin Controllers (`app/Http/Controllers/Admin/`) - 10 ملفات
+#### Admin Controllers (`app/Http/Controllers/Admin/`) - 11 ملفات
 | الملف | الوظائف | الحالة |
 |---|---|---|
 | `DashboardController.php` | إحصائيات شاملة | ✅ أصلي |
+| `TransactionController.php` | **[FIN] عرض كل المعاملات المالية (index/show)** | ✅ **جديد** |
 | `TutorController.php` | إدارة المعلمين (index/pending/verify/reject/show/approveAllCourses) | ✅ أصلي |
 | `CourseController.php` | إدارة الدورات + تعديل/حذف + حذف تقييمات + حذف محتوى + approve/reject/unapprove | ✅ **محدّث** |
 | `UserController.php` | **[A3] إدارة كل المستخدمين (index/show/edit/update/destroy)** | ✅ **جديد** |
@@ -81,12 +83,13 @@
 | `PayoutController.php` | **[PAY2] طلب سحب أرباح المعلم (index/store)** | ✅ **جديد** |
 | `ReportController.php` | **[T1] تقارير وإحصائيات المعلم (index)** | ✅ **جديد** |
 
-#### Student Controllers (`app/Http/Controllers/Student/`) - 3 ملفات
+#### Student Controllers (`app/Http/Controllers/Student/`) - 4 ملفات
 | الملف | الوظائف | الحالة |
 |---|---|---|
 | `DashboardController.php` | لوحة تحكم + إحصائيات + اقتراحات | ✅ |
 | `CourseController.php` | تصفح + مشاهدة + تقدم + طلب شهادات | ✅ |
 | `EnrollmentController.php` | التسجيل والدفع + myEnrollments | ✅ **محدّث** (C1+C4) |
+| `TransactionController.php` | **[FIN] سجل الفواتير ومدفوعات الطالب (index/show)** | ✅ **جديد** |
 
 #### Shared Controllers (`app/Http/Controllers/`) - 6 ملفات
 | الملف | الوظائف | الحالة |
@@ -121,7 +124,7 @@
 
 | الدور | الروابط في النافبار (Desktop) |
 |---|---|
-| **Admin** | Dashboard, إدارة المستخدمين, المعلمون, الدورات, الاشتراكات, التقارير, 💳 طرق الدفع, 💰 إدارة المدفوعات, 👁 إشراف الدردشة |
+| **Admin** | Dashboard, إدارة المستخدمين, المعلمون, الدورات, الاشتراكات, التقارير, 💳 طرق الدفع, 💰 إدارة المدفوعات, 💳 المعاملات, 👁 إشراف الدردشة |
 | **Tutor** | Dashboard, دوراتي, الملف الشخصي, 💰 أرباحي, 📊 التقارير |
 | **Student** | Dashboard, الدورات, دوراتي, شهاداتي |
 | **Guest** | تسجيل الدخول, إنشاء حساب |
@@ -196,6 +199,13 @@
 |---|---|---|
 | `/{lang}/admin/enrollments` | `admin.enrollments.index` | Navbar → الاشتراكات |
 | `PATCH /{lang}/admin/enrollments/{enrollment}/status` | `admin.enrollments.updateStatus` | صفحة Enrollments → زر تغيير الحالة |
+| `POST /{lang}/admin/enrollments/{enrollment}/refund` | `admin.enrollments.refund` | **[FIN]** صفحة Enrollments → زر استرداد |
+
+#### [FIN] سجل المعاملات المالية (Admin)
+| المسار | Route Name | نقطة الدخول |
+|---|---|---|
+| `/{lang}/admin/transactions` | `admin.transactions.index` | Navbar → المعاملات |
+| `/{lang}/admin/transactions/{tx}` | `admin.transactions.show` | صفحة المعاملات → عرض |
 
 #### [A7] التقارير والتحليلات
 | المسار | Route Name | نقطة الدخول |
@@ -281,6 +291,8 @@
 | `GET ../quizzes/{quiz}/result` | `student.quizzes.result` | بعد التسليم → النتيجة |
 | `POST ../courses/{course}/content/{content}/complete` | `student.courses.content.complete` | صفحة Watch → إكمال المحتوى |
 | `POST ../courses/{course}/request-certificate` | `student.courses.certificate.request` | صفحة Watch → طلب شهادة |
+| `/{lang}/student/transactions` | `student.transactions.index` | **[FIN]** Dashboard → الفواتير |
+| `/{lang}/student/transactions/{tx}` | `student.transactions.show` | **[FIN]** صفحة Transactions → الفاتورة |
 
 ### Authenticated Routes (أي مستخدم مسجل)
 | المسار | Route Name | نقطة الدخول |
@@ -308,6 +320,7 @@
 | `enrollments/` | index | **[A6]** إدارة الاشتراكات |
 | `payment_methods/` | index, create, edit, _form | **[PAY1]** طرق الدفع |
 | `payouts/` | index | **[PAY2]** مدفوعات المعلمين |
+| `transactions/` | index, show | **[FIN]** سجل المعاملات المالية |
 | `reports/` | index | **[A7]** التقارير |
 | `tutors/` | index, pending, show | إدارة المعلمين |
 | `users/` | index, edit | **[A3]** إدارة المستخدمين |
@@ -331,6 +344,7 @@
 | `courses/` | index, my-courses, show, watch | تصفح ومشاهدة الدورات |
 | `certificates/` | index | شهاداتي |
 | `enrollment/` | payment | صفحة الدفع |
+| `transactions/` | index, show | **[FIN]** سجل الفواتير والمدفوعات |
 | `quizzes/` | show, result | الاختبارات |
 
 ### صفحات أخرى
@@ -371,7 +385,7 @@
 
 ---
 
-## ✅ جميع الإصلاحات المنجزة
+## ✅ جميع الإصلاحات المنجزة (محدّث 2026-04-10)
 
 ### الجلسة الأولى (إصلاحات أمنية) - 7 إصلاحات
 | الرمز | الإصلاح | الملفات |
@@ -446,17 +460,19 @@
 - ✅ **حذف محتوى الدورات** ← A10
 - ✅ **إدارة طرق الدفع** ← PAY1
 - ✅ **إدارة مدفوعات المعلمين** ← PAY2
+- ✅ **المعاملات المالية والاسترداد (Refund)** ← FIN
 
 ### Instructor (المعلم): ✅ **مكتمل بنسبة ~95%**
 - ✅ التسجيل ورفع الشهادات | ✅ الملف الشخصي | ✅ إدارة الدورات والمحتوى
 - ✅ إنشاء اختبارات | ⚠️ جلسات مباشرة (غير موجود) | ✅ دردشة + تقييمات + شهادات
 - ✅ **نظام موافقة على الطلاب** ← E1
-- ✅ **سحب الأرباح** ← PAY2
+- ✅ **سحب الأرباح والمحفظة (Wallet)** ← PAY2 + FIN
 - ✅ **تقارير وإحصائيات المعلم** ← T1
 
 ### Student (الطالب): ✅ **مكتمل 100%**
 - ✅ تسجيل حساب | ✅ لوحة تحكم | ✅ اشتراكات ودفع | ✅ دردشة
 - ✅ اختبارات ونتائج | ✅ تقييم الدورات | ✅ طلب شهادات | ✅ تتبع التقدم
+- ✅ **سجل المدفوعات والفواتير** ← FIN
 
 ---
 
@@ -490,22 +506,22 @@
 23. `app/Http/Controllers/Tutor/ReportController.php` ← T1
 24. `resources/views/tutor/reports/index.blade.php` ← T1
 
-### الجلسة السابعة (الملفات الجديدة):
-25. `database/migrations/2026_03_06_000001_add_qualifications_fields.php` ← REQ
-
-### الجلسة الثالثة (الملفات الجديدة):
-23. `database/migrations/2026_03_04_000001_create_categories_table.php` ← A5
-24. `app/Models/Category.php` ← A5
-25. `app/Http/Controllers/Admin/CategoryController.php` ← A5
-26. `resources/views/admin/categories/index.blade.php` ← A5
-27. `resources/views/admin/categories/create.blade.php` ← A5
-28. `resources/views/admin/categories/edit.blade.php` ← A5
-29. `app/Http/Controllers/Admin/ReportController.php` ← A7
-30. `resources/views/admin/reports/index.blade.php` ← A7
+### الجلسة الثانية عشر (FIN - النظام المالي الشامل):
+- `app/Models/Transaction.php`
+- `app/Services/FinancialService.php`
+- `app/Http/Controllers/Admin/TransactionController.php`
+- `app/Http/Controllers/Student/TransactionController.php`
+- `database/migrations/xxxx_create_transactions_table.php`
+- `database/migrations/xxxx_add_wallet_fields_to_tutor_details_table.php`
+- `database/migrations/xxxx_add_commission_to_settings_table.php`
+- `resources/views/admin/transactions/index.blade.php`
+- `resources/views/admin/transactions/show.blade.php`
+- `resources/views/student/transactions/index.blade.php`
+- `resources/views/student/transactions/show.blade.php`
 
 ---
 
-## 📋 المهام المؤجلة (محدّث 2026-03-06)
+## 📋 المهام المؤجلة (محدّث 2026-04-10)
 
 ### 🟡 المرحلة 2 - ميزات متبقية (1 مهمة):
 
@@ -564,6 +580,7 @@
 9. **✅ تم إصلاح**: `CoursePolicy::update` يسمح للAdmin بالتعديل ← S1 مكتمل.
 10. **✅ تم إصلاح**: الدردشة مقيدة حسب العلاقة ← MSG1 مكتمل.
 11. **✅ تم إصلاح**: المعلم غير المحقق لا يستطيع إنشاء دورات ← V1 مكتمل.
+12. **✅ تم إصلاح**: `$slot` undefined variable in Views (تم استخدام `<x-app-layout>` بدلاً من `@extends('layouts.app')`).
 
 ---
 
@@ -571,8 +588,8 @@
 
 - **Laravel الإصدار**: 12.50.0 (PHP 8.2.12)
 - **قاعدة البيانات**: **MySQL** (proskill_db عبر XAMPP) - **ليس SQLite!**
-- **Migrations**: 26 ملف migration
-- **Routes**: 276 سطر في `web.php` (3 Rate Limiters + 4 مجموعات routes)
+- **Migrations**: 34 ملف migration
+- **Routes**: 276+ سطر في `web.php` (3 Rate Limiters + 4 مجموعات routes)
 - `Course::$fillable` لا يحتوي على `status` → **يجب تعيينه دائماً بشكل صريح**
 - `Enrollment::$fillable` لا يزال يحتوي على `payment_status` → **يُفضل إزالته**
 - التوطين عبر `mcamara/laravel-localization` (prefix: `/ar`, `/en`)
@@ -597,9 +614,9 @@
 | **Controllers (Shared)** | 6 |
 | **Livewire Components** | 3 |
 | **Policies** | 1 |
-| **Blade Views** | ~70+ |
-| **Migrations** | 27 |
-| **Routes (web.php)** | 276 سطر |
+| **Blade Views** | ~80+ |
+| **Migrations** | 34 |
+| **Routes (web.php)** | ~285 سطر |
 | **Tests (Feature)** | 3 ملفات (OmniTest, ProfileTest, ExampleTest) + Auth (6 ملفات) |
 
 ---
