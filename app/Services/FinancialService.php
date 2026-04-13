@@ -241,6 +241,7 @@ class FinancialService
             return ['can' => false, 'reason' => 'insufficient_balance', 'available' => $trulyAvailable];
         }
         return ['can' => true];
+    }
         // ─────────────────────────────────────────────────────────────────
     // عمليات الحجوزات (BOOKINGS)
     // ─────────────────────────────────────────────────────────────────
