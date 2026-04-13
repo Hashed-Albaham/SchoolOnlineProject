@@ -40,26 +40,21 @@ class SessionPaymentController extends Controller
             return redirect()->route('student.sessions.index')->with('error', __('site.booking_expired'));
         }
 
-        $request->validate([
-            'payment_method_id' => 'required|exists:payment_methods,id',
-            'payment_proof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        // In simulation, we don't require external proof or real payment method.
+        // We will just process the payment assuming it's a simulated card charge.
 
-        $proofPath = $request->file('payment_proof')->store('payments/sessions', 'public');
+        // Assign a default payment method if available (just for referencing in DB) or leave null.
+        $defaultMethod = PaymentMethod::where('is_active', true)->first();
 
         $booking->update([
-            'payment_method_id' => $request->payment_method_id,
-            // Lock until Admin reviews
-            'locked_until' => now()->addDays(7), // hold seat until admin reviews or extend lock
+            'payment_method_id' => $defaultMethod ? $defaultMethod->id : null,
+            // Lock until Admin reviews, or depending on business logic, wait for session finish
+            'locked_until' => now()->addDays(7), 
+            'status' => 'confirmed' // Since it's an online simulated payment, assume instant confirmation
         ]);
 
         $transaction = $financialService->recordBookingPayment($booking);
-        $transaction->update(['payment_proof' => clone $proofPath ?? $proofPath]); // Actually let's just update proof
 
-        // Refresh model to apply to transaction
-        $transaction->payment_proof = $proofPath;
-        $transaction->save();
-        
-        return redirect()->route('student.sessions.index')->with('success', __('site.payment_submitted_successfully'));
+        return redirect()->route('student.sessions.index')->with('success', __('site.payment_submitted_successfully') ?? 'تم دفع رسوم الجلسة بنجاح.');
     }
 }

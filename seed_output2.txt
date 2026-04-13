@@ -1,0 +1,96 @@
+
+  Dropping all tables .................................................................................. 431.31ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table .............................................................................. 50.04ms DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table ................................................................. 242.28ms DONE
+  0001_01_01_000001_create_cache_table ................................................................. 137.87ms DONE
+  0001_01_01_000002_create_jobs_table .................................................................. 124.61ms DONE
+  2026_02_01_200001_create_tutor_details_table ......................................................... 132.92ms DONE
+  2026_02_01_200002_create_courses_table ............................................................... 102.42ms DONE
+  2026_02_01_200003_create_course_contents_table ....................................................... 134.51ms DONE
+  2026_02_01_200004_create_enrollments_table ........................................................... 224.61ms DONE
+  2026_02_01_202244_create_messages_table .............................................................. 378.31ms DONE
+  2026_02_01_223221_create_quizzes_table ................................................................ 13.21ms DONE
+  2026_02_01_223226_create_questions_table .............................................................. 20.32ms DONE
+  2026_02_01_223230_create_options_table ................................................................ 16.43ms DONE
+  2026_02_01_223235_create_quiz_attempts_table .......................................................... 13.25ms DONE
+  2026_02_02_000000_create_reviews_table ............................................................... 290.79ms DONE
+  2026_02_04_180000_add_content_types_to_course_contents ............................................... 574.73ms DONE
+  2026_02_04_185200_add_columns_to_quizzes_table ....................................................... 598.10ms DONE
+  2026_02_04_191000_create_content_progress_table ...................................................... 617.07ms DONE
+  2026_02_04_191001_create_course_certificates_table ................................................... 698.54ms DONE
+  2026_02_04_203801_create_notifications_table ......................................................... 117.86ms DONE
+  2026_02_04_215413_add_max_attempts_to_quizzes_table ................................................... 17.61ms DONE
+  2026_02_08_224306_add_missing_columns_to_questions_table ............................................. 340.47ms DONE
+  2026_02_08_224447_add_missing_columns_to_options_table ............................................... 308.17ms DONE
+  2026_02_08_225241_add_missing_columns_to_quiz_attempts_table ......................................... 566.99ms DONE
+  2026_03_04_000001_create_categories_table ............................................................ 166.22ms DONE
+  2026_03_04_014215_add_enrollment_status_to_enrollments_table .......................................... 23.25ms DONE
+  2026_03_04_100000_create_payment_methods_table ....................................................... 374.88ms DONE
+  2026_03_04_100001_create_payout_requests_table ....................................................... 522.69ms DONE
+  2026_03_06_000001_add_qualifications_fields ........................................................... 94.72ms DONE
+  2026_03_06_032809_add_avatar_to_users_table ........................................................... 10.63ms DONE
+  2026_03_06_234915_add_soft_deletes_to_core_tables ..................................................... 33.62ms DONE
+  2026_04_07_000001_add_super_admin_and_settings ....................................................... 163.41ms DONE
+  2026_04_07_000002_add_eligibility_fields_to_tutor_details ............................................. 85.16ms DONE
+  2026_04_10_001248_create_transactions_table .......................................................... 757.69ms DONE
+  2026_04_10_001506_add_wallet_fields_to_tutor_details_table ............................................ 50.15ms DONE
+  2026_04_10_001609_add_commission_to_settings_table ..................................................... 4.55ms DONE
+  2026_04_13_180000_expand_payment_status_enum_in_enrollments ........................................... 96.62ms DONE
+  2026_04_13_180001_add_name_ar_to_payment_methods_table ................................................ 17.53ms DONE
+  2026_04_13_180002_add_payment_fields_to_enrollments_table ............................................ 147.25ms DONE
+  2026_04_13_202315_create_session_slots_table ......................................................... 219.18ms DONE
+  2026_04_13_202333_create_bookings_table .............................................................. 527.54ms DONE
+  2026_04_13_202346_add_booking_id_to_transactions_table ............................................... 132.93ms DONE
+
+
+   INFO  Seeding database.  
+
+✅ تم إنشاء البيانات التجريبية بنجاح!
+
+📧 بيانات الدخول:
+   المسؤول: admin@proskill.com / password (سوبر أدمن)
+   المعلم: tutor@proskill.com / password
+   الطالب: student@proskill.com / password
+  Database\Seeders\SettingsSeeder ............................................................................ RUNNING  
+⚙️ Default settings seeded (values empty - set from admin panel)
+  Database\Seeders\SettingsSeeder ......................................................................... 26 ms DONE  
+
+  Database\Seeders\SessionBookingSeeder ...................................................................... RUNNING  
+✅ تم توليد وتخصيص جلسات وحجوزات المعلمين والطلاب بنجاح.
+  Database\Seeders\SessionBookingSeeder .................................................................. 104 ms DONE  
+
+  Database\Seeders\AdvancedTestDataSeeder .................................................................... RUNNING  
+Creating 10 Random Categories...
+Creating 20 Random Tutors...
+Creating 50 Random Students...
+Creating 30 Random Courses & Contents & Quizzes...
+Creating 100 Enrollments...
+Creating 50 Session Slots and Random Bookings...
+
+   Illuminate\Database\UniqueConstraintViolationException 
+
+  SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '49-31' for key 'enrollments_user_id_course_id_unique' (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: proskillLast, SQL: insert into `enrollments` (`course_id`, `user_id`, `enrollment_status`, `payment_status`, `updated_at`, `created_at`) values (31, 49, approved, paid, 2026-04-13 21:24:43, 2026-04-13 21:24:43))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:838
+    834▕             $exceptionType = $this->isUniqueConstraintError($e)
+    835▕                 ? UniqueConstraintViolationException::class
+    836▕                 : QueryException::class;
+    837▕ 
+  ➜ 838▕             throw new $exceptionType(
+    839▕                 $this->getNameWithReadWriteType(),
+    840▕                 $query,
+    841▕                 $this->prepareBindings($bindings),
+    842▕                 $e,
+
+  1   vendor\laravel\framework\src\Illuminate\Database\MySqlConnection.php:53
+      PDOException::("SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '49-31' for key 'enrollments_user_id_course_id_unique'")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\MySqlConnection.php:53
+      PDOStatement::execute()
+

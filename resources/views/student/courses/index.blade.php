@@ -27,8 +27,19 @@
                             placeholder="{{ __('site.search_placeholder') }}"
                             class="w-full pr-12 pl-4 rtl:pr-12 rtl:pl-4 ltr:pl-12 ltr:pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-0 transition">
                     </div>
-                    <!-- Directional classes: rtl:pr-12 means padding-right in RTL (start), ltr:pl-12 means padding-left in LTR (start) -->
-                    <!-- Ideally use ps-12 pe-4 but tailwind version dependent. Let's stick to standard ps/pe if configured, or manual checks. The user asked for professional UI. I'll use standard css logic properties if possible or manual replacement if not configured. Using ps/pe is safer if supported. -->
+                    <!-- Category Filter -->
+                    <select name="category" class="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-gold-500/50 focus:ring-0">
+                        <option value="">{{ __('site.all_categories') ?? 'كل التصنيفات' }}</option>
+                        @if(isset($categories))
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+
+                    <!-- Sort -->
                     <select name="sort"
                         class="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-gold-500/50 focus:ring-0">
                         <option value="latest" {{ request('sort') === 'latest' ? 'selected' : '' }}>

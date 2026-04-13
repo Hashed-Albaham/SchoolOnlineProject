@@ -1,7 +1,7 @@
 <div>
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-semibold text-gray-800">{{ __('site.my_sessions') }}</h2>
-        <button wire:click="toggleForm" class="bg-indigo-600 text-white px-4 py-2 rounded shadow hover:bg-indigo-700 transition">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <h2 class="text-3xl font-extrabold text-luxury-900">{{ __('site.my_sessions') ?? 'إدارة الجلسات' }}</h2>
+        <button wire:click="toggleForm" class="bg-gold-500 text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-gold-600 transition">
             {{ $showForm ? __('site.cancel') : __('site.add_new_session') }}
         </button>
     </div>
@@ -26,7 +26,7 @@
                     <!-- النوع -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('site.session_type') }}</label>
-                        <select wire:model.live="type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select wire:model.live="type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-gold-500 focus:ring-gold-500">
                             <option value="1-on-1">{{ __('site.one_on_one_session') }}</option>
                             <option value="group">{{ __('site.group_session') }}</option>
                         </select>
@@ -36,7 +36,7 @@
                     <!-- الارتباط بكورس معين -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('site.link_to_course') }} ({{ __('site.optional') }})</label>
-                        <select wire:model="course_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select wire:model="course_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-gold-500 focus:ring-gold-500">
                             <option value="">{{ __('site.public_session') }}</option>
                             @foreach($courses as $course)
                                 <option value="{{ $course->id }}">{{ $course->title }}</option>
@@ -48,39 +48,39 @@
                     <!-- السعر -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('site.price') }} (0 = {{ __('site.free') }})</label>
-                        <input type="number" step="0.01" wire:model="price" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="number" step="0.01" wire:model="price" class="w-full rounded-md border-gray-300 shadow-sm focus:border-gold-500 focus:ring-gold-500">
                         @error('price') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- السعة -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('site.max_participants') }}</label>
-                        <input type="number" wire:model="max_participants" {{ $type === '1-on-1' ? 'disabled' : '' }} class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 {{ $type === '1-on-1' ? 'bg-gray-100' : '' }}">
+                        <input type="number" wire:model="max_participants" {{ $type === '1-on-1' ? 'disabled' : '' }} class="w-full rounded-md border-gray-300 shadow-sm focus:border-gold-500 focus:ring-gold-500 {{ $type === '1-on-1' ? 'bg-gray-100' : '' }}">
                         @error('max_participants') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- التوقيت -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('site.start_time') }}</label>
-                        <input type="datetime-local" wire:model="start_time" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="datetime-local" wire:model="start_time" class="w-full rounded-md border-gray-300 shadow-sm focus:border-gold-500 focus:ring-gold-500">
                         @error('start_time') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('site.end_time') }}</label>
-                        <input type="datetime-local" wire:model="end_time" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="datetime-local" wire:model="end_time" class="w-full rounded-md border-gray-300 shadow-sm focus:border-gold-500 focus:ring-gold-500">
                         @error('end_time') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- رابط الاجتماع -->
                     <div class="col-span-1 md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('site.meeting_link') }}</label>
-                        <input type="url" wire:model="meeting_link" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="https://zoom.us/...">
+                        <input type="url" wire:model="meeting_link" class="w-full rounded-md border-gray-300 shadow-sm focus:border-gold-500 focus:ring-gold-500" placeholder="https://zoom.us/...">
                         @error('meeting_link') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                 </div>
 
                 <div class="mt-6 flex justify-end">
-                    <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <button type="submit" class="bg-gold-500 text-white font-bold px-8 py-2 rounded-lg hover:bg-gold-600 focus:outline-none shadow-md transition">
                         {{ __('site.save') }}
                     </button>
                 </div>
@@ -121,8 +121,8 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                     @if($session->status === 'scheduled') bg-blue-100 text-blue-800
-                                    @elseif($session->status === 'completed') bg-green-100 text-green-800
-                                    @else bg-red-100 text-red-800 @endif">
+                                    @elseif($session->status === 'completed') bg-green-100 text-green-700
+                                    @else bg-red-100 text-red-700 @endif">
                                     {{ __('site.'.$session->status) }}
                                 </span>
                             </td>
@@ -131,7 +131,7 @@
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                 </button>
                                 @if($session->meeting_link)
-                                    <a href="{{ $session->meeting_link }}" target="_blank" class="text-blue-600 hover:text-blue-900 inline-block">
+                                    <a href="{{ $session->meeting_link }}" target="_blank" class="text-luxury-600 hover:text-luxury-900 inline-block">
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                                     </a>
                                 @endif

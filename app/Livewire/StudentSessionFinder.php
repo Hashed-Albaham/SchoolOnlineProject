@@ -37,6 +37,11 @@ class StudentSessionFinder extends Component
         $query = SessionSlot::with(['tutor.tutorDetails', 'course', 'bookings'])
             ->where('status', 'scheduled')
             ->where('start_time', '>', now()) // Only future sessions
+            ->whereDoesntHave('bookings', function($q) use ($student) {
+                // EXCLUDE sessions already booked by this student
+                $q->where('student_id', $student->id)
+                  ->whereIn('status', ['pending', 'confirmed']);
+            })
             ->where(function($q) use ($enrolledCourseIds) {
                 // Public sessions OR sessions of courses the student is enrolled in
                 $q->whereNull('course_id')

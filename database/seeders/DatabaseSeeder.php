@@ -336,5 +336,11 @@ class DatabaseSeeder extends Seeder
 
         // [v8.0] Seed default settings
         $this->call(SettingsSeeder::class);
+
+        // [v2.0] Seed bookings
+        $this->call(SessionBookingSeeder::class);
+
+        // [v3.0] Heavy random testing data
+        $this->call(AdvancedTestDataSeeder::class);
     }
 }

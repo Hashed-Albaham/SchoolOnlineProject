@@ -43,21 +43,26 @@
                     </a>
 
                     @if(auth()->user()->role === 'student')
-                                <x-nav-link :href="route('student.dashboard')" :active="request()->routeIs('student.dashboard')">
+                                <a href="{{ route('student.dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-shrink-0
+                                    {{ request()->routeIs('student.dashboard') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.dashboard') }}
-                                </x-nav-link>
-                                <x-nav-link :href="route('courses.index')" :active="request()->routeIs('courses.*') && !request()->routeIs('student.courses.my')">
+                                </a>
+                                <a href="{{ route('student.courses.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-shrink-0
+                                    {{ request()->routeIs('student.courses.index') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.courses') }}
-                                </x-nav-link>
-                                <x-nav-link :href="route('student.courses.my')" :active="request()->routeIs('student.courses.my')">
+                                </a>
+                                <a href="{{ route('student.courses.my') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-shrink-0
+                                    {{ request()->routeIs('student.courses.my') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.my_courses') }}
-                                </x-nav-link>
-                                <x-nav-link :href="route('student.sessions.index')" :active="request()->routeIs('student.sessions.*')">
+                                </a>
+                                <a href="{{ route('student.sessions.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-shrink-0
+                                    {{ request()->routeIs('student.sessions.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.session_booking') }}
-                                </x-nav-link>
-                                <x-nav-link :href="route('student.enrollments.my')" :active="request()->routeIs('student.enrollments.my')">
+                                </a>
+                                <a href="{{ route('student.enrollments.my') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-shrink-0
+                                    {{ request()->routeIs('student.enrollments.my') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.my_enrollments') }}
-                                </x-nav-link>
+                                </a>
                                 <a href="{{ route('student.certificates') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-shrink-0
                                     {{ request()->routeIs('student.certificates')
                         ? 'bg-white/10 text-gold-400'
