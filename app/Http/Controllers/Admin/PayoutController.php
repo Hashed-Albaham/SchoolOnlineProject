@@ -46,11 +46,11 @@ class PayoutController extends Controller
             return back()->with('error', __('site.payout_already_processed'));
         }
 
-        $payoutRequest->update([
-            'status'      => PayoutRequest::STATUS_APPROVED,
-            'reviewed_at' => now(),
-            'reviewed_by' => Auth::id(),
-        ]);
+        // [V5 FIX] Explicit status assignment
+        $payoutRequest->status = PayoutRequest::STATUS_APPROVED;
+        $payoutRequest->reviewed_at = now();
+        $payoutRequest->reviewed_by = Auth::id();
+        $payoutRequest->save();
 
         // [FIN] تسجيل معاملة السحب
         app(FinancialService::class)->recordPayoutTransaction($payoutRequest, auth()->id());
@@ -71,12 +71,12 @@ class PayoutController extends Controller
             'admin_notes' => 'nullable|string|max:500',
         ]);
 
-        $payoutRequest->update([
-            'status'      => PayoutRequest::STATUS_REJECTED,
-            'admin_notes' => $request->admin_notes,
-            'reviewed_at' => now(),
-            'reviewed_by' => Auth::id(),
-        ]);
+        // [V5 FIX] Explicit status assignment
+        $payoutRequest->status = PayoutRequest::STATUS_REJECTED;
+        $payoutRequest->admin_notes = $request->admin_notes;
+        $payoutRequest->reviewed_at = now();
+        $payoutRequest->reviewed_by = Auth::id();
+        $payoutRequest->save();
 
         return back()->with('success', __('site.payout_rejected'));
     }
@@ -90,10 +90,10 @@ class PayoutController extends Controller
             return back()->with('error', __('site.payout_must_be_approved_first'));
         }
 
-        $payoutRequest->update([
-            'status'  => PayoutRequest::STATUS_PAID,
-            'paid_at' => now(),
-        ]);
+        // [V5 FIX] Explicit status assignment
+        $payoutRequest->status = PayoutRequest::STATUS_PAID;
+        $payoutRequest->paid_at = now();
+        $payoutRequest->save();
 
         // [FIN] إكمال عملية السحب وخصم الرصيد
         app(FinancialService::class)->completePayout($payoutRequest, auth()->id());

@@ -30,10 +30,7 @@ class TutorDetail extends Model
         // [v8.0] Historical fairness - requirements at time of registration
         'req_gpa_at_registration',
         'req_step_at_registration',
-        'available_balance',
-        'pending_balance',
-        'total_earned',
-        'total_withdrawn',
+        // [V6 FIX] Wallet fields removed from $fillable — use increment/decrement only
     ];
 
     protected $casts = [

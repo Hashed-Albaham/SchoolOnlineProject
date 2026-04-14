@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Transaction extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'reference_number', 'type', 'status',
         'enrollment_id', 'payout_request_id', 'booking_id',
@@ -35,6 +37,7 @@ class Transaction extends Model
     // ─── Scopes ──────────────────────────────────────────────────
     public function scopeCompleted($q)   { return $q->where('status', 'completed'); }
     public function scopeEnrollments($q) { return $q->where('type', 'enrollment'); }
+    public function scopeBookings($q)    { return $q->where('type', 'booking'); } // [V11] Added for session booking transactions
     public function scopePayouts($q)     { return $q->where('type', 'payout'); }
     public function scopeRefunds($q)     { return $q->where('type', 'refund'); }
 

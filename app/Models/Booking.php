@@ -16,7 +16,7 @@ class Booking extends Model
         'session_slot_id',
         'payment_method_id',
         'transaction_id',
-        'status',
+        // [V4 FIX] 'status' removed — use explicit assignment
         'locked_until',
     ];
 

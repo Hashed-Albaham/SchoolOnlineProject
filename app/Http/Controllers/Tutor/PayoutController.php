@@ -70,13 +70,15 @@ class PayoutController extends Controller
             return back()->withErrors(['amount' => $errorKey])->withInput();
         }
 
-        PayoutRequest::create([
+        // [V5 FIX] Create payout request, then set status explicitly
+        $payout = PayoutRequest::create([
             'tutor_id'          => $tutor->id,
             'amount'            => $request->amount,
             'payment_method_id' => $request->payment_method_id,
             'tutor_notes'       => $request->tutor_notes,
-            'status'            => PayoutRequest::STATUS_PENDING,
         ]);
+        $payout->status = PayoutRequest::STATUS_PENDING;
+        $payout->save();
 
         return back()->with('success', __('site.payout_request_submitted'));
     }

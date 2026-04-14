@@ -254,7 +254,7 @@ class FinancialService
 
             $transaction = Transaction::create([
                 'reference_number'  => Transaction::generateReference(),
-                'type'              => 'enrollment', // We keep type as 'enrollment' or we can add 'booking' type? Let's use 'enrollment' logic or 'booking'. Actually we can treat it as a booking type if added, but let's use type 'booking' (Make sure to add it). Wait, type enum might restrict it. Let's assume 'enrollment' for now or we just use 'booking'. Wait, if we use 'booking', transaction enum must allow 'booking'. Does it? No, Transaction migration didn't have enum restriction for type, let's look at Transaction Model: 'enrollment', 'payout', 'refund'. The DB schema for transactions column 'type' is enum('enrollment','payout','refund'). So we need an enum change. Actually let's use 'booking' and I'll create a migration for the enum. Actually, we can reuse 'enrollment' type and rely on booking_id. Let's use 'enrollment'.
+                'type'              => 'booking', // [V3 FIX] Use correct type for session bookings
                 'status'            => 'pending',
                 'booking_id'        => $booking->id,
                 'student_id'        => $booking->student_id,

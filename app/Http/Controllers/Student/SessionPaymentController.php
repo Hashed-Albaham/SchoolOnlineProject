@@ -36,25 +36,29 @@ class SessionPaymentController extends Controller
         }
 
         if ($booking->locked_until && $booking->locked_until < now()) {
-            $booking->update(['status' => 'cancelled']);
+            $booking->status = 'cancelled';
+            $booking->save();
             return redirect()->route('student.sessions.index')->with('error', __('site.booking_expired'));
         }
 
-        // In simulation, we don't require external proof or real payment method.
-        // We will just process the payment assuming it's a simulated card charge.
+        // [V1+V2 FIX] Wrap entire flow in DB::transaction
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($booking, $financialService) {
+            $defaultMethod = PaymentMethod::where('is_active', true)->first();
 
-        // Assign a default payment method if available (just for referencing in DB) or leave null.
-        $defaultMethod = PaymentMethod::where('is_active', true)->first();
+            // [V4 FIX] Explicit assignment instead of mass assignment for status
+            $booking->payment_method_id = $defaultMethod?->id;
+            $booking->locked_until = null;
+            $booking->status = 'confirmed';
+            $booking->save();
 
-        $booking->update([
-            'payment_method_id' => $defaultMethod ? $defaultMethod->id : null,
-            // Lock until Admin reviews, or depending on business logic, wait for session finish
-            'locked_until' => now()->addDays(7), 
-            'status' => 'confirmed' // Since it's an online simulated payment, assume instant confirmation
-        ]);
+            // Record financial transaction (pending)
+            $financialService->recordBookingPayment($booking);
 
-        $transaction = $financialService->recordBookingPayment($booking);
+            // [V1+V2 FIX] Confirm immediately since payment is simulated
+            $financialService->confirmBookingPayment($booking, auth()->id());
 
-        return redirect()->route('student.sessions.index')->with('success', __('site.payment_submitted_successfully') ?? 'تم دفع رسوم الجلسة بنجاح.');
+            return redirect()->route('student.sessions.index')
+                ->with('success', __('site.payment_submitted_successfully') ?? 'تم دفع رسوم الجلسة بنجاح.');
+        });
     }
 }

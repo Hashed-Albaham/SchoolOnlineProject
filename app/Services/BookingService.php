@@ -64,13 +64,16 @@ class BookingService
                 throw new Exception(__('site.session_full'));
             }
 
-            // Create pending booking
+            // Create booking
             $booking = Booking::create([
                 'student_id'      => $student->id,
                 'session_slot_id' => $lockedSlot->id,
-                'status'          => ($lockedSlot->price > 0) ? 'pending' : 'confirmed',
                 'locked_until'    => ($lockedSlot->price > 0) ? now()->addMinutes(15) : null,
             ]);
+
+            // [V4 FIX] Explicit status assignment
+            $booking->status = ($lockedSlot->price > 0) ? 'pending' : 'confirmed';
+            $booking->save();
 
             return $booking;
         });

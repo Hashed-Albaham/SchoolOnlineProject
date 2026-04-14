@@ -41,11 +41,16 @@ class BookingController extends Controller
         }
 
         if ($request->status === 'confirmed') {
-            $booking->update(['status' => 'confirmed', 'locked_until' => null]);
+            // [V4 FIX] Explicit status assignment
+            $booking->status = 'confirmed';
+            $booking->locked_until = null;
+            $booking->save();
             $financialService->confirmBookingPayment($booking, auth()->id());
             return back()->with('success', __('site.booking_confirmed_successfully'));
         } else {
-            $booking->update(['status' => 'failed', 'locked_until' => null]);
+            $booking->status = 'failed';
+            $booking->locked_until = null;
+            $booking->save();
             $financialService->failBookingPayment($booking);
             return back()->with('success', __('site.booking_rejected'));
         }
@@ -65,7 +70,8 @@ class BookingController extends Controller
             $financialService->processBookingRefund($booking, auth()->id(), $request->notes ?? '');
             
             // Also change booking status
-            $booking->update(['status' => 'refunded']);
+            $booking->status = 'refunded';
+            $booking->save();
 
             return back()->with('success', __('site.refund_successful'));
         } catch (Exception $e) {

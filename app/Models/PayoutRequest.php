@@ -14,7 +14,7 @@ class PayoutRequest extends Model
         'tutor_id',
         'amount',
         'payment_method_id',
-        'status',
+        // [V5 FIX] 'status' removed — use explicit assignment
         'tutor_notes',
         'admin_notes',
         'reviewed_at',
