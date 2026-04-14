@@ -84,7 +84,7 @@
                                 </a>
                                 <a href="{{ route('tutor.sessions.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-shrink-0
                                     {{ request()->routeIs('tutor.sessions.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
-                                    {{ __('site.my_sessions') }}
+                                    📅 {{ __('site.manage_sessions') }}
                                 </a>
                                 <a href="{{ route('tutor.payouts.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-shrink-0
                                     {{ request()->routeIs('tutor.payouts.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
@@ -114,6 +114,10 @@
                                 <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-shrink-0
                                     {{ request()->routeIs('admin.reports.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
                                     {{ __('site.reports_analytics') }}
+                                </a>
+                                <a href="{{ route('admin.bookings.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-shrink-0
+                                    {{ request()->routeIs('admin.bookings.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
+                                    📅 {{ __('site.manage_sessions') }}
                                 </a>
                                 <a href="{{ route('admin.payment_methods.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-shrink-0
                                     {{ request()->routeIs('admin.payment_methods.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:text-white hover:bg-white/5' }}">
@@ -298,7 +302,7 @@
                         <a href="{{ route('tutor.sessions.index') }}"
                             class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
                                 {{ request()->routeIs('tutor.sessions.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
-                            {{ __('site.my_sessions') }}
+                            📅 {{ __('site.manage_sessions') }}
                         </a>
                     @elseif(auth()->user()->role === 'admin')
                         <a href="{{ route('admin.users.index') }}"
@@ -325,6 +329,11 @@
                             class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
                                 {{ request()->routeIs('admin.reports.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
                             {{ __('site.reports_analytics') }}
+                        </a>
+                        <a href="{{ route('admin.bookings.index') }}"
+                            class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0
+                                {{ request()->routeIs('admin.bookings.*') ? 'bg-white/10 text-gold-400' : 'text-luxury-300 hover:bg-white/5' }}">
+                            📅 {{ __('site.manage_sessions') }}
                         </a>
                         <a href="{{ route('admin.payment_methods.index') }}"
                             class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition flex-shrink-0

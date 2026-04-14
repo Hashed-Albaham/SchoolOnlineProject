@@ -1,7 +1,7 @@
 <div>
     <div class="mb-6">
         <h3 class="text-xl font-bold text-white">{{ __('site.my_sessions') ?? 'جلساتي' }}</h3>
-        <p class="text-sm text-luxury-400">متابعة الجلسات التي قمت بحجزها وإدارة الدفعات.</p>
+        <p class="text-sm text-luxury-400">{{ __('site.track_sessions_manage_payments') }}</p>
     </div>
 
     @if($bookings->count() > 0)
@@ -25,18 +25,18 @@
                             @elseif($booking->status === 'pending')
                                 <span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs px-2 py-1 rounded-md font-semibold">{{ __('site.pending_approval') }}</span>
                             @else
-                                <span class="bg-red-500/10 text-red-400 border border-red-500/20 text-xs px-2 py-1 rounded-md font-semibold">{{ __('site.rejected') }}</span>
+                                <span class="bg-red-500/10 text-red-400 border border-red-500/20 text-xs px-2 py-1 rounded-md font-semibold">{{ __('site.'.$booking->status) }}</span>
                             @endif
                         </div>
 
                         <!-- Info -->
                         <h4 class="font-bold text-white mb-3 text-lg leading-tight line-clamp-2">
-                            {{ $booking->sessionSlot->course ? $booking->sessionSlot->course->title : 'جلسة عامة' }}
+                            {{ $booking->sessionSlot->course ? $booking->sessionSlot->course->title : __('site.public_session') }}
                         </h4>
                         
                         <div class="flex items-center text-sm text-luxury-300 mb-2.5">
                             <svg class="w-4 h-4 ml-2 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            <span>{{ $booking->sessionSlot->tutor->name }}</span>
+                            <span>{{ optional($booking->sessionSlot->tutor)->name ?? __('site.unknown') }}</span>
                         </div>
 
                         <div class="flex items-center text-sm text-luxury-300 mb-2">
@@ -51,21 +51,21 @@
                         @if($booking->status === 'pending' && $booking->sessionSlot->price > 0 && !empty($booking->locked_until))
                             @if(\App\Models\Transaction::where('booking_id', $booking->id)->exists())
                                 <div class="text-sm text-yellow-400 w-full text-center font-medium bg-yellow-500/10 py-2 rounded-lg border border-yellow-500/20">
-                                    جاري مراجعة الدفع
+                                    {{ __('site.payment_under_review') }}
                                 </div>
                             @else
                                 <a href="{{ route('student.sessions.payment', $booking->id) }}" class="block w-full text-center bg-gold-gradient text-luxury-900 font-bold py-2.5 px-4 rounded-xl transition-all shadow-glow hover:scale-[1.02]">
-                                    💳 إتمام الدفع (ينتهي: {{ \Carbon\Carbon::parse($booking->locked_until)->diffForHumans() }})
+                                    💳 {{ __('site.complete_payment_ends') }} {{ \Carbon\Carbon::parse($booking->locked_until)->diffForHumans() }})
                                 </a>
                             @endif
                         @elseif($booking->status === 'confirmed')
                             @if($booking->sessionSlot->meeting_link)
                                 <a href="{{ $booking->sessionSlot->meeting_link }}" target="_blank" class="block w-full text-center bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-md">
-                                    🔗 رابط الدخول للمنصة
+                                    🔗 {{ __('site.platform_join_link') }}
                                 </a>
                             @else
                                 <div class="text-sm text-luxury-500 w-full text-center py-2 bg-black/20 rounded-lg">
-                                    الرابط غير متوفر بعد
+                                    {{ __('site.link_not_available_yet') }}
                                 </div>
                             @endif
                         @endif

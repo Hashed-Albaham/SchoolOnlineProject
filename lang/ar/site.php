@@ -831,10 +831,25 @@ return [
     'unknown_student' => 'غير معروف',
 
     'pending_time' => 'معلق',
+    'pending_approval' => 'بانتظار الموافقة',
+    'confirmed' => 'مؤكد',
+    'rejected' => 'مرفوض',
     'pending_tutor_approval' => 'بانتظار موافقة المعلم',
     'rejected_by_tutor' => 'مرفوض من المعلم',
     'failed' => 'فشل الدفع',
     'refunded' => 'مسترجع',
+
+    'manage_sessions' => 'إدارة الجلسات',
+
+    'browse_manage_sessions' => 'استعرض الجلسات المتاحة وقم بإدارة حجوزاتك',
+    'search_available_sessions' => 'البحث عن جلسات متاحة',
+    'my_scheduled_sessions' => 'جلساتي المجدولة',
+    'track_sessions_manage_payments' => 'متابعة الجلسات التي قمت بحجزها وإدارة الدفعات.',
+    'public_session' => 'جلسة عامة',
+    'payment_under_review' => 'جاري مراجعة الدفع',
+    'complete_payment_ends' => 'إتمام الدفع (ينتهي:',
+    'platform_join_link' => 'رابط الدخول للمنصة',
+    'link_not_available_yet' => 'الرابط غير متوفر بعد',
 
     'message_student' => 'مراسلة',
     'no_enrolled_students_yet' => 'لا يوجد طلاب مسجلين بعد',

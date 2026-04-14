@@ -2,8 +2,8 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-white">{{ __('site.session_booking') ?? 'الجلسات التفاعلية' }}</h2>
-                <p class="text-luxury-400 text-sm mt-1">استعرض الجلسات المتاحة وقم بإدارة حجوزاتك</p>
+                <h2 class="text-2xl font-bold text-white">{{ __('site.session_booking') }}</h2>
+                <p class="text-luxury-400 text-sm mt-1">{{ __('site.browse_manage_sessions') }}</p>
             </div>
         </div>
     </x-slot>
@@ -18,13 +18,13 @@
                         <button @click="tab = 'available_sessions'" 
                             :class="tab === 'available_sessions' ? 'bg-gold-gradient text-luxury-900 font-bold shadow-glow' : 'bg-white/5 text-luxury-300 hover:text-white hover:bg-white/10'" 
                             class="px-6 py-3 rounded-xl transition-all duration-300 flex-1 sm:flex-none">
-                            🔍 البحث عن جلسات متاحة
+                            🔍 {{ __('site.search_available_sessions') }}
                         </button>
                         
                         <button @click="tab = 'my_bookings'" 
                             :class="tab === 'my_bookings' ? 'bg-gold-gradient text-luxury-900 font-bold shadow-glow' : 'bg-white/5 text-luxury-300 hover:text-white hover:bg-white/10'" 
                             class="px-6 py-3 rounded-xl transition-all duration-300 flex-1 sm:flex-none">
-                            📅 جلساتي المجدولة
+                            📅 {{ __('site.my_scheduled_sessions') }}
                         </button>
                     </div>
                 </div>
