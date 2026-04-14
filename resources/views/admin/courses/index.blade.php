@@ -86,6 +86,47 @@
                 </div>
             </div>
             
+            <!-- Filters -->
+            <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 mb-6">
+                <form action="{{ route('admin.courses.index') }}" method="GET" class="flex flex-wrap gap-4 items-end">
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-luxury-400 text-xs mb-1">بحث</label>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="عنوان الدورة..."
+                               class="w-full bg-luxury-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                    </div>
+                    <div>
+                        <label class="block text-luxury-400 text-xs mb-1">المعلم</label>
+                        <select name="tutor_id" class="w-full bg-luxury-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-gold-500 focus:ring-1 focus:ring-gold-500 min-w-[150px]">
+                            <option value="">الكل</option>
+                            @foreach($tutors ?? [] as $tutor)
+                                <option value="{{ $tutor->id }}" {{ request('tutor_id') == $tutor->id ? 'selected' : '' }}>{{ $tutor->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-luxury-400 text-xs mb-1">التصنيف</label>
+                        <select name="category_id" class="w-full bg-luxury-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-gold-500 focus:ring-1 focus:ring-gold-500 min-w-[150px]">
+                            <option value="">الكل</option>
+                            @foreach($categories ?? [] as $category)
+                                <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <button type="submit" class="bg-gold-500 hover:bg-gold-600 text-luxury-900 font-bold py-2.5 px-6 rounded-xl transition-all shadow-md">
+                            تصفية
+                        </button>
+                    </div>
+                    @if(request()->anyFilled(['search', 'tutor_id', 'category_id']))
+                        <div>
+                            <a href="{{ route('admin.courses.index') }}" class="bg-white/5 hover:bg-white/10 text-white font-bold py-2.5 px-4 rounded-xl transition-colors inline-block border border-white/10">
+                                إلغاء الفلاتر
+                            </a>
+                        </div>
+                    @endif
+                </form>
+            </div>
+
             <!-- Courses Grid -->
             <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
                 <div class="p-6 border-b border-white/5">

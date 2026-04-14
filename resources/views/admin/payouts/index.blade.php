@@ -38,19 +38,76 @@
                 </div>
             </div>
 
-            <!-- Filter -->
-            <div class="flex gap-2 mb-6">
-                <a href="{{ route('admin.payouts.index') }}"
-                    class="px-4 py-2 rounded-lg text-sm {{ !request('status') ? 'bg-gold-500/20 text-gold-400' : 'bg-white/5 text-luxury-400 hover:bg-white/10' }} transition">
-                    {{ __('site.all') }}
-                </a>
-                @foreach(['pending', 'approved', 'paid', 'rejected'] as $s)
-                    <a href="{{ route('admin.payouts.index', ['status' => $s]) }}"
-                        class="px-4 py-2 rounded-lg text-sm {{ request('status') === $s ? 'bg-gold-500/20 text-gold-400' : 'bg-white/5 text-luxury-400 hover:bg-white/10' }} transition">
-                        {{ __('site.' . $s) }}
-                    </a>
-                @endforeach
+            <!-- Filters -->
+            <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 mb-6">
+                <form action="{{ route('admin.payouts.index') }}" method="GET" class="flex flex-wrap gap-4 items-end">
+                    <div>
+                        <label class="block text-luxury-400 text-xs mb-1">الحالة</label>
+                        <select name="status" class="bg-luxury-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                            <option value="">{{ __('site.all') }}</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('site.pending') }}</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('site.approved') }}</option>
+                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>{{ __('site.paid') }}</option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>{{ __('site.rejected') }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-luxury-400 text-xs mb-1">المعلم</label>
+                        <select name="tutor_id" class="bg-luxury-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-gold-500 focus:ring-1 focus:ring-gold-500 min-w-[150px]">
+                            <option value="">كل المعلمين</option>
+                            @foreach($tutors ?? [] as $tutor)
+                                <option value="{{ $tutor->id }}" {{ request('tutor_id') == $tutor->id ? 'selected' : '' }}>{{ $tutor->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-luxury-400 text-xs mb-1">من تاريخ</label>
+                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="bg-luxury-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                    </div>
+                    <div>
+                        <label class="block text-luxury-400 text-xs mb-1">إلى تاريخ</label>
+                        <input type="date" name="date_to" value="{{ request('date_to') }}" class="bg-luxury-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                    </div>
+                    <div>
+                        <button type="submit" class="bg-gold-500 hover:bg-gold-600 text-luxury-900 font-bold py-2.5 px-6 rounded-xl transition-all shadow-md">
+                            تصفية
+                        </button>
+                    </div>
+                    @if(request()->anyFilled(['status', 'tutor_id', 'date_from', 'date_to']))
+                        <div>
+                            <a href="{{ route('admin.payouts.index') }}" class="bg-white/5 hover:bg-white/10 text-white font-bold py-2.5 px-4 rounded-xl transition-colors inline-block border border-white/10">
+                                إلغاء الفلاتر
+                            </a>
+                        </div>
+                    @endif
+                </form>
             </div>
+
+            <!-- Hidden form for bulk actions -->
+            <form id="bulk-action-form" action="{{ route('admin.payouts.bulk') }}" method="POST" class="hidden">
+                @csrf
+                <input type="hidden" name="action" id="bulk-action-type">
+            </form>
+
+            @if(request('status') === 'pending' || !request()->has('status'))
+            <!-- Bulk Action Buttons -->
+            <div class="mb-4 flex gap-2" id="bulk-buttons-container" style="display: none;">
+                <button type="button" onclick="submitBulkAction('approve')" class="px-4 py-2 rounded-lg bg-green-500/20 text-green-400 text-sm font-bold hover:bg-green-500/30 transition shadow-md border border-green-500/30">
+                    ✓ موافقة على المحدد
+                </button>
+                <button type="button" onclick="submitBulkAction('reject')" class="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-sm font-bold hover:bg-red-500/30 transition shadow-md border border-red-500/30">
+                    ✗ رفض المحدد
+                </button>
+            </div>
+            @endif
+
+            @if(request('status') === 'approved')
+            <div class="mb-4 flex gap-2" id="bulk-buttons-container" style="display: none;">
+                <button type="button" onclick="submitBulkAction('mark_paid')" class="px-4 py-2 rounded-lg bg-gold-500/20 text-gold-400 text-sm font-bold hover:bg-gold-500/30 transition shadow-md border border-gold-500/30">
+                    💰 تحديد كمدفوع (للمحدد)
+                </button>
+            </div>
+            @endif
 
             <!-- Requests Table -->
             <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
@@ -61,6 +118,9 @@
                         <table class="w-full">
                             <thead>
                                 <tr class="border-b border-white/10">
+                                    <th class="p-4 w-10">
+                                        <input type="checkbox" id="select-all-checkbox" class="rounded border-white/20 bg-white/5 text-gold-500 focus:ring-gold-500/20">
+                                    </th>
                                     <th class="text-right text-luxury-400 text-sm font-medium p-4">{{ __('site.tutor') }}</th>
                                     <th class="text-center text-luxury-400 text-sm font-medium p-4">{{ __('site.amount') }}</th>
                                     <th class="text-center text-luxury-400 text-sm font-medium p-4">{{ __('site.payment_type') }}</th>
@@ -73,6 +133,11 @@
                             <tbody class="divide-y divide-white/5">
                                 @foreach($payoutRequests as $payout)
                                     <tr class="hover:bg-white/5 transition">
+                                        <td class="p-4">
+                                            @if($payout->isPending() || $payout->isApproved())
+                                                <input type="checkbox" value="{{ $payout->id }}" class="payout-checkbox rounded border-white/20 bg-white/5 text-gold-500 focus:ring-gold-500/20">
+                                            @endif
+                                        </td>
                                         <td class="p-4">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-9 h-9 rounded-full bg-gradient-to-br from-royal-500 to-royal-700 flex items-center justify-center text-white font-bold text-sm">
@@ -161,3 +226,72 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCb = document.getElementById('select-all-checkbox');
+        const payoutCbs = document.querySelectorAll('.payout-checkbox');
+        const bulkContainer = document.getElementById('bulk-buttons-container');
+
+        function updateBulkButtonsVisibility() {
+            const anyChecked = Array.from(payoutCbs).some(cb => cb.checked);
+            if (bulkContainer) {
+                bulkContainer.style.display = anyChecked ? 'flex' : 'none';
+            }
+        }
+
+        if (selectAllCb) {
+            selectAllCb.addEventListener('change', function(e) {
+                payoutCbs.forEach(cb => cb.checked = e.target.checked);
+                updateBulkButtonsVisibility();
+            });
+        }
+
+        payoutCbs.forEach(cb => {
+            cb.addEventListener('change', updateBulkButtonsVisibility);
+        });
+    });
+
+    function submitBulkAction(action) {
+        const selected = document.querySelectorAll('.payout-checkbox:checked');
+        if (selected.length === 0) {
+            alert('يرجى تحديد طلب واحد على الأقل');
+            return;
+        }
+        
+        let notes = '';
+        if (action === 'reject') {
+            notes = prompt('أدخل سبب الرفض الموحد (اختياري):') || '';
+        } else {
+            if (!confirm('هل أنت متأكد من تنفيذ هذا الإجراء على ' + selected.length + ' طلبات؟')) return;
+        }
+
+        const form = document.getElementById('bulk-action-form');
+        document.getElementById('bulk-action-type').value = action;
+        
+        // Remove old hidden inputs if any exist
+        form.querySelectorAll('input[name="payout_ids[]"]').forEach(el => el.remove());
+        const oldNotes = form.querySelector('input[name="admin_notes"]');
+        if(oldNotes) oldNotes.remove();
+        
+        // Append selected IDs
+        selected.forEach(cb => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'payout_ids[]';
+            input.value = cb.value;
+            form.appendChild(input);
+        });
+
+        // Append admin notes for rejection
+        if (action === 'reject') {
+            const notesInput = document.createElement('input');
+            notesInput.type = 'hidden';
+            notesInput.name = 'admin_notes';
+            notesInput.value = notes;
+            form.appendChild(notesInput);
+        }
+        
+        form.submit();
+    }
+</script>

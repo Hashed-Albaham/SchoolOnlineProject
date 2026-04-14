@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes; // [BUG-11 FIX]
 
 class PayoutRequest extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes; // [BUG-11 FIX] حفظ السجل المالي عند الحذف
 
     protected $fillable = [
         'tutor_id',

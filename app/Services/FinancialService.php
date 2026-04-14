@@ -73,6 +73,8 @@ class FinancialService
         DB::transaction(function () use ($enrollment, $adminId) {
             $transaction = Transaction::where('enrollment_id', $enrollment->id)
                 ->where('type', 'enrollment')
+                ->where('status', 'pending')  // [BUG-10 FIX] فقط pending → يمنع التأكيد المزدوج
+                ->lockForUpdate()             // [BUG-10 FIX] Pessimistic Lock لمنع Race Condition
                 ->latest()
                 ->first();
 
@@ -85,7 +87,9 @@ class FinancialService
             ]);
 
             // انقل من pending إلى available
-            $tutorDetail = TutorDetail::where('user_id', $transaction->tutor_id)->first();
+            $tutorDetail = TutorDetail::where('user_id', $transaction->tutor_id)
+                ->lockForUpdate() // [BUG-10 FIX] قفل تشاؤمي على الرصيد
+                ->first();
             if ($tutorDetail) {
                 $tutorDetail->decrement('pending_balance', $transaction->tutor_amount);
                 $tutorDetail->increment('available_balance', $transaction->tutor_amount);
@@ -278,7 +282,9 @@ class FinancialService
     {
         DB::transaction(function () use ($booking, $adminId) {
             $transaction = Transaction::where('booking_id', $booking->id)
+                ->where('type', 'booking')   // [BUG-04 FIX] تحديد النوع بدقة (بعد إصلاح BUG-01)
                 ->where('status', 'pending')
+                ->lockForUpdate()             // [BUG-04 FIX] Pessimistic Lock لمنع Double-Confirm
                 ->latest()
                 ->first();
 
@@ -291,7 +297,9 @@ class FinancialService
             ]);
 
             // Move from pending to available
-            $tutorDetail = TutorDetail::where('user_id', $transaction->tutor_id)->first();
+            $tutorDetail = TutorDetail::where('user_id', $transaction->tutor_id)
+                ->lockForUpdate() // [BUG-04 FIX] قفل تشاؤمي على رصيد المعلم
+                ->first();
             if ($tutorDetail) {
                 $tutorDetail->decrement('pending_balance', (float) $transaction->tutor_amount);
                 $tutorDetail->increment('available_balance', (float) $transaction->tutor_amount);

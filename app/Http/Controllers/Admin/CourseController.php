@@ -19,11 +19,30 @@ class CourseController extends Controller
     /**
      * Display all courses with status counts.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Course::with('tutor')
-            ->latest()
-            ->paginate(10);
+        $query = Course::with(['tutor', 'category']);
+
+        // Search by title
+        if ($request->filled('search')) {
+            $query->where('title', 'like', "%{$request->search}%");
+        }
+
+        // Filter by Category
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // Filter by Tutor
+        if ($request->filled('tutor_id')) {
+            $query->where('tutor_id', $request->tutor_id);
+        }
+
+        $courses = $query->latest()->paginate(10)->withQueryString();
+
+        // Get categories and tutors for filters
+        $categories = \App\Models\Category::all();
+        $tutors = \App\Models\User::where('role', 'tutor')->get();
 
         // PERFORMANCE: Single query for all counts
         $stats = Course::selectRaw("
@@ -38,7 +57,7 @@ class CourseController extends Controller
         $approvedCount = $stats->approved_count ?? 0;
         $rejectedCount = $stats->rejected_count ?? 0;
 
-        return view('admin.courses.index', compact('courses', 'allCount', 'pendingCount', 'approvedCount', 'rejectedCount'));
+        return view('admin.courses.index', compact('courses', 'allCount', 'pendingCount', 'approvedCount', 'rejectedCount', 'categories', 'tutors'));
     }
 
     /**

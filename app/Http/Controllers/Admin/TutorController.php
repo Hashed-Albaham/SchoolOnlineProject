@@ -12,12 +12,37 @@ class TutorController extends Controller
     /**
      * Display a listing of tutors
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tutors = User::where('role', 'tutor')
-            ->with(['tutorDetails', 'courses'])
-            ->latest()
-            ->paginate(10);
+        $query = User::where('role', 'tutor')
+            ->with(['tutorDetails', 'courses']);
+
+        // Search by name or email
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by Specialization
+        if ($request->filled('specialization')) {
+            $query->whereHas('tutorDetails', function($q) use ($request) {
+                $q->where('specialization', 'like', "%{$request->specialization}%");
+            });
+        }
+
+        // Filter by verification status
+        if ($request->filled('status')) {
+            if ($request->status === 'verified') {
+                $query->whereHas('tutorDetails', fn($q) => $q->where('is_verified', true));
+            } elseif ($request->status === 'pending') {
+                $query->whereHas('tutorDetails', fn($q) => $q->where('is_verified', false));
+            }
+        }
+
+        $tutors = $query->latest()->paginate(10)->withQueryString();
 
         $allCount = User::where('role', 'tutor')->count();
 

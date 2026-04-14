@@ -7,6 +7,8 @@ use App\Models\PayoutRequest;
 use App\Services\FinancialService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 class PayoutController extends Controller
 {
@@ -22,7 +24,21 @@ class PayoutController extends Controller
             $query->where('status', $request->status);
         }
 
-        $payoutRequests = $query->latest()->paginate(20);
+        // Filter by tutor
+        if ($request->filled('tutor_id')) {
+            $query->where('tutor_id', $request->tutor_id);
+        }
+
+        // Filter by date
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $payoutRequests = $query->latest()->paginate(20)->withQueryString();
+        $tutors = User::where('role', 'tutor')->get();
 
         // Stats
         $stats = [
@@ -34,7 +50,77 @@ class PayoutController extends Controller
             'total_paid_amount' => PayoutRequest::where('status', PayoutRequest::STATUS_PAID)->sum('amount'),
         ];
 
-        return view('admin.payouts.index', compact('payoutRequests', 'stats'));
+        return view('admin.payouts.index', compact('payoutRequests', 'stats', 'tutors'));
+    }
+
+    /**
+     * Handle bulk actions for payout requests
+     */
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|in:approve,reject,mark_paid',
+            'payout_ids' => 'required|array|min:1',
+            'payout_ids.*' => 'exists:payout_requests,id',
+            'admin_notes' => 'nullable|string|max:500'
+        ]);
+
+        $action = $request->action;
+        $payoutIds = $request->payout_ids;
+        $adminNotes = $request->admin_notes;
+
+        $payouts = PayoutRequest::whereIn('id', $payoutIds)->get();
+
+        $successCount = 0;
+        $skippedCount = 0;
+
+        DB::beginTransaction();
+        try {
+            foreach ($payouts as $payoutRequest) {
+                if ($action === 'approve') {
+                    if ($payoutRequest->isPending()) {
+                        $payoutRequest->status = PayoutRequest::STATUS_APPROVED;
+                        $payoutRequest->reviewed_at = now();
+                        $payoutRequest->reviewed_by = Auth::id();
+                        $payoutRequest->save();
+
+                        app(FinancialService::class)->recordPayoutTransaction($payoutRequest, auth()->id());
+                        $successCount++;
+                    } else {
+                        $skippedCount++;
+                    }
+                } elseif ($action === 'reject') {
+                    if ($payoutRequest->isPending()) {
+                        $payoutRequest->status = PayoutRequest::STATUS_REJECTED;
+                        $payoutRequest->admin_notes = $adminNotes;
+                        $payoutRequest->reviewed_at = now();
+                        $payoutRequest->reviewed_by = Auth::id();
+                        $payoutRequest->save();
+                        $successCount++;
+                    } else {
+                        $skippedCount++;
+                    }
+                } elseif ($action === 'mark_paid') {
+                    if ($payoutRequest->isApproved()) {
+                        $payoutRequest->status = PayoutRequest::STATUS_PAID;
+                        $payoutRequest->paid_at = now();
+                        $payoutRequest->save();
+
+                        app(FinancialService::class)->completePayout($payoutRequest, auth()->id());
+                        $successCount++;
+                    } else {
+                        $skippedCount++;
+                    }
+                }
+            }
+            DB::commit();
+
+            $message = __('site.bulk_action_success', ['success' => $successCount, 'skipped' => $skippedCount]);
+            return back()->with('success', $message);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error processing bulk action: ' . $e->getMessage());
+        }
     }
 
     /**

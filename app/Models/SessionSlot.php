@@ -21,7 +21,8 @@ class SessionSlot extends Model
         'start_time',
         'end_time',
         'meeting_link',
-        'status',
+        // [BUG-02 FIX] 'status' removed from $fillable — Mass Assignment protection
+        // Set explicitly: $slot->status = 'scheduled'; $slot->save();
     ];
 
     protected $casts = [

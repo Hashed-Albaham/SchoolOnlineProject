@@ -33,26 +33,43 @@ class BookingController extends Controller
     public function updateStatus(Request $request, Booking $booking, FinancialService $financialService)
     {
         $request->validate([
-            'status' => 'required|in:confirmed,failed',
+            'status' => 'required|in:confirmed,rejected_by_tutor,failed',
         ]);
 
-        if ($booking->status !== 'pending') {
+        if (!in_array($booking->status, ['pending', 'pending_tutor_approval'])) {
             return back()->with('error', __('site.unauthorized_access'));
         }
 
         if ($request->status === 'confirmed') {
-            // [V4 FIX] Explicit status assignment
             $booking->status = 'confirmed';
             $booking->locked_until = null;
             $booking->save();
-            $financialService->confirmBookingPayment($booking, auth()->id());
-            return back()->with('success', __('site.booking_confirmed_successfully'));
+            // We DO NOT call confirmBookingPayment here anymore. Money isn't moved until explicit approval.
+            return back()->with('success', __('site.booking_confirmed_successfully') ?? 'تم الموافقة على الحجز بنجاح.');
         } else {
-            $booking->status = 'failed';
+            $booking->status = $request->status; // failed or rejected_by_tutor
             $booking->locked_until = null;
             $booking->save();
-            $financialService->failBookingPayment($booking);
-            return back()->with('success', __('site.booking_rejected'));
+            
+            // Refund or fail payment
+            if ($booking->payment_method_id != null && $booking->transaction_id) {
+                $financialService->failBookingPayment($booking);
+            }
+            return back()->with('success', __('site.booking_rejected') ?? 'تم رفض الحجز وإلغاؤه.');
+        }
+    }
+
+    public function approvePayment(Request $request, Booking $booking, FinancialService $financialService)
+    {
+        if ($booking->status !== 'confirmed') {
+            return back()->with('error', 'يجب أن يكون الحجز مؤكداً من المعلم أولاً قبل اعتماد الدفعة.');
+        }
+
+        try {
+            $financialService->confirmBookingPayment($booking, auth()->id());
+            return back()->with('success', 'تم تأكيد الدفعة ونقل الرصيد إلى المعلم بنجاح.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
     }
 

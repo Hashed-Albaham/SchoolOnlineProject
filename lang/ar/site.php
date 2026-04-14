@@ -820,25 +820,22 @@ return [
     'number_of_lessons' => 'عدد الدروس',
     'pending_cert_requests_title' => 'طلبات الشهادات المعلقة',
     'confirm_reject_request' => 'هل أنت متأكد من رفض هذا الطلب؟',
-    'edit_course' => 'تعديل',
+
     'course_content_count' => 'محتوى الكورس (:count)',
     'no_content_yet' => 'لا يوجد محتوى بعد',
     'enrolled_students_progress' => 'الطلاب المسجلين وتقدمهم',
-    'student' => 'الطالب',
+
     'payment_status' => 'حالة الدفع',
-    'progress' => 'التقدم',
-    'certificate' => 'الشهادة',
+
     // 'actions' already defined above
     'unknown_student' => 'غير معروف',
-    'paid' => 'مدفوع',
-    'pending' => 'قيد الانتظار',
-    'issued' => 'صدرت',
+
     'pending_time' => 'معلق',
-    'rejected' => 'مرفوض',
+
     'message_student' => 'مراسلة',
     'no_enrolled_students_yet' => 'لا يوجد طلاب مسجلين بعد',
     'students_will_appear_here' => 'سيظهر الطلاب هنا بمجرد تسجيلهم في الكورس',
-    'issued_certificates' => 'الشهادات الصادرة',
+
 
     // ========================================
     // Tutor Course Content Edit Page
@@ -851,7 +848,7 @@ return [
     'image' => '🖼️ صورة',
     'text_notes' => '📝 نص / ملاحظات',
     'external_link' => '🔗 رابط خارجي',
-    'quiz' => '❓ اختبار',
+
     'youtube_url' => 'رابط YouTube',
     'update_file' => 'تحديث الملف',
     'file_currently_attached' => 'يوجد ملف مرفق حالياً',
@@ -860,14 +857,11 @@ return [
     'choose_quiz' => 'اختر اختبار',
     'select_quiz_placeholder' => '-- اختر اختبار --',
     'description_optional' => 'وصف (اختياري)',
-    'save_changes' => 'حفظ التعديلات',
+
 
     // ========================================
     // Notifications Dropdown
     // ========================================
-    'notifications' => 'الإشعارات',
-    'mark_all_read' => 'تحديد الكل كمقروء',
-    'new_notification' => 'إشعار جديد',
     'no_notifications_yet' => 'لا توجد إشعارات حالياً',
 
     // ========================================
@@ -895,7 +889,7 @@ return [
     'platform_management' => 'إدارة المنصة',
     'print_certificate' => 'طباعة الشهادة',
     'course_progress' => 'تقدمك في الكورس',
-    'lesson' => 'درس',
+
     'certificate_issued' => '🎉 تم إصدار الشهادة!',
     'certificate_number' => 'رقم الشهادة:',
     'certificate_request_pending' => 'طلب الشهادة قيد المراجعة',
@@ -904,11 +898,11 @@ return [
     'request_certificate_btn' => '🏆 طلب الشهادة - لقد أكملت جميع الدروس!',
     'browser_not_support_video' => 'متصفحك لا يدعم تشغيل الفيديو.',
     'quiz_assessment' => 'اختبار لتقييم فهمك للدرس',
-    'start_quiz' => '📝 بدء الاختبار',
+
     'download_file' => '📄 تحميل الملف',
     'open_external_link' => '🔗 فتح الرابط الخارجي',
     'lesson_content' => 'محتوى الدرس',
-    'completed' => 'مكتمل',
+
     'finished_lesson' => '✓ أنهيت هذا الدرس',
     'prev_lesson' => 'الدرس السابق',
     'next_lesson' => 'الدرس التالي',
@@ -919,12 +913,11 @@ return [
     // ========================================
     // Tutor Course Edit
     // ========================================
-    'edit_course' => 'تعديل الكورس',
+
     'course_approved_published' => 'الكورس معتمد ومنشور',
     'course_pending_review' => 'الكورس بانتظار مراجعة المسؤول',
     'course_rejected_review' => 'الكورس مرفوض - يرجى مراجعة المحتوى وإعادة التقديم',
-    'course_title' => 'عنوان الكورس',
-    'description' => 'الوصف',
+
     'price_usd' => 'السعر (بالدولار)',
     'current_thumbnail' => 'صورة الغلاف الحالية',
     'change_thumbnail' => 'تغيير صورة الغلاف',
@@ -1425,5 +1418,5 @@ return [
     'cannot_delete_booked_session' => 'لا يمكنك حذف جلسة تحتوي على حجوزات.',
     'session_deleted' => 'تم حذف الجلسة المباشرة بنجاح.',
     'booking_approved' => 'تم اعتماد الحجز بنجاح.',
-    
+    'scheduled' => 'مجدولة'
 ];

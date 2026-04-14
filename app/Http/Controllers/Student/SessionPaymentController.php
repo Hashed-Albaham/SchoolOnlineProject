@@ -46,19 +46,23 @@ class SessionPaymentController extends Controller
             $defaultMethod = PaymentMethod::where('is_active', true)->first();
 
             // [V4 FIX] Explicit assignment instead of mass assignment for status
+            // [V5 FIX] Status becomes pending_tutor_approval instead of confirmed
             $booking->payment_method_id = $defaultMethod?->id;
             $booking->locked_until = null;
-            $booking->status = 'confirmed';
+            $booking->status = 'pending_tutor_approval';
             $booking->save();
 
-            // Record financial transaction (pending)
-            $financialService->recordBookingPayment($booking);
+            // [BUG-03 FIX] تسجيل المعاملة واسترداد الـ ID لربطه بالحجز
+            $transaction = $financialService->recordBookingPayment($booking);
 
-            // [V1+V2 FIX] Confirm immediately since payment is simulated
-            $financialService->confirmBookingPayment($booking, auth()->id());
+            // [BUG-03 FIX] ربط Booking بالمعاملة المالية (سلامة الربط)
+            $booking->transaction_id = $transaction->id;
+            $booking->save();
+
+            // [V5 FIX] We DO NOT call confirmBookingPayment here, admin/tutor will handle it explicitly.
 
             return redirect()->route('student.sessions.index')
-                ->with('success', __('site.payment_submitted_successfully') ?? 'تم دفع رسوم الجلسة بنجاح.');
+                ->with('success', __('site.payment_submitted_awaiting_tutor') ?? 'تم تقديم دفع رسوم الجلسة بنجاح وبانتظار موافقة المعلم.');
         });
     }
 }

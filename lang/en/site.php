@@ -827,11 +827,11 @@ return [
     'payment_status' => 'Payment Status',
     'unknown_student' => 'Unknown',
     'pending_time' => 'Pending',
-    'rejected' => 'Rejected',
+
     'message_student' => 'Message',
     'no_enrolled_students_yet' => 'No enrolled students yet',
     'students_will_appear_here' => 'Students will appear here once they enroll in the course',
-    'issued_certificates' => 'Issued Certificates',
+
 
     // ========================================
     // Tutor Course Content Edit Page
@@ -844,7 +844,7 @@ return [
     'image' => '🖼️ Image',
     'text_notes' => '📝 Text / Notes',
     'external_link' => '🔗 External Link',
-    'quiz' => '❓ Quiz',
+
     'youtube_url' => 'YouTube URL',
     'update_file' => 'Update File',
     'file_currently_attached' => 'A file is currently attached',
@@ -858,9 +858,7 @@ return [
     // ========================================
     // Notifications Dropdown
     // ========================================
-    'notifications' => 'Notifications',
-    'mark_all_read' => 'Mark all as read',
-    'new_notification' => 'New Notification',
+
     'no_notifications_yet' => 'No notifications yet',
 
     // ========================================
@@ -888,7 +886,7 @@ return [
     'platform_management' => 'Platform Management',
     'print_certificate' => 'Print Certificate',
     'course_progress' => 'Your Course Progress',
-    'lesson' => 'lesson',
+
     'certificate_issued' => '🎉 Certificate Issued!',
     'certificate_number' => 'Certificate Number:',
     'certificate_request_pending' => 'Certificate Request Pending Assessment',
@@ -897,11 +895,11 @@ return [
     'request_certificate_btn' => '🏆 Request Certificate - You have completed all lessons!',
     'browser_not_support_video' => 'Your browser does not support video playback.',
     'quiz_assessment' => 'Quiz to assess your understanding of the lesson',
-    'start_quiz' => '📝 Start Quiz',
+
     'download_file' => '📄 Download File',
     'open_external_link' => '🔗 Open External Link',
     'lesson_content' => 'Lesson Content',
-    'completed' => 'Completed',
+
     'finished_lesson' => '✓ I have finished this lesson',
     'prev_lesson' => 'Previous Lesson',
     'next_lesson' => 'Next Lesson',
@@ -912,7 +910,7 @@ return [
     // ========================================
     // Tutor Course Edit
     // ========================================
-    'edit_course' => 'Edit Course',
+
     'course_approved_published' => 'Course is approved and published',
     'course_pending_review' => 'Course is pending admin review',
     'course_rejected_review' => 'Course rejected - Please review content and resubmit',
@@ -1405,4 +1403,5 @@ return [
     'slot_not_available' => 'Session slot is not available for booking.',
     'already_booked' => 'You have already booked this session.',
     'must_be_enrolled_in_course' => 'You must be enrolled in the related course to book this session.',
+    'scheduled' => 'Scheduled'
 ];

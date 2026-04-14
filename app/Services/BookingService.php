@@ -42,6 +42,7 @@ class BookingService
                 $isEnrolled = $student->enrollments()
                     ->where('course_id', $lockedSlot->course_id)
                     ->where('enrollment_status', 'approved')
+                    ->where('payment_status', 'paid')  // [BUG-05 FIX] يجب أن يكون الدفع مكتملاً
                     ->exists();
 
                 if (!$isEnrolled) {
@@ -72,7 +73,8 @@ class BookingService
             ]);
 
             // [V4 FIX] Explicit status assignment
-            $booking->status = ($lockedSlot->price > 0) ? 'pending' : 'confirmed';
+            // [V5 FIX] Free bookings now go to pending_tutor_approval instead of confirmed
+            $booking->status = ($lockedSlot->price > 0) ? 'pending' : 'pending_tutor_approval';
             $booking->save();
 
             return $booking;

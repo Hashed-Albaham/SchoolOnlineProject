@@ -158,6 +158,7 @@ Route::group([
         Route::get('/bookings', [\App\Http\Controllers\Admin\BookingController::class, 'index'])->name('bookings.index');
         Route::get('/bookings/{booking}', [\App\Http\Controllers\Admin\BookingController::class, 'show'])->name('bookings.show');
         Route::patch('/bookings/{booking}/status', [\App\Http\Controllers\Admin\BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+        Route::post('/bookings/{booking}/approve-payment', [\App\Http\Controllers\Admin\BookingController::class, 'approvePayment'])->name('bookings.approvePayment');
         Route::post('/bookings/{booking}/refund', [\App\Http\Controllers\Admin\BookingController::class, 'refund'])->name('bookings.refund');
 
         // [A5] Category Management
@@ -184,6 +185,7 @@ Route::group([
 
         // [PAY2] Admin Payout Management
         Route::get('/payouts', [\App\Http\Controllers\Admin\PayoutController::class, 'index'])->name('payouts.index');
+        Route::post('/payouts/bulk', [\App\Http\Controllers\Admin\PayoutController::class, 'bulkAction'])->name('payouts.bulk');
         Route::post('/payouts/{payoutRequest}/approve', [\App\Http\Controllers\Admin\PayoutController::class, 'approve'])->name('payouts.approve');
         Route::post('/payouts/{payoutRequest}/reject', [\App\Http\Controllers\Admin\PayoutController::class, 'reject'])->name('payouts.reject');
         Route::post('/payouts/{payoutRequest}/mark-paid', [\App\Http\Controllers\Admin\PayoutController::class, 'markPaid'])->name('payouts.markPaid');

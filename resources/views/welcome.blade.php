@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
     dir="{{ LaravelLocalization::getCurrentLocaleDirection() }}">
 
@@ -217,7 +217,7 @@
                         </div>
                         <div class="w-px h-10 bg-white/10"></div>
                         <div class="text-center">
-                            <p class="text-2xl font-bold text-gold-400">4.9⭐</p>
+                            <p class="text-2xl font-bold text-gold-400">4.9â­</p>
                             <p class="text-sm text-gray-500">{{ __('site.trust_rating') }}</p>
                         </div>
                     </div>
@@ -503,7 +503,7 @@
             </div>
 
             <div class="border-t border-white/5 mt-12 pt-8 text-center">
-                <p class="text-gray-400 text-sm">© {{ date('Y') }} ProSkill. {{ __('site.rights_reserved') }}</p>
+                <p class="text-gray-400 text-sm">Â© {{ date('Y') }} ProSkill. {{ __('site.rights_reserved') }}</p>
             </div>
         </div>
     </footer>

@@ -65,6 +65,42 @@
                 </div>
             </div>
             
+            <!-- Filters -->
+            <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl p-6 mb-6">
+                <form action="{{ route('admin.tutors.index') }}" method="GET" class="flex flex-wrap gap-4 items-end">
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-luxury-400 text-xs mb-1">بحث</label>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="البحث بالاسم أو البريد..."
+                               class="w-full bg-luxury-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                    </div>
+                    <div>
+                        <label class="block text-luxury-400 text-xs mb-1">التخصص</label>
+                        <input type="text" name="specialization" value="{{ request('specialization') }}" placeholder="التخصص..."
+                               class="w-full bg-luxury-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                    </div>
+                    <div>
+                        <label class="block text-luxury-400 text-xs mb-1">الحالة</label>
+                        <select name="status" class="bg-luxury-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                            <option value="">كل الحالات</option>
+                            <option value="verified" {{ request('status') == 'verified' ? 'selected' : '' }}>موثق</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button type="submit" class="bg-gold-500 hover:bg-gold-600 text-luxury-900 font-bold py-2.5 px-6 rounded-xl transition-all shadow-md">
+                            تصفية
+                        </button>
+                    </div>
+                    @if(request()->anyFilled(['search', 'specialization', 'status']))
+                        <div>
+                            <a href="{{ route('admin.tutors.index') }}" class="bg-white/5 hover:bg-white/10 text-white font-bold py-2.5 px-4 rounded-xl transition-colors inline-block border border-white/10">
+                                إلغاء الفلاتر
+                            </a>
+                        </div>
+                    @endif
+                </form>
+            </div>
+
             <!-- Tutors Table -->
             <div class="bg-luxury-800/50 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
                 <div class="p-6 border-b border-white/5">

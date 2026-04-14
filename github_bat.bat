@@ -7,7 +7,7 @@ for /f "tokens=1-4 delims=/ " %%a in ('date /t') do set mydate=%%c-%%b-%%a
 for /f "tokens=1-2 delims=: " %%a in ('time /t') do set mytime=%%a-%%b
 
 :: Check if git is installed
-where git >nul 2>nul
+git --version >nul 2>nul
 if %errorlevel% neq 0 (
     echo [ERROR] Git is not installed or not in your PATH.
     echo Please install Git from https://git-scm.com/downloads and try again.
@@ -27,16 +27,16 @@ git init
 :add_files
 echo [2/5] Adding files (this might take a moment)...
 
-:: 🛡️ SECURITY: Untrack sensitive files if they were accidentally added before
+:: SECURITY: Untrack sensitive files if they were accidentally added before
 git rm --cached .env >nul 2>nul
-git rm --cached database/*.sqlite >nul 2>nul
+git rm --cached database\*.sqlite >nul 2>nul
 git rm --cached *.sqlite >nul 2>nul
 git rm --cached *.log >nul 2>nul
 
 git add .
 
 echo [3/5] Committing files with timestamp...
-set COMMIT_MSG=Update: SchoolOnlineProject - %mydate% %mytime%
+set COMMIT_MSG=Update: SchoolOnlineProject - %date:/=-% %time::=-%
 echo Commit message: %COMMIT_MSG%
 git commit -m "%COMMIT_MSG%"
 

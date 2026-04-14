@@ -54,7 +54,7 @@
                 <div class="p-6">
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex items-center gap-2">
-                            <span class="px-2 py-1 text-xs font-semibold rounded bg-luxury-100 text-luxury-800">
+                            <span class="px-2 py-1 text-xs font-semibold rounded bg-luxury-500/20 border border-luxury-500/30 text-luxury-300">
                                 {{ $session->type === '1-on-1' ? __('site.one_on_one_session') : __('site.group_session') }}
                             </span>
                             @if($session->price == 0)

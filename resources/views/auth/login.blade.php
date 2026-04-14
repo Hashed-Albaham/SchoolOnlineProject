@@ -1,4 +1,4 @@
-<x-guest-layout>
+﻿<x-guest-layout>
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-luxury-900">
         <!-- Top Decorative Line -->
         <div class="fixed top-0 left-0 right-0 h-1 bg-gold-gradient"></div>
@@ -73,7 +73,7 @@
                             <input id="password" type="password" name="password" required
                                 autocomplete="current-password"
                                 class="w-full ps-12 pe-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-luxury-500 focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20 transition"
-                                placeholder="••••••••">
+                                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
                         </div>
                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
                     </div>

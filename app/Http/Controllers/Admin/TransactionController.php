@@ -25,8 +25,13 @@ class TransactionController extends Controller
         if ($request->search) {
             $query->where('reference_number', 'like', "%{$request->search}%");
         }
+        if ($request->tutor_id)   $query->where('tutor_id', $request->tutor_id);
+        if ($request->student_id) $query->where('student_id', $request->student_id);
 
         $transactions = $query->latest()->paginate(20)->withQueryString();
+
+        $tutors = \App\Models\User::where('role', 'tutor')->get();
+        $students = \App\Models\User::where('role', 'student')->get();
 
         // إحصائيات سريعة
         $stats = [
@@ -39,7 +44,7 @@ class TransactionController extends Controller
             'booking_revenue'  => Transaction::completed()->bookings()->sum('gross_amount'), // [V12] Separate booking stats
         ];
 
-        return view('admin.transactions.index', compact('transactions', 'stats'));
+        return view('admin.transactions.index', compact('transactions', 'stats', 'tutors', 'students'));
     }
 
     public function show(Transaction $transaction)

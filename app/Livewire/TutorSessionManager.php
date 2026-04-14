@@ -6,7 +6,10 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\SessionSlot;
 use App\Models\Course;
+use App\Models\Booking;
+use App\Services\FinancialService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TutorSessionManager extends Component
 {
@@ -46,7 +49,7 @@ class TutorSessionManager extends Component
         
         $sessions = SessionSlot::where('tutor_id', $user->id)
             ->with(['course', 'bookings' => function($q) {
-                $q->whereIn('status', ['pending', 'confirmed']);
+                $q->whereIn('status', ['pending', 'pending_tutor_approval', 'confirmed']);
             }])
             ->orderBy('start_time', 'desc')
             ->paginate(10);
@@ -55,7 +58,14 @@ class TutorSessionManager extends Component
             ->where('status', 'approved')
             ->get();
 
-        return view('livewire.tutor-session-manager', compact('sessions', 'courses'));
+        $pendingBookings = \App\Models\Booking::whereHas('sessionSlot', function($q) use ($user) {
+            $q->where('tutor_id', $user->id);
+        })->where('status', 'pending_tutor_approval')
+          ->with(['student', 'sessionSlot.course'])
+          ->latest()
+          ->get();
+
+        return view('livewire.tutor-session-manager', compact('sessions', 'courses', 'pendingBookings'));
     }
 
     public function toggleForm()
@@ -95,7 +105,7 @@ class TutorSessionManager extends Component
             'start_time' => \Carbon\Carbon::parse($this->start_time)->timezone('UTC'),
             'end_time' => \Carbon\Carbon::parse($this->end_time)->timezone('UTC'),
             'meeting_link' => $this->meeting_link,
-            'status' => 'scheduled',
+            // [BUG-02 FIX] 'status' removed from $data — set explicitly below
         ];
 
         if ($this->editId) {
@@ -103,7 +113,10 @@ class TutorSessionManager extends Component
             $session->update($data);
             session()->flash('success', __('site.session_updated'));
         } else {
-            SessionSlot::create($data);
+            $session = SessionSlot::create($data);
+            // [BUG-02 FIX] Explicit status assignment after removal from $fillable
+            $session->status = 'scheduled';
+            $session->save();
             session()->flash('success', __('site.session_created'));
         }
 
@@ -123,5 +136,35 @@ class TutorSessionManager extends Component
 
         $session->delete();
         session()->flash('success', __('site.session_deleted'));
+    }
+
+    public function approveBooking($bookingId)
+    {
+        $booking = Booking::where("status", "pending_tutor_approval")->findOrFail($bookingId);
+        
+        // Ensure standard security checks
+        if ($booking->sessionSlot->tutor_id !== Auth::id()) abort(403);
+
+        $booking->status = 'confirmed';
+        $booking->save();
+        session()->flash('success', __('site.booking_confirmed_successfully') ?? 'تم الموافقة على الحجز بنجاح.');
+    }
+
+    public function rejectBooking($bookingId, FinancialService $financialService)
+    {
+        $booking = Booking::where("status", "pending_tutor_approval")->findOrFail($bookingId);
+        if ($booking->sessionSlot->tutor_id !== Auth::id()) abort(403);
+
+        DB::transaction(function () use ($booking, $financialService) {
+            $booking->status = 'rejected_by_tutor';
+            $booking->save();
+
+            // If it was paid, we trigger failBookingPayment to refund or revert pending balance.
+            if ($booking->payment_method_id != null && $booking->transaction_id) {
+                $financialService->failBookingPayment($booking);
+            }
+        });
+
+        session()->flash('success', __('site.booking_rejected') ?? 'تم رفض الحجز.');
     }
 }
