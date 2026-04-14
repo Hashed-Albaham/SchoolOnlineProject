@@ -178,10 +178,7 @@
                                 {{ $session->bookings->count() }} / {{ $session->max_participants }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-md border
-                                    @if($session->status === 'scheduled') bg-blue-500/10 text-blue-400 border-blue-500/20
-                                    @elseif($session->status === 'completed') bg-green-500/10 text-green-400 border-green-500/20
-                                    @else bg-red-500/10 text-red-400 border-red-500/20 @endif">
+                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-md border {{ $session->status === 'scheduled' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : ($session->status === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20') }}">
                                     {{ __('site.'.$session->status) }}
                                 </span>
                             </td>

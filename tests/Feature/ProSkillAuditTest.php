@@ -41,7 +41,6 @@ class ProSkillAuditTest extends TestCase
         $this->withoutMiddleware([
             \Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect::class,
             \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter::class,
-            \Mcamara\LaravelLocalization\Middleware\LocaleViewPath::class,
         ]);
 
         // إنشاء مستخدمين عبر factory (تتجاوز $fillable بشكل صحيح)
