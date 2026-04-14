@@ -7,6 +7,9 @@
     @if($bookings->count() > 0)
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($bookings as $booking)
+                @if(!$booking->sessionSlot)
+                    @continue
+                @endif
                 <div class="bg-luxury-800/50 backdrop-blur-xl rounded-2xl shadow-lg border border-white/5 overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50 transition-all duration-300 flex flex-col">
                     <div class="p-5 flex-1">
                         <!-- Header -->

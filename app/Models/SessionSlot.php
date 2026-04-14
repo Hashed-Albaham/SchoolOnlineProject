@@ -34,12 +34,12 @@ class SessionSlot extends Model
 
     public function tutor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'tutor_id');
+        return $this->belongsTo(User::class, 'tutor_id')->withTrashed();
     }
 
     public function course(): BelongsTo
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Course::class)->withTrashed();
     }
 
     public function bookings(): HasMany

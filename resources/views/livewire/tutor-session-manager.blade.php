@@ -91,18 +91,18 @@
     @if($pendingBookings->isNotEmpty())
         <div class="bg-luxury-800/50 backdrop-blur-xl rounded-2xl shadow-md overflow-hidden border border-white/5 mb-8">
             <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center">
-                <h3 class="text-lg font-bold text-white">حجوزات بانتظار الموافقة</h3>
+                <h3 class="text-lg font-bold text-white">{{ __('site.pending_bookings') ?? 'حجوزات بانتظار الموافقة' }}</h3>
                 <span class="bg-yellow-500/20 text-yellow-500 text-xs font-bold px-2 py-1 rounded-full">{{ $pendingBookings->count() }}</span>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-white/5 text-left border-collapse">
                     <thead class="bg-luxury-900/50">
                         <tr>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-luxury-400 uppercase">الطالب</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-luxury-400 uppercase">الجلسة</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-luxury-400 uppercase">التاريخ</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-luxury-400 uppercase">الرسوم</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-luxury-400 uppercase">إجراءات</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-luxury-400 uppercase">{{ __('site.student') }}</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-luxury-400 uppercase">{{ __('site.session') ?? 'الجلسة' }}</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-luxury-400 uppercase">{{ __('site.date') }}</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-luxury-400 uppercase">{{ __('site.fees') ?? 'الرسوم' }}</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-luxury-400 uppercase">{{ __('site.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
@@ -123,20 +123,20 @@
                                 <td class="px-6 py-4 text-sm">
                                     @if($booking->sessionSlot->price > 0)
                                         <span class="text-green-400 font-semibold border border-green-400/20 bg-green-400/10 px-2 py-1 rounded-md text-xs">
-                                            مدفوع: {{ $booking->sessionSlot->price }}
+                                            {{ __('site.paid') }}: {{ $booking->sessionSlot->price }}
                                         </span>
                                     @else
                                         <span class="text-blue-400 font-semibold border border-blue-400/20 bg-blue-400/10 px-2 py-1 rounded-md text-xs">
-                                            مجانية
+                                            {{ __('site.free') }}
                                         </span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 flex justify-center gap-2">
-                                    <button wire:click="approveBooking({{ $booking->id }})" wire:confirm="تأكيد الموافقة؟" class="bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-                                        قبول
+                                    <button wire:click="approveBooking({{ $booking->id }})" wire:confirm="{{ __('site.confirm_approve') ?? 'تأكيد الموافقة؟' }}" class="bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                        {{ __('site.approve') ?? 'قبول' }}
                                     </button>
-                                    <button wire:click="rejectBooking({{ $booking->id }})" wire:confirm="تأكيد الرفض والإلغاء؟" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-                                        رفض
+                                    <button wire:click="rejectBooking({{ $booking->id }})" wire:confirm="{{ __('site.confirm_reject') ?? 'تأكيد الرفض؟' }}" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                        {{ __('site.reject') ?? 'رفض' }}
                                     </button>
                                 </td>
                             </tr>

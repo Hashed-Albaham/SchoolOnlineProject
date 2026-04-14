@@ -827,6 +827,10 @@ return [
     'payment_status' => 'Payment Status',
     'unknown_student' => 'Unknown',
     'pending_time' => 'Pending',
+    'pending_tutor_approval' => 'Pending Tutor Approval',
+    'rejected_by_tutor' => 'Rejected by Tutor',
+    'failed' => 'Payment Failed',
+    'refunded' => 'Refunded',
 
     'message_student' => 'Message',
     'no_enrolled_students_yet' => 'No enrolled students yet',

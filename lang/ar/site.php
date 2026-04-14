@@ -831,6 +831,10 @@ return [
     'unknown_student' => 'غير معروف',
 
     'pending_time' => 'معلق',
+    'pending_tutor_approval' => 'بانتظار موافقة المعلم',
+    'rejected_by_tutor' => 'مرفوض من المعلم',
+    'failed' => 'فشل الدفع',
+    'refunded' => 'مسترجع',
 
     'message_student' => 'مراسلة',
     'no_enrolled_students_yet' => 'لا يوجد طلاب مسجلين بعد',

@@ -31,7 +31,7 @@ class Booking extends Model
 
     public function sessionSlot(): BelongsTo
     {
-        return $this->belongsTo(SessionSlot::class, 'session_slot_id');
+        return $this->belongsTo(SessionSlot::class, 'session_slot_id')->withTrashed();
     }
 
     public function paymentMethod(): BelongsTo
